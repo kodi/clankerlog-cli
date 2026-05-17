@@ -1,25 +1,94 @@
 # ClankerLog CLI
 
-Command-line tools for sending privacy-friendly coding-agent activity clanks to ClankerLog.
-
-This package is an early public entrypoint for the future ClankerLog collector.
-
-Core promise:
+Privacy-friendly command-line clanks for coding-agent activity.
 
 > No code. No prompts. No secrets. Just clanks.
 
-## Usage
+## Install
 
 ```bash
 npm install -g clankerlog
-clankerlog
 ```
 
-The full collector CLI is coming soon.
+## Setup
+
+Save a dashboard-created API key:
+
+```bash
+clankerlog login
+```
+
+Non-interactive setup:
+
+```bash
+clankerlog login --api-key clk_live_...
+```
+
+Allow a project before it can send clanks:
+
+```bash
+cd /path/to/project
+clankerlog init --name my-project --stack typescript,pnpm
+```
+
+Quick allow-list entry:
+
+```bash
+clankerlog allow --name my-project
+```
+
+## Send A Clank
+
+Preview the exact payload without network access:
+
+```bash
+clankerlog ping --dry-run --agent codex --model gpt-5.5 --stack typescript
+```
+
+Send one clank:
+
+```bash
+clankerlog ping --agent codex --model gpt-5.5 --stack typescript
+```
+
+Use a dev or local endpoint:
+
+```bash
+clankerlog ping \
+  --agent codex \
+  --model gpt-5.5 \
+  --endpoint https://ingest.dev.clankerlog.ai/v1/clanks
+```
+
+Supported environment overrides:
+
+```txt
+CLANKERLOG_API_KEY
+CLANKERLOG_INGEST_URL
+CLANKERLOG_AGENT
+CLANKERLOG_MODEL
+CLANKERLOG_STACK
+```
+
+## Doctor
+
+```bash
+clankerlog doctor
+```
+
+`doctor` reports config status, redacted auth status, endpoint, allowed projects, current project allow-list state, project-local config, and agent/model resolution. It does not send a clank.
+
+## Privacy
+
+The CLI sends a small event with project display name, agent name, model name, stack tags, and timestamp. It does not read or send source files, prompts, transcripts, diffs, terminal output, secret-looking environment values, or file contents. Stack detection uses filenames only.
+
+Projects are denied by default. Run `clankerlog init` or `clankerlog allow` inside a folder before `clankerlog ping` can send from it.
 
 ## Development
 
 This repo uses `mise` for the local toolchain and `pnpm` for package management.
+
+`~/.local/bin/clankerlog-dev` is the local development shim; it runs `src/cli.ts` through this checkout so local testing always uses fresh source instead of the last built `bin/clankerlog.js`.
 
 ```bash
 mise install
@@ -32,5 +101,6 @@ Useful scripts:
 ```bash
 pnpm run build
 pnpm run check
+pnpm run test
 pnpm run format
 ```

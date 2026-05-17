@@ -190,11 +190,84 @@ async function handleAllow(options, runtime) {
 	writeLine(runtime, `Allowed ${projectPath} -> ${displayName}.`);
 }
 //#endregion
+//#region src/redact.ts
+function redactApiKey(apiKey) {
+	if (!apiKey) return "not configured";
+	return `${apiKey.length <= 12 ? apiKey.slice(0, 4) : apiKey.slice(0, 12)}...redacted`;
+}
+//#endregion
 //#region src/commands/doctor.ts
 function registerDoctorCommand(program) {
-	program.command("doctor").description("Print local ClankerLog CLI setup status without sending data.").action(() => {
-		console.log("clankerlog doctor is not implemented yet.");
+	program.command("doctor").description("Print local ClankerLog CLI setup status without sending data.").option("--agent <name>", "Agent name to test resolution").option("--model <name>", "Model name to test resolution").option("--endpoint <url>", "Endpoint override to report").option("--api-key <key>", "API key override to report redacted").action(async (options, command) => {
+		await handleDoctor(options, createRuntime(command));
 	});
+}
+async function handleDoctor(options, runtime) {
+	const configPath = resolveGlobalConfigPath({
+		configPath: runtime.configPath,
+		env: runtime.env
+	});
+	const { config, ok: configOk } = await readDoctorConfig(configPath, runtime);
+	const projectPath = await resolveProjectPath(runtime.cwd);
+	const projectConfig = await readDoctorProjectConfig(projectPath, runtime);
+	const endpoint = options.endpoint ?? runtime.env.CLANKERLOG_INGEST_URL ?? config.endpoint ?? "https://ingest.clankerlog.ai/v1/clanks";
+	const apiKey = options.apiKey ?? runtime.env.CLANKERLOG_API_KEY ?? config.apiKey;
+	const agent = options.agent ?? runtime.env.CLANKERLOG_AGENT;
+	const model = options.model ?? runtime.env.CLANKERLOG_MODEL;
+	const allowedProject = configOk ? findAllowedProject(config, projectPath) : void 0;
+	writeLine(runtime, `config: ${configOk ? "ok" : "error"} (${configPath})`);
+	writeLine(runtime, `auth: ${apiKey ? `ok ${redactApiKey(apiKey)}` : "missing"}`);
+	writeLine(runtime, `endpoint: ${endpoint}`);
+	writeLine(runtime, `agent: ${agent ? `ok ${agent}` : "missing"}`);
+	writeLine(runtime, `model: ${model ? `ok ${model}` : "missing"}`);
+	writeLine(runtime);
+	writeAllowedProjects(config, runtime);
+	writeLine(runtime, `current project: ${allowedProject ? `allowed as ${allowedProject.displayName}` : "denied"}`);
+	writeProjectConfig(projectPath, projectConfig, runtime);
+}
+async function readDoctorConfig(configPath, runtime) {
+	try {
+		return {
+			config: await loadGlobalConfig(configPath),
+			ok: true
+		};
+	} catch (error) {
+		if (error instanceof ConfigError) {
+			writeLine(runtime, `config error: ${error.message}`);
+			return {
+				config: createDefaultGlobalConfig(),
+				ok: false
+			};
+		}
+		throw error;
+	}
+}
+async function readDoctorProjectConfig(projectPath, runtime) {
+	try {
+		return await loadProjectConfig(projectPath);
+	} catch (error) {
+		if (error instanceof ConfigError) {
+			writeLine(runtime, `project config error: ${error.message}`);
+			return;
+		}
+		throw error;
+	}
+}
+function writeAllowedProjects(config, runtime) {
+	if (config.allowedProjects.length === 0) {
+		writeLine(runtime, "allowed projects: none");
+		return;
+	}
+	writeLine(runtime, "allowed projects:");
+	for (const project of config.allowedProjects) writeLine(runtime, `- ${project.path} -> ${project.displayName}`);
+}
+function writeProjectConfig(projectPath, projectConfig, runtime) {
+	if (!projectConfig) {
+		writeLine(runtime, `project config: missing (${resolveProjectConfigPath(projectPath)})`);
+		return;
+	}
+	const stack = projectConfig.stack && projectConfig.stack.length > 0 ? ` stack=${projectConfig.stack.join(",")}` : "";
+	writeLine(runtime, `project config: ok displayName=${projectConfig.displayName ?? "not set"}${stack}`);
 }
 //#endregion
 //#region src/stack.ts
@@ -256,12 +329,6 @@ async function promptDisplayName(runtime, fallback) {
 	} finally {
 		readline.close();
 	}
-}
-//#endregion
-//#region src/redact.ts
-function redactApiKey(apiKey) {
-	if (!apiKey) return "not configured";
-	return `${apiKey.length <= 12 ? apiKey.slice(0, 4) : apiKey.slice(0, 12)}...redacted`;
 }
 //#endregion
 //#region src/commands/login.ts

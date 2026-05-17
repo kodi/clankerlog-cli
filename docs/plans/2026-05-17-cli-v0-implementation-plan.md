@@ -309,7 +309,7 @@ Dependencies: Slices 1, 2, and 3.
 
 ## Slice 5: `doctor`, README, and Package Verification
 
-Status: `[ ]` Not started
+Status: `[x]` Completed
 
 Goal: Add the support command and bring docs/package checks up to the V0 behavior.
 
@@ -365,4 +365,4 @@ Dependencies: Slices 1 through 4.
 
 ## Next Slice
 
-Continue with Slice 5: `doctor`, README, and Package Verification.
+All V0 implementation slices are complete. Final gate: `mise run local-ci`.
