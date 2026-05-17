@@ -1,0 +1,44 @@
+{
+  "name": "clankerlog",
+  "version": "0.0.1",
+  "description": "CLI entrypoint for privacy-friendly ClankerLog coding-agent activity clanks.",
+  "keywords": [
+    "activity-log",
+    "clankerlog",
+    "clanks",
+    "coding-agents"
+  ],
+  "license": "MIT",
+  "bin": {
+    "clankerlog": "./bin/clankerlog.js"
+  },
+  "files": [
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "main": "./bin/clankerlog.js",
+  "scripts": {
+    "build": "tsdown",
+    "postbuild": "chmod +x bin/clankerlog.js",
+    "check": "pnpm run lint && pnpm run format-check && pnpm run typecheck",
+    "format": "oxfmt . --write",
+    "format-check": "oxfmt . --check",
+    "lint": "oxlint src --deny-warnings",
+    "lint-fix": "oxlint src --fix",
+    "typecheck": "tsgo --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "25.8.0",
+    "@typescript/native-preview": "7.0.0-dev.20260517.1",
+    "oxfmt": "0.50.0",
+    "oxlint": "1.65.0",
+    "tsdown": "0.22.0",
+    "typescript": "6.0.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@11.0.8"
+}
