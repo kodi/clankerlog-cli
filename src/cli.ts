@@ -7,6 +7,7 @@ import { registerDoctorCommand } from "./commands/doctor.js";
 import { registerInitCommand } from "./commands/init.js";
 import { registerLoginCommand } from "./commands/login.js";
 import { registerPingCommand } from "./commands/ping.js";
+import { formatCliError } from "./errors.js";
 
 export function buildProgram(): Command {
   const program = new Command();
@@ -38,7 +39,13 @@ export function buildProgram(): Command {
 
 export async function main(argv = process.argv): Promise<void> {
   const program = buildProgram();
-  await program.parseAsync(argv);
+
+  try {
+    await program.parseAsync(argv);
+  } catch (error) {
+    process.stderr.write(`${formatCliError(error)}\n`);
+    process.exitCode = 1;
+  }
 }
 
 const entrypoint = process.argv[1] ? pathToFileURL(process.argv[1]).href : "";

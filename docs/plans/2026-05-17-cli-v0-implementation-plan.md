@@ -216,7 +216,7 @@ Dependencies: Slice 1.
 
 ## Slice 3: `login`, `init`, and `allow`
 
-Status: `[ ]` Not started
+Status: `[x]` Completed
 
 Goal: Implement the local setup commands that create auth and allow-list state without sending network requests.
 
@@ -365,4 +365,4 @@ Dependencies: Slices 1 through 4.
 
 ## Next Slice
 
-Continue with Slice 3: `login`, `init`, and `allow`.
+Continue with Slice 4: `ping` and `ping --dry-run`.

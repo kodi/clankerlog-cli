@@ -21,9 +21,9 @@ export class ConfigError extends Error {
 }
 
 export interface ConfigPathsOptions {
-  readonly configPath?: string;
-  readonly env?: NodeJS.ProcessEnv;
-  readonly home?: string;
+  readonly configPath?: string | undefined;
+  readonly env?: NodeJS.ProcessEnv | undefined;
+  readonly home?: string | undefined;
 }
 
 export function createDefaultGlobalConfig(): GlobalConfig {
