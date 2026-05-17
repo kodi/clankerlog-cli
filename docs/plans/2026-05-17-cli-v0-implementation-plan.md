@@ -150,7 +150,7 @@ Use temporary config directories in tests rather than writing to the real home d
 
 ## Slice 1: TypeScript CLI Scaffold
 
-Status: `[ ]` Not started
+Status: `[x]` Completed
 
 Goal: Replace the placeholder executable with a TypeScript-powered Commander CLI shell that can show help and register all V0 command names.
 
@@ -365,4 +365,4 @@ Dependencies: Slices 1 through 4.
 
 ## Next Slice
 
-Start with Slice 1: TypeScript CLI Scaffold.
+Continue with Slice 2: Schemas, Config, and Privacy Foundation.

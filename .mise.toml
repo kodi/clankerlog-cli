@@ -30,6 +30,9 @@ run = "pnpm run lint-fix"
 dir = "{{config_root}}"
 run = "pnpm run check"
 
-[tasks.local-ci]
-depends = ["build", "typecheck", "format-check", "lint"]
+[tasks.test]
+dir = "{{config_root}}"
+run = "pnpm run test"
 
+[tasks.local-ci]
+depends = ["build", "typecheck", "format-check", "lint", "test"]

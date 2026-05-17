@@ -4,7 +4,7 @@ export default defineConfig({
   clean: ["bin"],
   dts: false,
   entry: {
-    clankerlog: "src/clankerlog.ts",
+    clankerlog: "src/cli.ts",
   },
   failOnWarn: true,
   fixedExtension: false,
