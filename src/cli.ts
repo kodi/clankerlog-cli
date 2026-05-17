@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { pathToFileURL } from "node:url";
 import { Command, Option } from "commander";
 import { registerAllowCommand } from "./commands/allow.js";
 import { registerDoctorCommand } from "./commands/doctor.js";
@@ -40,4 +41,8 @@ export async function main(argv = process.argv): Promise<void> {
   await program.parseAsync(argv);
 }
 
-await main();
+const entrypoint = process.argv[1] ? pathToFileURL(process.argv[1]).href : "";
+
+if (import.meta.url === entrypoint) {
+  await main();
+}

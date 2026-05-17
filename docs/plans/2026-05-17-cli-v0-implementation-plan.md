@@ -182,7 +182,7 @@ Dependencies: none.
 
 ## Slice 2: Schemas, Config, and Privacy Foundation
 
-Status: `[ ]` Not started
+Status: `[x]` Completed
 
 Goal: Add the typed config and project model that all commands share.
 
@@ -365,4 +365,4 @@ Dependencies: Slices 1 through 4.
 
 ## Next Slice
 
-Continue with Slice 2: Schemas, Config, and Privacy Foundation.
+Continue with Slice 3: `login`, `init`, and `allow`.

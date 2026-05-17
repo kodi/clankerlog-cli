@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { pathToFileURL } from "node:url";
 import { Command, Option } from "commander";
 //#region src/commands/allow.ts
 function registerAllowCommand(program) {
@@ -63,6 +64,7 @@ function buildProgram() {
 async function main(argv = process.argv) {
 	await buildProgram().parseAsync(argv);
 }
-await main();
+const entrypoint = process.argv[1] ? pathToFileURL(process.argv[1]).href : "";
+if (import.meta.url === entrypoint) await main();
 //#endregion
 export { buildProgram, main };
