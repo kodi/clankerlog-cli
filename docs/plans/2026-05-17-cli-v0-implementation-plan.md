@@ -256,7 +256,7 @@ Dependencies: Slice 2.
 
 ## Slice 4: `ping` and `ping --dry-run`
 
-Status: `[ ]` Not started
+Status: `[x]` Completed
 
 Goal: Implement the manual clank send path and dry-run preview.
 
@@ -365,4 +365,4 @@ Dependencies: Slices 1 through 4.
 
 ## Next Slice
 
-Continue with Slice 4: `ping` and `ping --dry-run`.
+Continue with Slice 5: `doctor`, README, and Package Verification.

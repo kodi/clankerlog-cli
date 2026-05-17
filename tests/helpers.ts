@@ -9,7 +9,7 @@ export interface MemoryRuntime extends CliRuntime {
 export function createMemoryRuntime(options: {
   configPath: string;
   cwd: string;
-  env?: NodeJS.ProcessEnv;
+  env?: NodeJS.ProcessEnv | undefined;
 }): MemoryRuntime {
   const stdout = new CaptureStream();
   const stderr = new CaptureStream();
