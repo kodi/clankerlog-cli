@@ -4,6 +4,7 @@ import { pathToFileURL } from "node:url";
 import { Command, Option } from "commander";
 import { registerAllowCommand } from "./commands/allow.js";
 import { registerDoctorCommand } from "./commands/doctor.js";
+import { registerHookCommand } from "./commands/hook.js";
 import { registerInitCommand } from "./commands/init.js";
 import { registerLoginCommand } from "./commands/login.js";
 import { registerPingCommand } from "./commands/ping.js";
@@ -33,6 +34,7 @@ export function buildProgram(): Command {
   registerAllowCommand(program);
   registerPingCommand(program);
   registerDoctorCommand(program);
+  registerHookCommand(program);
 
   return program;
 }

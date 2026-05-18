@@ -67,12 +67,10 @@ export const clankPayloadSchema = z
   })
   .strict();
 
-export const ingestionSuccessSchema = z
-  .object({
-    id: z.string().min(1),
-    ok: z.literal(true),
-  })
-  .passthrough();
+export const ingestionSuccessSchema = z.looseObject({
+  id: z.string().min(1),
+  ok: z.literal(true),
+});
 
 export type AllowedProject = z.infer<typeof allowedProjectSchema>;
 export type ClankPayload = z.infer<typeof clankPayloadSchema>;

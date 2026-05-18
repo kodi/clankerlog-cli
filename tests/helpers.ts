@@ -10,6 +10,7 @@ export function createMemoryRuntime(options: {
   configPath: string;
   cwd: string;
   env?: NodeJS.ProcessEnv | undefined;
+  stdin?: string | undefined;
 }): MemoryRuntime {
   const stdout = new CaptureStream();
   const stderr = new CaptureStream();
@@ -20,7 +21,7 @@ export function createMemoryRuntime(options: {
     env: options.env ?? {},
     stderr,
     stderrText: () => stderr.text(),
-    stdin: Readable.from([]),
+    stdin: Readable.from(options.stdin ? [options.stdin] : []),
     stdout,
     stdoutText: () => stdout.text(),
   };

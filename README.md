@@ -70,6 +70,30 @@ CLANKERLOG_MODEL
 CLANKERLOG_STACK
 ```
 
+## Codex Hook
+
+For Codex `Stop` hooks, call the CLI directly:
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "CLANKERLOG_AGENT=codex clankerlog hook codex stop",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+`clankerlog hook codex stop` reads the Codex hook JSON from stdin, uses `cwd` and `model`, and ignores assistant messages and transcript paths.
+
 ## Doctor
 
 ```bash

@@ -390,6 +390,14 @@ The hook contract is simple: trigger a clank and supply minimal identity metadat
 
 Do not assume every coding agent exposes model metadata in the same way. Keep explicit flags and env vars as the stable base, then add harness-specific adapters.
 
+Initial Codex hook path:
+
+```bash
+clankerlog hook codex stop
+```
+
+This command is intended for Codex `Stop` hooks. It reads the hook JSON from stdin, uses `cwd` as the project workspace and `model` as the clank model, sets the agent to `codex` by default, and then sends the same privacy-friendly clank as `ping`. It must ignore `last_assistant_message` and `transcript_path`, and it must never read transcript contents.
+
 ## Local Prototype Reference
 
 The web/API repo has a shell prototype:
