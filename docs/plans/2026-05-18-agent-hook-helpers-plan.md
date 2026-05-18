@@ -28,10 +28,9 @@ written into user hook config by the installer.
   - Claude Code: `~/.claude/settings.json`
 - Preserve existing Stop hooks and unrelated config keys. Installer writes should
   append or remove only ClankerLog's own hook object.
-- Prefer an explicit ClankerLog marker on installed hook objects so idempotent
-  installs, status checks, and uninstall can identify them safely. Validate that
-  Codex and Claude Code tolerate extra fields before relying on the marker; if
-  they do not, identify ClankerLog hooks by exact command and status message.
+- Do not write extra marker fields into agent hook objects unless compatibility
+  is proven. Identify ClankerLog hooks by exact command and status message, and
+  tolerate the marker if it appears in existing configs.
 - Default to dry, conservative behavior on malformed files: report validation
   errors and do not write partial fixes.
 - The generated hook command should be visible in command output before writes.
@@ -132,11 +131,7 @@ Recommended installed hook objects:
   "type": "command",
   "command": "CLANKERLOG_AGENT=codex clankerlog hook codex stop",
   "timeout": 10,
-  "statusMessage": "Sending ClankerLog clank",
-  "clankerlog": {
-    "agent": "codex",
-    "version": 1
-  }
+  "statusMessage": "Sending ClankerLog clank"
 }
 ```
 
@@ -145,18 +140,13 @@ Recommended installed hook objects:
   "type": "command",
   "command": "CLANKERLOG_AGENT=claude CLANKERLOG_MODEL='claude-sonnet-4.5' clankerlog hook claude stop",
   "timeout": 10,
-  "statusMessage": "Sending ClankerLog clank",
-  "clankerlog": {
-    "agent": "claude",
-    "version": 1
-  }
+  "statusMessage": "Sending ClankerLog clank"
 }
 ```
 
-Marker compatibility check: before storing the `clankerlog` metadata field in a
-real user config, validate that Codex and Claude Code accept extra hook object
-fields. If either agent rejects unknown fields, omit the marker for that agent
-and identify installed hooks by exact command plus `statusMessage`.
+Marker compatibility finding: compatibility for extra hook object fields was not
+proven during this implementation, so new installs omit the marker and identify
+installed hooks by exact command plus `statusMessage`.
 
 ## Cross-Slice Rules
 
@@ -219,7 +209,7 @@ Test fixture coverage should include:
 
 ## Slice 1: Hook Config Transform Foundation
 
-Status: `[ ]` Not started
+Status: `[x]` Done
 
 Goal: Add pure config transform helpers for Codex and Claude hook files.
 
@@ -253,13 +243,21 @@ Verification:
 ```bash
 pnpm test -- tests/commands/hooks.test.ts
 pnpm typecheck
+mise run local-ci
 ```
 
 Dependencies: none.
 
+Completed in this slice:
+
+- Added pure hook config transforms in `src/hook-config.ts`.
+- Added focused transform tests in `tests/commands/hooks.test.ts`.
+- Verified with `pnpm test -- tests/commands/hooks.test.ts`, `pnpm typecheck`,
+  and `mise run local-ci`.
+
 ## Slice 2: Filesystem Safety and Dry-Run Planning
 
-Status: `[ ]` Not started
+Status: `[x]` Done
 
 Goal: Add safe config file read/write helpers around the pure transforms.
 
@@ -289,13 +287,23 @@ Verification:
 ```bash
 pnpm test -- tests/commands/hooks.test.ts
 pnpm typecheck
+mise run local-ci
 ```
 
 Dependencies: Slice 1.
 
+Completed in this slice:
+
+- Added config path resolution, JSON loading, malformed/unsupported config
+  errors, atomic writes, and dry-run-aware install/uninstall file helpers.
+- Added temp-directory tests for missing files, dry-runs, idempotent installs,
+  safe uninstalls, malformed JSON, and unsupported shapes.
+- Verified with `pnpm test -- tests/commands/hooks.test.ts`, `pnpm typecheck`,
+  and `mise run local-ci`.
+
 ## Slice 3: `clankerlog hooks install`
 
-Status: `[ ]` Not started
+Status: `[x]` Done
 
 Goal: Expose safe install commands for Codex and Claude.
 
@@ -328,13 +336,25 @@ Verification:
 ```bash
 pnpm test -- tests/commands/hooks.test.ts
 pnpm typecheck
+mise run local-ci
 ```
 
 Dependencies: Slice 2.
 
+Completed in this slice:
+
+- Added the plural `clankerlog hooks install` command group for Codex and
+  Claude Code.
+- Added dry-run support, Claude model validation with examples, hidden
+  test-only config path overrides, and concise install output with exact
+  commands.
+- Registered the new command group in `src/cli.ts`.
+- Verified with `pnpm test -- tests/commands/hooks.test.ts`, `pnpm typecheck`,
+  and `mise run local-ci`.
+
 ## Slice 4: `clankerlog hooks status` and `uninstall`
 
-Status: `[ ]` Not started
+Status: `[x]` Done
 
 Goal: Add inspection and cleanup commands that operate only on ClankerLog-owned
 hook entries.
@@ -367,13 +387,23 @@ Verification:
 ```bash
 pnpm test -- tests/commands/hooks.test.ts
 pnpm typecheck
+mise run local-ci
 ```
 
 Dependencies: Slice 3.
 
+Completed in this slice:
+
+- Added `clankerlog hooks status codex|claude` and
+  `clankerlog hooks uninstall codex|claude`.
+- Added uninstall dry-runs, command-match status output, and tests proving safe
+  removal/no-op behavior with neighboring hooks preserved.
+- Verified with `pnpm test -- tests/commands/hooks.test.ts`, `pnpm typecheck`,
+  and `mise run local-ci`.
+
 ## Slice 5: Documentation and Final Verification
 
-Status: `[ ]` Not started
+Status: `[x]` Done
 
 Goal: Make the helper commands the documented path and keep the manual JSON
 examples available as fallback/reference.
@@ -404,9 +434,21 @@ Verification:
 pnpm check
 pnpm test
 pnpm build
+mise run local-ci
 ```
 
 Dependencies: Slice 4.
+
+Completed in this slice:
+
+- Updated README Agent Hooks instructions to lead with helper install, status,
+  uninstall, and dry-run commands.
+- Updated `docs/integrations.md` with implemented helper behavior, validation
+  guarantees, approval instructions, and manual JSON fallback examples that use
+  the published `clankerlog` command.
+- Verified with direct `pnpm test`, direct underlying check/build commands
+  (`oxlint`, `oxfmt --check`, `tsgo --noEmit`, `tsdown`), and
+  `mise run local-ci`.
 
 ## Open Questions
 

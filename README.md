@@ -72,45 +72,29 @@ clankerlog init --stack typescript,pnpm
 For day-to-day use, wire ClankerLog into your coding agent's stop hook so clanks
 are sent automatically after agent turns.
 
-Codex `~/.codex/hooks.json`:
+Install the Codex Stop hook:
 
-```json
-{
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "CLANKERLOG_AGENT=codex clankerlog hook codex stop",
-            "timeout": 10,
-            "statusMessage": "Sending ClankerLog clank"
-          }
-        ]
-      }
-    ]
-  }
-}
+```bash
+clankerlog hooks install codex
 ```
 
-Claude Code `~/.claude/settings.json`:
+Install the Claude Code Stop hook with the model name ClankerLog should report:
 
-```json
-{
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "CLANKERLOG_AGENT=claude CLANKERLOG_MODEL='claude-sonnet-4.5' clankerlog hook claude stop",
-            "timeout": 10
-          }
-        ]
-      }
-    ]
-  }
-}
+```bash
+clankerlog hooks install claude --model claude-sonnet-4.5
+```
+
+Preview the filesystem change without writing it:
+
+```bash
+clankerlog hooks install codex --dry-run
+```
+
+Check or remove an installed hook:
+
+```bash
+clankerlog hooks status codex
+clankerlog hooks uninstall codex
 ```
 
 Hook commands read the agent hook JSON from stdin, use the workspace `cwd`, and
@@ -169,6 +153,21 @@ The CLI sends a small event with project display name, agent name, model name,
 stack tags, and timestamp. It does not read or send source files, prompts,
 transcripts, diffs, terminal output, secret-looking environment values, or file
 contents. Stack detection uses filenames only.
+
+Example payload:
+
+```json
+{
+  "type": "clank",
+  "project": {
+    "display_name": "my-project"
+  },
+  "agent": "codex",
+  "model": "gpt-5.5",
+  "stack": ["typescript", "pnpm"],
+  "timestamp": "2026-05-18T15:30:00.000Z"
+}
+```
 
 Projects are denied by default. Run `clankerlog init` or `clankerlog allow`
 inside a folder before `clankerlog ping` can send from it.

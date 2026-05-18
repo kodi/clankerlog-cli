@@ -1,8 +1,8 @@
 # ClankerLog Integrations
 
-This document records the first working Codex hook integration we validated
-locally. Treat it as both a runbook for manual testing and the seed for a
-future one-command installer.
+This document records the working Codex and Claude Code hook integrations.
+Treat it as both a runbook for local testing and the manual JSON fallback for
+the `clankerlog hooks` helper commands.
 
 ## Codex Stop Hook
 
@@ -25,15 +25,21 @@ CLANKERLOG_AGENT=codex /Users/kodi/.local/bin/clankerlog-dev hook codex stop
 `clankerlog-dev` points at `src/cli.ts`, so local hook testing exercises the
 current TypeScript source instead of the built package bin.
 
-## Current Manual Install
+User-facing hook config should use the published CLI name through the helper:
 
-The working global Codex hook file is:
+```bash
+clankerlog hooks install codex
+```
+
+## Manual JSON Fallback
+
+The global Codex hook file is:
 
 ```txt
 ~/.codex/hooks.json
 ```
 
-Working content:
+Equivalent installed content:
 
 ```json
 {
@@ -43,7 +49,7 @@ Working content:
         "hooks": [
           {
             "type": "command",
-            "command": "CLANKERLOG_AGENT=codex /Users/kodi/.local/bin/clankerlog-dev hook codex stop",
+            "command": "CLANKERLOG_AGENT=codex clankerlog hook codex stop",
             "timeout": 10,
             "statusMessage": "Sending ClankerLog clank"
           }
@@ -173,62 +179,43 @@ model=gpt-5.5
 stack=["typescript","pnpm"]
 ```
 
-## Automation Notes
+## Helper Commands
 
-The installer should make the manual process boring:
-
-1. Detect `~/.codex/hooks.json`.
-2. If the file is missing, create it.
-3. If the file exists, parse it as JSON and append a ClankerLog Stop hook
-   without removing existing hooks.
-4. Preserve any existing `notify` setting in `~/.codex/config.toml`.
-5. Use the published command for users:
-
-   ```bash
-   CLANKERLOG_AGENT=codex clankerlog hook codex stop
-   ```
-
-6. Use `clankerlog-dev` only for local development:
-
-   ```bash
-   CLANKERLOG_AGENT=codex /Users/kodi/.local/bin/clankerlog-dev hook codex stop
-   ```
-
-7. Tell the user to run `/hooks` in Codex if approval is needed.
-8. Provide a verification command that sends a dry-run payload and explains
-   what will be collected before the hook is enabled.
-
-Suggested future commands:
+Use the helper commands for normal setup:
 
 ```bash
 clankerlog hooks install codex
+clankerlog hooks install claude --model claude-sonnet-4.5
 clankerlog hooks status codex
 clankerlog hooks uninstall codex
 ```
 
-Installer behavior should be conservative:
+Install and uninstall support `--dry-run`:
 
-- Never overwrite unrelated hooks.
-- Never replace `notify`.
-- Never read transcripts, prompts, code, diffs, terminal output, or secrets.
-- Require the current project to be allowed before sending clanks.
+```bash
+clankerlog hooks install codex --dry-run
+clankerlog hooks uninstall codex --dry-run
+```
+
+The helpers:
+
+- Create missing `~/.codex/hooks.json` or `~/.claude/settings.json` files.
+- Preserve existing Stop hooks, non-Stop hooks, and unrelated settings.
+- Never replace Codex `notify` in `~/.codex/config.toml`.
+- Refuse malformed JSON or unsupported `hooks.Stop` shapes without writing.
 - Show the exact command that will be installed.
-- Support `--dry-run` so users can preview filesystem changes.
-- Support a `--dev` or equivalent local option for repo testing with
-  `clankerlog-dev`.
+- Identify ClankerLog-owned hooks by the published command and status message.
+- Do not run hook payload simulations from `status`; status inspects config
+  only.
 
-## Open Product Questions
+Use `clankerlog-dev` only for local source-based testing:
 
-- Should the installer default to global Codex hooks or project-local hooks if
-  Codex supports both in the user environment?
-- Should we store a marker in the installed hook object so uninstall can remove
-  only ClankerLog's hook safely?
-- Should `hook codex stop` accept an explicit `--agent` flag, or is the
-  `CLANKERLOG_AGENT=codex` environment prefix clear enough?
-- Should stack inference become stricter, for example `tsconfig.json` or
-  TypeScript dependencies before emitting `typescript`?
-- Should hook status run a real stdin simulation, or only validate config and
-  installed hook JSON?
+```bash
+CLANKERLOG_AGENT=codex /Users/kodi/.local/bin/clankerlog-dev hook codex stop
+```
+
+After installing Codex hooks, run `/hooks` in Codex if command approval is
+required.
 
 ## Claude Code Stop Hook
 
@@ -247,6 +234,13 @@ For local development, the hook command uses the repo shim:
 CLANKERLOG_AGENT=claude CLANKERLOG_MODEL='gpt-5.5(low)' /Users/kodi/.local/bin/clankerlog-dev hook claude stop
 ```
 
+User-facing Claude Code setup should use the published CLI name through the
+helper:
+
+```bash
+clankerlog hooks install claude --model claude-sonnet-4.5
+```
+
 Claude Code defines hooks in:
 
 ```txt
@@ -263,7 +257,7 @@ Example hook entry:
         "hooks": [
           {
             "type": "command",
-            "command": "CLANKERLOG_AGENT=claude CLANKERLOG_MODEL='gpt-5.5(low)' /Users/kodi/.local/bin/clankerlog-dev hook claude stop",
+            "command": "CLANKERLOG_AGENT=claude CLANKERLOG_MODEL='claude-sonnet-4.5' clankerlog hook claude stop",
             "timeout": 10,
             "statusMessage": "Sending ClankerLog clank"
           }

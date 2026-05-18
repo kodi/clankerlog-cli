@@ -2,12 +2,13 @@
 import { pathToFileURL } from "node:url";
 import { Command, Option } from "commander";
 import { constants } from "node:fs";
-import { access, chmod, mkdir, readFile, readdir, realpath, writeFile } from "node:fs/promises";
+import { access, chmod, mkdir, readFile, readdir, realpath, rename, rm, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 import { ZodError, z } from "zod";
 import { HttpError, NetworkError, ParseError, ValidationError, getJson, postJson } from "fetch-safe";
 import { Writable } from "node:stream";
+import { randomUUID } from "node:crypto";
 import { createInterface } from "node:readline/promises";
 //#region src/model.ts
 const providerPrefixPattern = /^[a-z0-9][a-z0-9._-]*\//u;
@@ -161,7 +162,7 @@ function resolveGlobalConfigPath(options = {}) {
 	return path.join(configHome, "clankerlog", "config.json");
 }
 async function loadGlobalConfig(configPath) {
-	if (!await fileExists(configPath)) return createDefaultGlobalConfig();
+	if (!await fileExists$1(configPath)) return createDefaultGlobalConfig();
 	let raw;
 	try {
 		raw = await readFile(configPath, "utf8");
@@ -189,7 +190,7 @@ function resolveProjectConfigPath(projectPath) {
 }
 async function loadProjectConfig(projectPath) {
 	const configPath = resolveProjectConfigPath(projectPath);
-	if (!await fileExists(configPath)) return;
+	if (!await fileExists$1(configPath)) return;
 	let raw;
 	try {
 		raw = await readFile(configPath, "utf8");
@@ -207,7 +208,7 @@ async function saveProjectConfig(projectPath, config) {
 		throw new ConfigError(`Could not write project config at ${configPath}`, error);
 	}
 }
-async function fileExists(filePath) {
+async function fileExists$1(filePath) {
 	try {
 		await access(filePath, constants.F_OK);
 		return true;
@@ -231,7 +232,7 @@ function parseJsonConfig(raw, filePath, schema) {
 }
 //#endregion
 //#region src/output.ts
-function writeLine(runtime, message = "") {
+function writeLine$1(runtime, message = "") {
 	runtime.stdout.write(`${message}\n`);
 }
 //#endregion
@@ -280,7 +281,7 @@ async function handleAllow(options, runtime) {
 	const config = await loadGlobalConfig(configPath);
 	const existing = findAllowedProject(config, projectPath);
 	if (existing) {
-		writeLine(runtime, `Project already allowed: ${existing.path} -> ${existing.displayName}.`);
+		writeLine$1(runtime, `Project already allowed: ${existing.path} -> ${existing.displayName}.`);
 		return;
 	}
 	const projectConfig = await loadProjectConfig(projectPath);
@@ -289,7 +290,7 @@ async function handleAllow(options, runtime) {
 		displayName,
 		path: projectPath
 	}));
-	writeLine(runtime, `Allowed ${projectPath} -> ${displayName}.`);
+	writeLine$1(runtime, `Allowed ${projectPath} -> ${displayName}.`);
 }
 //#endregion
 //#region src/ingest.ts
@@ -402,19 +403,19 @@ async function handleDoctor(options, runtime) {
 	const endpoint = options.endpoint ?? runtime.env.CLANKERLOG_INGEST_URL ?? config.endpoint ?? "https://ingest.clankerlog.ai/v1/clanks";
 	const apiKey = options.apiKey ?? runtime.env.CLANKERLOG_API_KEY ?? config.apiKey;
 	const allowedProject = configOk ? findAllowedProject(config, projectPath) : void 0;
-	writeLine(runtime, `config: ${configOk ? color.green("ok") : color.red("error")} (${configPath})`);
-	writeLine(runtime, `auth: ${apiKey ? `${color.green("ok")} ${redactApiKey(apiKey)}` : color.yellow("missing")}`);
-	writeLine(runtime, `endpoint: ${color.dimGray(endpoint)}`);
+	writeLine$1(runtime, `config: ${configOk ? color.green("ok") : color.red("error")} (${configPath})`);
+	writeLine$1(runtime, `auth: ${apiKey ? `${color.green("ok")} ${redactApiKey(apiKey)}` : color.yellow("missing")}`);
+	writeLine$1(runtime, `endpoint: ${color.dimGray(endpoint)}`);
 	await writeApiCheck(apiKey, endpoint, runtime);
-	writeLine(runtime);
+	writeLine$1(runtime);
 	writeAllowedProjects(config, runtime);
-	writeLine(runtime);
-	writeLine(runtime, `current project: ${allowedProject ? `allowed as ${color.blue(allowedProject.displayName)}` : color.yellow("denied")}`);
+	writeLine$1(runtime);
+	writeLine$1(runtime, `current project: ${allowedProject ? `allowed as ${color.blue(allowedProject.displayName)}` : color.yellow("denied")}`);
 	writeProjectConfig(projectPath, projectConfig, runtime);
 }
 async function writeApiCheck(apiKey, endpoint, runtime) {
 	if (!apiKey) {
-		writeLine(runtime, `api check: ${color.yellow("skipped")} (missing API key)`);
+		writeLine$1(runtime, `api check: ${color.yellow("skipped")} (missing API key)`);
 		return;
 	}
 	const result = await checkAuth({
@@ -422,10 +423,10 @@ async function writeApiCheck(apiKey, endpoint, runtime) {
 		endpoint
 	});
 	if (result.ok) {
-		writeLine(runtime, `api check: ${color.green("ok")}`);
+		writeLine$1(runtime, `api check: ${color.green("ok")}`);
 		return;
 	}
-	writeLine(runtime, `api check: ${color.red("failed")} ${result.message}`);
+	writeLine$1(runtime, `api check: ${color.red("failed")} ${result.message}`);
 }
 async function readDoctorConfig(configPath, runtime) {
 	try {
@@ -435,7 +436,7 @@ async function readDoctorConfig(configPath, runtime) {
 		};
 	} catch (error) {
 		if (error instanceof ConfigError) {
-			writeLine(runtime, `config error: ${error.message}`);
+			writeLine$1(runtime, `config error: ${error.message}`);
 			return {
 				config: createDefaultGlobalConfig(),
 				ok: false
@@ -449,7 +450,7 @@ async function readDoctorProjectConfig(projectPath, runtime) {
 		return await loadProjectConfig(projectPath);
 	} catch (error) {
 		if (error instanceof ConfigError) {
-			writeLine(runtime, `project config error: ${error.message}`);
+			writeLine$1(runtime, `project config error: ${error.message}`);
 			return;
 		}
 		throw error;
@@ -457,19 +458,19 @@ async function readDoctorProjectConfig(projectPath, runtime) {
 }
 function writeAllowedProjects(config, runtime) {
 	if (config.allowedProjects.length === 0) {
-		writeLine(runtime, `allowed projects: ${color.yellow("none")}`);
+		writeLine$1(runtime, `allowed projects: ${color.yellow("none")}`);
 		return;
 	}
-	writeLine(runtime, "allowed projects:");
-	for (const project of config.allowedProjects) writeLine(runtime, `📂 ${color.dimGray(project.path)} -> ${color.blue(project.displayName)}`);
+	writeLine$1(runtime, "allowed projects:");
+	for (const project of config.allowedProjects) writeLine$1(runtime, `📂 ${color.dimGray(project.path)} -> ${color.blue(project.displayName)}`);
 }
 function writeProjectConfig(projectPath, projectConfig, runtime) {
 	if (!projectConfig) {
-		writeLine(runtime, `project config: missing (${resolveProjectConfigPath(projectPath)})`);
+		writeLine$1(runtime, `project config: missing (${resolveProjectConfigPath(projectPath)})`);
 		return;
 	}
 	const stack = projectConfig.stack && projectConfig.stack.length > 0 ? ` stack=${projectConfig.stack.join(",")}` : "";
-	writeLine(runtime, `project config: ok displayName=${projectConfig.displayName ?? "not set"}${stack}`);
+	writeLine$1(runtime, `project config: ok displayName=${projectConfig.displayName ?? "not set"}${stack}`);
 }
 //#endregion
 //#region src/errors.ts
@@ -519,10 +520,10 @@ function collectStack$1(value, previous) {
 async function handlePing(options, runtime) {
 	const resolved = await resolvePing(options, runtime);
 	if (options.dryRun) {
-		writeLine(runtime, `endpoint: ${resolved.endpoint}`);
-		writeLine(runtime, `api key: ${redactApiKey(resolved.apiKey)}`);
-		writeLine(runtime, "payload:");
-		writeLine(runtime, JSON.stringify(resolved.payload, null, 2));
+		writeLine$1(runtime, `endpoint: ${resolved.endpoint}`);
+		writeLine$1(runtime, `api key: ${redactApiKey(resolved.apiKey)}`);
+		writeLine$1(runtime, "payload:");
+		writeLine$1(runtime, JSON.stringify(resolved.payload, null, 2));
 		return;
 	}
 	if (!resolved.apiKey) throw new CliError("No ClankerLog API key configured. Run `clankerlog login` or pass `--api-key`.");
@@ -532,7 +533,7 @@ async function handlePing(options, runtime) {
 		payload: resolved.payload
 	});
 	if (!result.ok) throw new CliError(result.message);
-	writeLine(runtime, `Clank accepted: ${result.response.id}`);
+	writeLine$1(runtime, `Clank accepted: ${result.response.id}`);
 }
 async function resolvePing(options, runtime) {
 	const projectPath = await resolveProjectPath(runtime.cwd);
@@ -743,6 +744,318 @@ var NullWritable = class extends Writable {
 	}
 };
 //#endregion
+//#region src/hook-config.ts
+const HOOK_AGENT_DEFINITIONS = {
+	claude: {
+		agent: "claude",
+		configPath: (homeDirectory) => path.join(homeDirectory, ".claude", "settings.json"),
+		defaultTimeoutSeconds: 10,
+		statusMessage: "Sending ClankerLog clank"
+	},
+	codex: {
+		agent: "codex",
+		configPath: (homeDirectory) => path.join(homeDirectory, ".codex", "hooks.json"),
+		defaultTimeoutSeconds: 10,
+		statusMessage: "Sending ClankerLog clank"
+	}
+};
+function planInstallHook(config, agent, options = {}) {
+	const source = validateHookConfig(config);
+	const command = buildHookCommand(agent, options);
+	const status = getHookStatus(source, agent);
+	if (status.installed) return {
+		action: "already-installed",
+		agent,
+		changed: false,
+		command: status.command ?? command,
+		config: source,
+		summary: `ClankerLog ${agent} Stop hook is already installed.`
+	};
+	const nextConfig = cloneHookConfig(source);
+	const stop = ensureStopGroups(ensureObjectProperty(nextConfig, "hooks"));
+	const group = stop[0] ?? { hooks: [] };
+	const groupHooks = getGroupHooks(group);
+	if (!stop[0]) stop.push(group);
+	groupHooks.push(buildHookObject(agent, command));
+	return {
+		action: "install",
+		agent,
+		changed: true,
+		command,
+		config: nextConfig,
+		summary: `Install ClankerLog ${agent} Stop hook.`
+	};
+}
+function planUninstallHook(config, agent) {
+	const source = validateHookConfig(config);
+	const locations = findClankerLogHooks(source, agent);
+	if (locations.length === 0) return {
+		action: "not-installed",
+		agent,
+		changed: false,
+		config: source,
+		summary: `ClankerLog ${agent} Stop hook is not installed.`
+	};
+	const nextConfig = cloneHookConfig(source);
+	const stop = nextConfig.hooks.Stop;
+	for (const location of locations.toReversed()) stop[location.groupIndex].hooks.splice(location.hookIndex, 1);
+	return {
+		action: "uninstall",
+		agent,
+		changed: true,
+		command: getHookCommand(locations[0]?.hook),
+		config: nextConfig,
+		summary: `Remove ClankerLog ${agent} Stop hook.`
+	};
+}
+async function uninstallHookConfig(agent, options = {}) {
+	const targetPath = resolveHookConfigPath(agent, options);
+	return applyHookConfigFilePlan(targetPath, planUninstallHook(await loadHookConfigFile(targetPath), agent), options.dryRun ?? false);
+}
+function getHookStatus(config, agent) {
+	const hook = findClankerLogHooks(validateHookConfig(config), agent)[0]?.hook;
+	return {
+		agent,
+		command: getHookCommand(hook),
+		commandMatchesExpected: hook ? isExpectedClankerLogHook(hook, agent) : false,
+		installed: Boolean(hook)
+	};
+}
+async function getHookConfigStatus(agent, options = {}) {
+	const targetPath = resolveHookConfigPath(agent, options);
+	return {
+		...getHookStatus(await loadHookConfigFile(targetPath), agent),
+		targetPath
+	};
+}
+function resolveHookConfigPath(agent, options = {}) {
+	if (options.configPath) return path.resolve(options.configPath);
+	return HOOK_AGENT_DEFINITIONS[agent].configPath(options.homeDirectory ?? homedir());
+}
+async function loadHookConfigFile(configPath) {
+	if (!await fileExists(configPath)) return {};
+	let raw;
+	try {
+		raw = await readFile(configPath, "utf8");
+	} catch (error) {
+		throw new CliError(`Could not read hook config at ${configPath}: ${formatCause(error)}.`);
+	}
+	let parsed;
+	try {
+		parsed = raw.trim() ? JSON.parse(raw) : {};
+	} catch {
+		throw new CliError(`Hook config at ${configPath} is not valid JSON.`);
+	}
+	try {
+		return validateHookConfig(parsed);
+	} catch (error) {
+		throw new CliError(`Hook config at ${configPath} is unsupported: ${formatCause(error)}.`);
+	}
+}
+async function writeHookConfigFileAtomic(configPath, config) {
+	await mkdir(path.dirname(configPath), {
+		mode: 448,
+		recursive: true
+	});
+	const tempPath = path.join(path.dirname(configPath), `.${path.basename(configPath)}.${randomUUID()}.tmp`);
+	try {
+		await writeFile(tempPath, `${JSON.stringify(config, null, 2)}\n`, { mode: 384 });
+		await rename(tempPath, configPath);
+	} catch (error) {
+		await rm(tempPath, { force: true });
+		throw new CliError(`Could not write hook config at ${configPath}: ${formatCause(error)}.`);
+	}
+}
+function buildHookCommand(agent, options = {}) {
+	if (agent === "codex") return "CLANKERLOG_AGENT=codex clankerlog hook codex stop";
+	const model = options.model?.trim();
+	if (!model) throw new CliError("Claude Code hook install requires --model, for example `--model claude-sonnet-4.5`.");
+	return `CLANKERLOG_AGENT=claude CLANKERLOG_MODEL=${shellQuote(model)} clankerlog hook claude stop`;
+}
+async function applyHookConfigFilePlan(targetPath, plan, dryRun) {
+	if (plan.changed && !dryRun) await writeHookConfigFileAtomic(targetPath, plan.config);
+	return {
+		...plan,
+		dryRun,
+		targetPath,
+		willWrite: plan.changed
+	};
+}
+function validateHookConfig(config) {
+	if (!isPlainObject(config)) throw new CliError("Hook config must be a JSON object.");
+	const hooks = config.hooks;
+	if (hooks === void 0) return config;
+	if (!isPlainObject(hooks)) throw new CliError("Hook config `hooks` must be a JSON object.");
+	const stop = hooks.Stop;
+	if (stop === void 0) return config;
+	if (!Array.isArray(stop)) throw new CliError("Hook config `hooks.Stop` must be an array.");
+	for (const [groupIndex, group] of stop.entries()) {
+		if (!isPlainObject(group)) throw new CliError(`Hook config \`hooks.Stop[${groupIndex}]\` must be an object.`);
+		if (!Array.isArray(group.hooks)) throw new CliError(`Hook config \`hooks.Stop[${groupIndex}].hooks\` must be an array.`);
+		for (const [hookIndex, hook] of group.hooks.entries()) if (!isPlainObject(hook)) throw new CliError(`Hook config \`hooks.Stop[${groupIndex}].hooks[${hookIndex}]\` must be an object.`);
+	}
+	return config;
+}
+function buildHookObject(agent, command) {
+	const definition = HOOK_AGENT_DEFINITIONS[agent];
+	return {
+		type: "command",
+		command,
+		timeout: definition.defaultTimeoutSeconds,
+		statusMessage: definition.statusMessage
+	};
+}
+function ensureObjectProperty(target, key) {
+	const value = target[key];
+	if (isPlainObject(value)) return value;
+	const next = {};
+	target[key] = next;
+	return next;
+}
+function ensureStopGroups(hooks) {
+	const stop = hooks.Stop;
+	if (Array.isArray(stop)) return stop;
+	const next = [];
+	hooks.Stop = next;
+	return next;
+}
+function getGroupHooks(group) {
+	if (Array.isArray(group.hooks)) return group.hooks;
+	const hooks = [];
+	group.hooks = hooks;
+	return hooks;
+}
+function findClankerLogHooks(config, agent) {
+	const hooks = config.hooks;
+	if (!isPlainObject(hooks) || !Array.isArray(hooks.Stop)) return [];
+	const locations = [];
+	for (const [groupIndex, group] of hooks.Stop.entries()) {
+		const groupHooks = group.hooks;
+		if (!Array.isArray(groupHooks)) continue;
+		for (const [hookIndex, hook] of groupHooks.entries()) if (isPlainObject(hook) && isClankerLogHook(hook, agent)) locations.push({
+			groupIndex,
+			hookIndex,
+			hook
+		});
+	}
+	return locations;
+}
+function isClankerLogHook(hook, agent) {
+	const marker = hook.clankerlog;
+	if (isPlainObject(marker) && marker.agent === agent && marker.version === 1) return true;
+	return isExpectedClankerLogHook(hook, agent);
+}
+function isExpectedClankerLogHook(hook, agent) {
+	if (hook.type !== "command") return false;
+	if (hook.statusMessage !== HOOK_AGENT_DEFINITIONS[agent].statusMessage) return false;
+	const command = getHookCommand(hook);
+	if (!command) return false;
+	if (agent === "codex") return command === buildHookCommand("codex");
+	return /^CLANKERLOG_AGENT=claude CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+) clankerlog hook claude stop$/.test(command);
+}
+function getHookCommand(hook) {
+	return typeof hook?.command === "string" ? hook.command : void 0;
+}
+function cloneHookConfig(config) {
+	return structuredClone(config);
+}
+function isPlainObject(value) {
+	return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+function shellQuote(value) {
+	return `'${value.replaceAll("'", "'\\''")}'`;
+}
+async function fileExists(filePath) {
+	try {
+		await access(filePath, constants.F_OK);
+		return true;
+	} catch {
+		return false;
+	}
+}
+function formatCause(error) {
+	return error instanceof Error ? error.message : String(error);
+}
+//#endregion
+//#region src/commands/hooks.ts
+function registerHooksCommand(program) {
+	const hooks = program.command("hooks").description("Install and inspect coding-agent hooks.");
+	const install = hooks.command("install").description("Install a ClankerLog Stop hook.");
+	const status = hooks.command("status").description("Inspect a ClankerLog Stop hook.");
+	const uninstall = hooks.command("uninstall").description("Remove a ClankerLog Stop hook.");
+	install.command("codex").description("Install the Codex Stop hook.").option("--dry-run", "Show the hook config change without writing it").addOption(new Option("--hook-config <path>").hideHelp()).action(async (options, command) => {
+		await handleInstallHook("codex", createRuntime(command), options);
+	});
+	install.command("claude").description("Install the Claude Code Stop hook.").option("--dry-run", "Show the hook config change without writing it").option("--model <model>", "Claude model name, for example claude-sonnet-4.5").addOption(new Option("--hook-config <path>").hideHelp()).action(async (options, command) => {
+		await handleInstallHook("claude", createRuntime(command), options);
+	});
+	status.command("codex").description("Inspect the Codex Stop hook.").addOption(new Option("--hook-config <path>").hideHelp()).action(async (options, command) => {
+		await handleHookStatus("codex", createRuntime(command), options);
+	});
+	status.command("claude").description("Inspect the Claude Code Stop hook.").addOption(new Option("--hook-config <path>").hideHelp()).action(async (options, command) => {
+		await handleHookStatus("claude", createRuntime(command), options);
+	});
+	uninstall.command("codex").description("Remove the Codex Stop hook.").option("--dry-run", "Show the hook config change without writing it").addOption(new Option("--hook-config <path>").hideHelp()).action(async (options, command) => {
+		await handleUninstallHook("codex", createRuntime(command), options);
+	});
+	uninstall.command("claude").description("Remove the Claude Code Stop hook.").option("--dry-run", "Show the hook config change without writing it").addOption(new Option("--hook-config <path>").hideHelp()).action(async (options, command) => {
+		await handleUninstallHook("claude", createRuntime(command), options);
+	});
+}
+async function handleInstallHook(agent, runtime, options = {}) {
+	if (agent === "claude" && !options.model?.trim()) throw new CliError("Claude Code hook install requires --model, for example `--model claude-sonnet-4.5` or `--model claude-opus-4.5`.");
+	const fileOptions = toHookConfigFileOptions(options);
+	const targetPath = resolveHookConfigPath(agent, fileOptions);
+	const plan = planInstallHook(await loadHookConfigFile(targetPath), agent, fileOptions);
+	writeLine(runtime, `Target: ${targetPath}`);
+	if (plan.command) writeLine(runtime, `Command: ${plan.command}`);
+	if (options.dryRun) {
+		writeLine(runtime, plan.changed ? `Action: would install ClankerLog ${agentName(agent)} Stop hook.` : `Action: ClankerLog ${agentName(agent)} Stop hook is already installed.`);
+		writeNextStep(runtime, agent);
+		return;
+	}
+	if (plan.changed) {
+		await writeHookConfigFileAtomic(targetPath, plan.config);
+		writeLine(runtime, `Action: installed ClankerLog ${agentName(agent)} Stop hook.`);
+	} else writeLine(runtime, `Action: ClankerLog ${agentName(agent)} Stop hook is already installed.`);
+	writeNextStep(runtime, agent);
+}
+async function handleHookStatus(agent, runtime, options = {}) {
+	const status = await getHookConfigStatus(agent, toHookConfigFileOptions(options));
+	writeLine(runtime, `Target: ${status.targetPath}`);
+	writeLine(runtime, `Status: ${status.installed ? `ClankerLog ${agentName(agent)} Stop hook is installed.` : `ClankerLog ${agentName(agent)} Stop hook is not installed.`}`);
+	if (status.command) {
+		writeLine(runtime, `Command: ${status.command}`);
+		writeLine(runtime, `Command matches expected: ${status.commandMatchesExpected ? "yes" : "no"}`);
+	}
+}
+async function handleUninstallHook(agent, runtime, options = {}) {
+	const plan = await uninstallHookConfig(agent, toHookConfigFileOptions(options));
+	writeLine(runtime, `Target: ${plan.targetPath}`);
+	if (plan.command) writeLine(runtime, `Command: ${plan.command}`);
+	if (options.dryRun) {
+		writeLine(runtime, plan.changed ? `Action: would remove ClankerLog ${agentName(agent)} Stop hook.` : `Action: ClankerLog ${agentName(agent)} Stop hook is not installed.`);
+		return;
+	}
+	writeLine(runtime, plan.changed ? `Action: removed ClankerLog ${agentName(agent)} Stop hook.` : `Action: ClankerLog ${agentName(agent)} Stop hook is not installed.`);
+}
+function toHookConfigFileOptions(options) {
+	return {
+		configPath: options.hookConfig,
+		dryRun: options.dryRun,
+		model: options.model
+	};
+}
+function writeNextStep(runtime, agent) {
+	if (agent === "codex") writeLine(runtime, "Next: run /hooks in Codex if command approval is required.");
+}
+function writeLine(runtime, line) {
+	runtime.stdout.write(`${line}\n`);
+}
+function agentName(agent) {
+	return agent === "claude" ? "Claude Code" : "Codex";
+}
+//#endregion
 //#region src/commands/init.ts
 function registerInitCommand(program) {
 	program.command("init").description("Initialize ClankerLog for the current project.").option("--name <name>", "Public display name for this project").option("--stack <tags>", "Comma-separated stack tags", collectStack, []).action(async (options, command) => {
@@ -768,8 +1081,8 @@ async function handleInit(options, runtime) {
 		displayName,
 		stack
 	} : { displayName });
-	writeLine(runtime, `Allowed ${projectPath} as ${displayName}.`);
-	writeLine(runtime, "Wrote .clankerlog.json.");
+	writeLine$1(runtime, `Allowed ${projectPath} as ${displayName}.`);
+	writeLine$1(runtime, "Wrote .clankerlog.json.");
 }
 async function promptDisplayName(runtime, fallback) {
 	const readline = createInterface({
@@ -799,7 +1112,7 @@ async function handleLogin(options, runtime) {
 		...await loadGlobalConfig(configPath),
 		apiKey
 	});
-	writeLine(runtime, `Saved API key ${redactApiKey(apiKey)} to ${configPath}.`);
+	writeLine$1(runtime, `Saved API key ${redactApiKey(apiKey)} to ${configPath}.`);
 }
 async function promptApiKey(runtime) {
 	const readline = createInterface({
@@ -831,6 +1144,7 @@ function buildProgram() {
 	registerPingCommand(program);
 	registerDoctorCommand(program);
 	registerHookCommand(program);
+	registerHooksCommand(program);
 	return program;
 }
 async function main(argv = process.argv) {
