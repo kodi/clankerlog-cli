@@ -28,6 +28,8 @@
     "format-check": "oxfmt . --check",
     "lint": "oxlint src --deny-warnings",
     "lint-fix": "oxlint src --fix",
+    "prepack": "pnpm run build",
+    "prepublishOnly": "pnpm run check",
     "test": "vitest run",
     "typecheck": "tsgo --noEmit"
   },
