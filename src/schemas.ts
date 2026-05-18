@@ -72,7 +72,14 @@ export const ingestionSuccessSchema = z.looseObject({
   ok: z.literal(true),
 });
 
+export const authCheckSuccessSchema = z.looseObject({
+  authenticated: z.literal(true),
+  keyId: z.string().min(1),
+  ok: z.literal(true),
+});
+
 export type AllowedProject = z.infer<typeof allowedProjectSchema>;
+export type AuthCheckSuccess = z.infer<typeof authCheckSuccessSchema>;
 export type ClankPayload = z.infer<typeof clankPayloadSchema>;
 export type GlobalConfig = z.infer<typeof globalConfigSchema>;
 export type IngestionSuccess = z.infer<typeof ingestionSuccessSchema>;

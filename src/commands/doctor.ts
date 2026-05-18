@@ -7,6 +7,7 @@ import {
   resolveGlobalConfigPath,
   resolveProjectConfigPath,
 } from "../config.js";
+import { checkAuth } from "../ingest.js";
 import { writeLine } from "../output.js";
 import { findAllowedProject, resolveProjectPath } from "../project.js";
 import { redactApiKey } from "../redact.js";
@@ -51,6 +52,7 @@ export async function handleDoctor(options: DoctorOptions, runtime: CliRuntime):
   writeLine(runtime, `config: ${configOk ? "ok" : "error"} (${configPath})`);
   writeLine(runtime, `auth: ${apiKey ? `ok ${redactApiKey(apiKey)}` : "missing"}`);
   writeLine(runtime, `endpoint: ${endpoint}`);
+  await writeApiCheck(apiKey, endpoint, runtime);
   writeLine(runtime, `agent: ${agent ? `ok ${agent}` : "missing"}`);
   writeLine(runtime, `model: ${model ? `ok ${model}` : "missing"}`);
   writeLine(runtime);
@@ -60,6 +62,25 @@ export async function handleDoctor(options: DoctorOptions, runtime: CliRuntime):
     `current project: ${allowedProject ? `allowed as ${allowedProject.displayName}` : "denied"}`,
   );
   writeProjectConfig(projectPath, projectConfig, runtime);
+}
+
+async function writeApiCheck(
+  apiKey: string | undefined,
+  endpoint: string,
+  runtime: CliRuntime,
+): Promise<void> {
+  if (!apiKey) {
+    writeLine(runtime, "api check: skipped (missing API key)");
+    return;
+  }
+
+  const result = await checkAuth({ apiKey, endpoint });
+  if (result.ok) {
+    writeLine(runtime, `api check: ok keyId=${result.response.keyId}`);
+    return;
+  }
+
+  writeLine(runtime, `api check: failed ${result.message}`);
 }
 
 async function readDoctorConfig(

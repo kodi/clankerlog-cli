@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { sendClank } from "../src/ingest.js";
+import { authCheckEndpointFromIngestEndpoint, checkAuth, sendClank } from "../src/ingest.js";
 import type { ClankPayload } from "../src/schemas.js";
 
 const originalFetch = globalThis.fetch;
@@ -105,6 +105,65 @@ describe("sendClank", () => {
     if (!result.ok) {
       expect(result.message).toContain("Network error while contacting ClankerLog: ECONNREFUSED");
     }
+  });
+});
+
+describe("checkAuth", () => {
+  it("gets the auth check endpoint with the bearer token", async () => {
+    const fetchMock = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ authenticated: true, keyId: "devkey", ok: true }), {
+          status: 200,
+        }),
+    );
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    const result = await checkAuth({
+      apiKey: "clk_live_test_secret",
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    expect(result).toEqual({
+      ok: true,
+      response: { authenticated: true, keyId: "devkey", ok: true },
+      url: "https://ingest.dev.clankerlog.ai/v1/auth/check",
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://ingest.dev.clankerlog.ai/v1/auth/check",
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          Authorization: "Bearer clk_live_test_secret",
+        }),
+        method: "GET",
+      }),
+    );
+  });
+
+  it("formats invalid auth check responses", async () => {
+    globalThis.fetch = vi.fn(
+      async () => new Response(JSON.stringify({ ok: true }), { status: 200 }),
+    ) as typeof fetch;
+
+    const result = await checkAuth({
+      apiKey: "clk_live_test_secret",
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.message).toBe("Auth check response did not match the expected schema.");
+    }
+  });
+});
+
+describe("authCheckEndpointFromIngestEndpoint", () => {
+  it("derives the auth check URL from single and batch ingest URLs", () => {
+    expect(authCheckEndpointFromIngestEndpoint("http://127.0.0.1:8787/v1/clanks")).toBe(
+      "http://127.0.0.1:8787/v1/auth/check",
+    );
+    expect(
+      authCheckEndpointFromIngestEndpoint("https://ingest.clankerlog.ai/v1/clanks/batch"),
+    ).toBe("https://ingest.clankerlog.ai/v1/auth/check");
   });
 });
 

@@ -6,8 +6,8 @@ import { access, chmod, mkdir, readFile, readdir, realpath, writeFile } from "no
 import { homedir } from "node:os";
 import path from "node:path";
 import { ZodError, z } from "zod";
+import { HttpError, NetworkError, ParseError, ValidationError, getJson, postJson } from "fetch-safe";
 import { Writable } from "node:stream";
-import { HttpError, NetworkError, ParseError, ValidationError, postJson } from "fetch-safe";
 import { createInterface } from "node:readline/promises";
 const isoDateTimeWithOffset = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/u;
 const stackTagSchema = z.string().trim().min(1, "Stack tag cannot be empty").max(64, "Stack tag must be 64 characters or less").regex(/^[a-z0-9][a-z0-9.+-]*$/u, "Stack tag must use lowercase letters, numbers, dots, pluses, or hyphens");
@@ -36,6 +36,11 @@ const clankPayloadSchema = z.object({
 }).strict();
 const ingestionSuccessSchema = z.looseObject({
 	id: z.string().min(1),
+	ok: z.literal(true)
+});
+const authCheckSuccessSchema = z.looseObject({
+	authenticated: z.literal(true),
+	keyId: z.string().min(1),
 	ok: z.literal(true)
 });
 function isIsoDateTimeWithOffsetValue(value) {
@@ -191,6 +196,86 @@ async function handleAllow(options, runtime) {
 	writeLine(runtime, `Allowed ${projectPath} -> ${displayName}.`);
 }
 //#endregion
+//#region src/ingest.ts
+async function checkAuth(options) {
+	const url = authCheckEndpointFromIngestEndpoint(options.endpoint);
+	const result = await getJson(url, {
+		headers: { Authorization: `Bearer ${options.apiKey}` },
+		schema: authCheckSuccessSchema
+	});
+	if (!result.ok) {
+		const error = result.error ?? new NetworkError("Unknown network error");
+		return {
+			error,
+			message: formatAuthCheckError(error),
+			ok: false,
+			url
+		};
+	}
+	return {
+		ok: true,
+		response: result.value,
+		url
+	};
+}
+async function sendClank(options) {
+	const result = await postJson(options.endpoint, options.payload, {
+		headers: { Authorization: `Bearer ${options.apiKey}` },
+		schema: ingestionSuccessSchema
+	});
+	if (!result.ok) {
+		const error = result.error ?? new NetworkError("Unknown network error");
+		return {
+			error,
+			message: formatIngestError(error),
+			ok: false
+		};
+	}
+	return {
+		ok: true,
+		response: result.value
+	};
+}
+function authCheckEndpointFromIngestEndpoint(endpoint) {
+	const url = new URL(endpoint);
+	url.pathname = url.pathname.replace(/\/v1\/clanks(?:\/batch)?\/?$/u, "/v1/auth/check");
+	url.search = "";
+	url.hash = "";
+	return url.toString();
+}
+function formatAuthCheckError(error) {
+	if (error instanceof HttpError) {
+		if (error.status === 401) return "Authentication failed (401). Check your ClankerLog API key.";
+		return `Auth check returned HTTP ${error.status} ${error.statusText}.${formatErrorBody(error.body)}`;
+	}
+	if (error instanceof NetworkError) return `Network error while contacting ClankerLog: ${error.message}`;
+	if (error instanceof ParseError) return "Auth check returned invalid JSON.";
+	if (error instanceof ValidationError) return "Auth check response did not match the expected schema.";
+	return "Unknown auth check error.";
+}
+function formatIngestError(error) {
+	if (error instanceof HttpError) return formatHttpError(error);
+	if (error instanceof NetworkError) return `Network error while contacting ClankerLog: ${error.message}`;
+	if (error instanceof ParseError) return "Ingestion API returned invalid JSON.";
+	if (error instanceof ValidationError) return "Ingestion API response did not match the expected schema.";
+	return "Unknown ingestion error.";
+}
+function formatHttpError(error) {
+	if (error.status === 401) return "Authentication failed (401). Check your ClankerLog API key.";
+	if (error.status === 400) return `Ingestion rejected the clank payload (400).${formatErrorBody(error.body)}`;
+	return `Ingestion API returned HTTP ${error.status} ${error.statusText}.${formatErrorBody(error.body)}`;
+}
+function formatErrorBody(body) {
+	if (!body) return "";
+	try {
+		const parsed = JSON.parse(body);
+		const message = typeof parsed.error === "string" ? parsed.error : parsed.message;
+		return typeof message === "string" ? ` ${message}` : "";
+	} catch {
+		return ` ${body.slice(0, 200)}`;
+	}
+}
+//#endregion
 //#region src/redact.ts
 function redactApiKey(apiKey) {
 	if (!apiKey) return "not configured";
@@ -219,12 +304,28 @@ async function handleDoctor(options, runtime) {
 	writeLine(runtime, `config: ${configOk ? "ok" : "error"} (${configPath})`);
 	writeLine(runtime, `auth: ${apiKey ? `ok ${redactApiKey(apiKey)}` : "missing"}`);
 	writeLine(runtime, `endpoint: ${endpoint}`);
+	await writeApiCheck(apiKey, endpoint, runtime);
 	writeLine(runtime, `agent: ${agent ? `ok ${agent}` : "missing"}`);
 	writeLine(runtime, `model: ${model ? `ok ${model}` : "missing"}`);
 	writeLine(runtime);
 	writeAllowedProjects(config, runtime);
 	writeLine(runtime, `current project: ${allowedProject ? `allowed as ${allowedProject.displayName}` : "denied"}`);
 	writeProjectConfig(projectPath, projectConfig, runtime);
+}
+async function writeApiCheck(apiKey, endpoint, runtime) {
+	if (!apiKey) {
+		writeLine(runtime, "api check: skipped (missing API key)");
+		return;
+	}
+	const result = await checkAuth({
+		apiKey,
+		endpoint
+	});
+	if (result.ok) {
+		writeLine(runtime, `api check: ok keyId=${result.response.keyId}`);
+		return;
+	}
+	writeLine(runtime, `api check: failed ${result.message}`);
 }
 async function readDoctorConfig(configPath, runtime) {
 	try {
@@ -283,48 +384,6 @@ var CliError = class extends Error {
 function formatCliError(error) {
 	if (error instanceof Error) return error.message;
 	return String(error);
-}
-//#endregion
-//#region src/ingest.ts
-async function sendClank(options) {
-	const result = await postJson(options.endpoint, options.payload, {
-		headers: { Authorization: `Bearer ${options.apiKey}` },
-		schema: ingestionSuccessSchema
-	});
-	if (!result.ok) {
-		const error = result.error ?? new NetworkError("Unknown network error");
-		return {
-			error,
-			message: formatIngestError(error),
-			ok: false
-		};
-	}
-	return {
-		ok: true,
-		response: result.value
-	};
-}
-function formatIngestError(error) {
-	if (error instanceof HttpError) return formatHttpError(error);
-	if (error instanceof NetworkError) return `Network error while contacting ClankerLog: ${error.message}`;
-	if (error instanceof ParseError) return "Ingestion API returned invalid JSON.";
-	if (error instanceof ValidationError) return "Ingestion API response did not match the expected schema.";
-	return "Unknown ingestion error.";
-}
-function formatHttpError(error) {
-	if (error.status === 401) return "Authentication failed (401). Check your ClankerLog API key.";
-	if (error.status === 400) return `Ingestion rejected the clank payload (400).${formatErrorBody(error.body)}`;
-	return `Ingestion API returned HTTP ${error.status} ${error.statusText}.${formatErrorBody(error.body)}`;
-}
-function formatErrorBody(body) {
-	if (!body) return "";
-	try {
-		const parsed = JSON.parse(body);
-		const message = typeof parsed.error === "string" ? parsed.error : parsed.message;
-		return typeof message === "string" ? ` ${message}` : "";
-	} catch {
-		return ` ${body.slice(0, 200)}`;
-	}
 }
 //#endregion
 //#region src/stack.ts
