@@ -94,6 +94,33 @@ For Codex `Stop` hooks, call the CLI directly:
 
 `clankerlog hook codex stop` reads the Codex hook JSON from stdin, uses `cwd` and `model`, and ignores assistant messages and transcript paths.
 
+For Claude Code `Stop` hooks, call the Claude-specific handler and provide a model
+through `CLANKERLOG_MODEL` because Claude's Stop payload does not include one:
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "CLANKERLOG_AGENT=claude CLANKERLOG_MODEL=gpt-5.5(low) clankerlog hook claude stop",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+`clankerlog hook claude stop` reads the Claude Code hook JSON from stdin, uses
+`cwd`, and ignores assistant messages and transcript paths.
+
+Both hook commands support `--dry-run` for local payload inspection without
+sending a clank.
+
 ## Doctor
 
 ```bash

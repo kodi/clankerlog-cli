@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizeModelName } from "./model.js";
 
 export const defaultIngestEndpoint = "https://ingest.clankerlog.ai/v1/clanks";
 
@@ -53,7 +54,7 @@ export const projectConfigSchema = z
 export const clankPayloadSchema = z
   .object({
     agent: z.string().trim().min(1).max(80),
-    model: z.string().trim().min(1).max(120),
+    model: z.string().trim().min(1).max(120).transform(normalizeModelName),
     project: z
       .object({
         display_name: displayNameSchema,

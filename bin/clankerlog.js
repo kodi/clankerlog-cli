@@ -9,6 +9,102 @@ import { ZodError, z } from "zod";
 import { HttpError, NetworkError, ParseError, ValidationError, getJson, postJson } from "fetch-safe";
 import { Writable } from "node:stream";
 import { createInterface } from "node:readline/promises";
+//#region src/model.ts
+const providerPrefixPattern = /^[a-z0-9][a-z0-9._-]*\//u;
+const canonicalModelNames = [
+	"gpt-5.5",
+	"gpt-5.5-pro",
+	"gpt-5.4",
+	"gpt-5.4-mini",
+	"gpt-5.3-codex",
+	"gpt-5.3-codex-spark",
+	"gpt-5",
+	"gpt-5-mini",
+	"gpt-5-nano",
+	"gpt-4.1",
+	"gpt-4.1-mini",
+	"gpt-4.1-nano",
+	"gpt-4o",
+	"gpt-4o-mini",
+	"o4-mini",
+	"o3",
+	"o3-mini",
+	"o1",
+	"o1-mini",
+	"claude-opus-4.7",
+	"claude-opus-4.6",
+	"claude-opus-4.5",
+	"claude-sonnet-4.6",
+	"claude-sonnet-4.5",
+	"claude-sonnet-4",
+	"claude-3.7-sonnet",
+	"claude-3.5-sonnet",
+	"claude-3.5-haiku",
+	"claude-3-opus",
+	"claude-3-sonnet",
+	"claude-3-haiku",
+	"gemini-3.1-pro",
+	"gemini-3-pro",
+	"gemini-2.5-pro",
+	"gemini-2.5-flash",
+	"gemini-2.5-flash-lite",
+	"gemini-2.0-flash",
+	"deepseek-v3.2",
+	"deepseek-v3.1",
+	"deepseek-r1",
+	"qwen3-coder",
+	"qwen3-max",
+	"qwen3-vl",
+	"qwen3-235b-a22b",
+	"grok-4",
+	"grok-4-fast",
+	"grok-3",
+	"grok-3-mini",
+	"mistral-large",
+	"mistral-medium",
+	"codestral",
+	"magistral-medium",
+	"llama-4-maverick",
+	"llama-4-scout",
+	"llama-3.3-70b-instruct",
+	"llama-3.1-405b-instruct",
+	"kimi-k2"
+];
+const manualAliases = new Map([
+	["opus4.7", "claude-opus-4.7"],
+	["opus-4-7", "claude-opus-4.7"],
+	["opus 4.7", "claude-opus-4.7"],
+	["claude opus 4.7", "claude-opus-4.7"],
+	["opus4.6", "claude-opus-4.6"],
+	["sonnet4.6", "claude-sonnet-4.6"],
+	["sonnet-4-6", "claude-sonnet-4.6"],
+	["claude sonnet 4.6", "claude-sonnet-4.6"],
+	["sonnet4.5", "claude-sonnet-4.5"],
+	["sonnet 4", "claude-sonnet-4"],
+	["haiku3.5", "claude-3.5-haiku"],
+	["claude haiku 3.5", "claude-3.5-haiku"],
+	["gemini pro 3.1", "gemini-3.1-pro"],
+	["gemini flash 2.5", "gemini-2.5-flash"],
+	["deepseek r1", "deepseek-r1"],
+	["deepseek v3.2", "deepseek-v3.2"],
+	["qwen coder 3", "qwen3-coder"],
+	["qwen3 coder", "qwen3-coder"],
+	["grok fast 4", "grok-4-fast"],
+	["mistral large", "mistral-large"],
+	["mistral medium", "mistral-medium"],
+	["llama 4 maverick", "llama-4-maverick"],
+	["llama 4 scout", "llama-4-scout"]
+]);
+const knownModelNames = /* @__PURE__ */ new Map();
+for (const modelName of canonicalModelNames) knownModelNames.set(modelKey(modelName), modelName);
+for (const [alias, modelName] of manualAliases) knownModelNames.set(modelKey(alias), modelName);
+function normalizeModelName(value) {
+	const trimmed = value.trim();
+	return knownModelNames.get(modelKey(trimmed)) ?? trimmed;
+}
+function modelKey(value) {
+	return value.trim().toLowerCase().replace(providerPrefixPattern, "").replace(/[^a-z0-9]+/gu, "");
+}
 const isoDateTimeWithOffset = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/u;
 const stackTagSchema = z.string().trim().min(1, "Stack tag cannot be empty").max(64, "Stack tag must be 64 characters or less").regex(/^[a-z0-9][a-z0-9.+-]*$/u, "Stack tag must use lowercase letters, numbers, dots, pluses, or hyphens");
 const stackSchema = z.array(stackTagSchema).max(32, "Stack can include at most 32 tags").default([]);
@@ -28,7 +124,7 @@ const projectConfigSchema = z.object({
 }).strict();
 const clankPayloadSchema = z.object({
 	agent: z.string().trim().min(1).max(80),
-	model: z.string().trim().min(1).max(120),
+	model: z.string().trim().min(1).max(120).transform(normalizeModelName),
 	project: z.object({ display_name: displayNameSchema }).strict(),
 	stack: stackSchema,
 	timestamp: z.string().refine(isIsoDateTimeWithOffsetValue, { message: "Timestamp must be an ISO datetime with an offset" }),
@@ -493,9 +589,31 @@ const codexStopInputSchema = z.looseObject({
 	transcript_path: z.string().nullable(),
 	turn_id: z.string().trim().min(1)
 });
+const claudeStopInputSchema = z.looseObject({
+	cwd: z.string().trim().min(1),
+	hook_event_name: z.literal("Stop"),
+	last_assistant_message: z.string().nullable().optional(),
+	permission_mode: z.enum([
+		"default",
+		"acceptEdits",
+		"auto",
+		"plan",
+		"dontAsk",
+		"bypassPermissions"
+	]).optional(),
+	session_id: z.string().trim().min(1),
+	stop_hook_active: z.boolean(),
+	transcript_path: z.string().nullable().optional()
+});
 function registerHookCommand(program) {
-	program.command("hook").description("Run coding-agent hook integrations.").command("codex").description("Run Codex hook integrations.").command("stop").description("Handle a Codex Stop hook payload from stdin.").action(async (_options, command) => {
+	const hook = program.command("hook").description("Run coding-agent hook integrations.");
+	const codex = hook.command("codex").description("Run Codex hook integrations.");
+	const claude = hook.command("claude").description("Run Claude Code hook integrations.");
+	codex.command("stop").description("Handle a Codex Stop hook payload from stdin.").action(async (_options, command) => {
 		await handleCodexStopHook(createRuntime(command));
+	});
+	claude.command("stop").description("Handle a Claude Code Stop hook payload from stdin.").action(async (_options, command) => {
+		await handleClaudeStopHook(createRuntime(command));
 	});
 }
 async function handleCodexStopHook(runtime) {
@@ -506,6 +624,12 @@ async function handleCodexStopHook(runtime) {
 			agent: runtime.env.CLANKERLOG_AGENT ?? "codex",
 			model: input.model
 		}, hookRuntime);
+	} catch {}
+}
+async function handleClaudeStopHook(runtime) {
+	const hookRuntime = createHookRuntime(runtime, (await parseClaudeStopInput(runtime)).cwd);
+	try {
+		await handlePing({ agent: runtime.env.CLANKERLOG_AGENT ?? "claude" }, hookRuntime);
 	} catch {}
 }
 async function parseCodexStopInput(runtime) {
@@ -519,6 +643,19 @@ async function parseCodexStopInput(runtime) {
 	}
 	const result = codexStopInputSchema.safeParse(parsed);
 	if (!result.success) throw new CliError(`Codex Stop hook payload was invalid: ${result.error.issues[0]?.message ?? "schema validation failed"}`);
+	return result.data;
+}
+async function parseClaudeStopInput(runtime) {
+	const raw = await readStdin(runtime.stdin);
+	if (!raw.trim()) throw new CliError("Claude Code Stop hook payload was empty.");
+	let parsed;
+	try {
+		parsed = JSON.parse(raw);
+	} catch {
+		throw new CliError("Claude Code Stop hook payload was not valid JSON.");
+	}
+	const result = claudeStopInputSchema.safeParse(parsed);
+	if (!result.success) throw new CliError(`Claude Code Stop hook payload was invalid: ${result.error.issues[0]?.message ?? "schema validation failed"}`);
 	return result.data;
 }
 function createHookRuntime(runtime, cwd) {

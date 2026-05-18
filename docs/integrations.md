@@ -222,3 +222,72 @@ Installer behavior should be conservative:
   TypeScript dependencies before emitting `typescript`?
 - Should hook status run a real stdin simulation, or only validate config and
   installed hook JSON?
+
+## Claude Code Stop Hook
+
+Claude Code can run a command when the main agent finishes responding. The
+closest equivalent to the Codex integration is the `Stop` hook.
+
+The local path is:
+
+```txt
+Claude Code Stop hook -> clankerlog-dev hook claude stop -> local ingestion endpoint -> local D1
+```
+
+For local development, the hook command uses the repo shim:
+
+```bash
+CLANKERLOG_AGENT=claude CLANKERLOG_MODEL=gpt-5.5(low) /Users/kodi/.local/bin/clankerlog-dev hook claude stop
+```
+
+Claude Code defines hooks in:
+
+```txt
+~/.claude/settings.json
+```
+
+Example hook entry:
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "CLANKERLOG_AGENT=claude CLANKERLOG_MODEL=gpt-5.5(low) /Users/kodi/.local/bin/clankerlog-dev hook claude stop",
+            "timeout": 10,
+            "statusMessage": "Sending ClankerLog clank"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Claude Code sends the Stop hook input as JSON on stdin. The current CLI command
+validates the fields we need and allows future extra fields:
+
+```json
+{
+  "cwd": "/Users/kodi/data/personal/clankerlog-cli",
+  "hook_event_name": "Stop",
+  "last_assistant_message": "ignored by ClankerLog",
+  "permission_mode": "default",
+  "session_id": "local-test-session",
+  "stop_hook_active": false,
+  "transcript_path": "/tmp/ignored-transcript.jsonl"
+}
+```
+
+ClankerLog uses:
+
+- `cwd` as the project/workspace to resolve the allow-list entry.
+- `CLANKERLOG_MODEL` as the model name in the clank payload.
+- `CLANKERLOG_AGENT`, defaulting to `claude`, as the agent name.
+
+Claude Code's Stop hook payload does not include `model`, so the hook command
+relies on `CLANKERLOG_MODEL`. ClankerLog intentionally does not read
+`last_assistant_message` or `transcript_path`.
