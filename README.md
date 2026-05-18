@@ -100,7 +100,7 @@ For Codex `Stop` hooks, call the CLI directly:
 clankerlog doctor
 ```
 
-`doctor` reports config status, redacted auth status, endpoint, an authenticated API check when an API key is configured, allowed projects, current project allow-list state, project-local config, and agent/model resolution. It does not send a clank.
+`doctor` reports config status, redacted auth status, endpoint, an authenticated API check when an API key is configured, allowed projects, current project allow-list state, and project-local config. It does not send a clank.
 
 ## Privacy
 

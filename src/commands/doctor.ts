@@ -14,19 +14,23 @@ import { redactApiKey } from "../redact.js";
 import { createRuntime, type CliRuntime } from "../runtime.js";
 import { defaultIngestEndpoint, type GlobalConfig, type ProjectConfig } from "../schemas.js";
 
+const color = {
+  blue: (value: string) => `\x1b[34m${value}\x1b[0m`,
+  dimGray: (value: string) => `\x1b[2;90m${value}\x1b[0m`,
+  green: (value: string) => `\x1b[32m${value}\x1b[0m`,
+  red: (value: string) => `\x1b[31m${value}\x1b[0m`,
+  yellow: (value: string) => `\x1b[33m${value}\x1b[0m`,
+};
+
 export interface DoctorOptions {
-  readonly agent?: string;
   readonly apiKey?: string;
   readonly endpoint?: string;
-  readonly model?: string;
 }
 
 export function registerDoctorCommand(program: Command): void {
   program
     .command("doctor")
     .description("Print local ClankerLog CLI setup status without sending data.")
-    .option("--agent <name>", "Agent name to test resolution")
-    .option("--model <name>", "Model name to test resolution")
     .option("--endpoint <url>", "Endpoint override to report")
     .option("--api-key <key>", "API key override to report redacted")
     .action(async (options: DoctorOptions, command: Command) => {
@@ -45,21 +49,30 @@ export async function handleDoctor(options: DoctorOptions, runtime: CliRuntime):
     config.endpoint ??
     defaultIngestEndpoint;
   const apiKey = options.apiKey ?? runtime.env.CLANKERLOG_API_KEY ?? config.apiKey;
-  const agent = options.agent ?? runtime.env.CLANKERLOG_AGENT;
-  const model = options.model ?? runtime.env.CLANKERLOG_MODEL;
   const allowedProject = configOk ? findAllowedProject(config, projectPath) : undefined;
 
-  writeLine(runtime, `config: ${configOk ? "ok" : "error"} (${configPath})`);
-  writeLine(runtime, `auth: ${apiKey ? `ok ${redactApiKey(apiKey)}` : "missing"}`);
-  writeLine(runtime, `endpoint: ${endpoint}`);
-  await writeApiCheck(apiKey, endpoint, runtime);
-  writeLine(runtime, `agent: ${agent ? `ok ${agent}` : "missing"}`);
-  writeLine(runtime, `model: ${model ? `ok ${model}` : "missing"}`);
-  writeLine(runtime);
-  writeAllowedProjects(config, runtime);
   writeLine(
     runtime,
-    `current project: ${allowedProject ? `allowed as ${allowedProject.displayName}` : "denied"}`,
+    `config: ${configOk ? color.green("ok") : color.red("error")} (${configPath})`,
+  );
+  writeLine(
+    runtime,
+    `auth: ${apiKey ? `${color.green("ok")} ${redactApiKey(apiKey)}` : color.yellow("missing")}`,
+  );
+  writeLine(runtime, `endpoint: ${color.dimGray(endpoint)}`);
+  await writeApiCheck(apiKey, endpoint, runtime);
+  writeLine(runtime);
+
+  writeAllowedProjects(config, runtime);
+  writeLine(runtime);
+
+  writeLine(
+    runtime,
+    `current project: ${
+      allowedProject
+        ? `allowed as ${color.blue(allowedProject.displayName)}`
+        : color.yellow("denied")
+    }`,
   );
   writeProjectConfig(projectPath, projectConfig, runtime);
 }
@@ -70,17 +83,17 @@ async function writeApiCheck(
   runtime: CliRuntime,
 ): Promise<void> {
   if (!apiKey) {
-    writeLine(runtime, "api check: skipped (missing API key)");
+    writeLine(runtime, `api check: ${color.yellow("skipped")} (missing API key)`);
     return;
   }
 
   const result = await checkAuth({ apiKey, endpoint });
   if (result.ok) {
-    writeLine(runtime, `api check: ok keyId=${result.response.keyId}`);
+    writeLine(runtime, `api check: ${color.green("ok")}`);
     return;
   }
 
-  writeLine(runtime, `api check: failed ${result.message}`);
+  writeLine(runtime, `api check: ${color.red("failed")} ${result.message}`);
 }
 
 async function readDoctorConfig(
@@ -117,13 +130,13 @@ async function readDoctorProjectConfig(
 
 function writeAllowedProjects(config: GlobalConfig, runtime: CliRuntime): void {
   if (config.allowedProjects.length === 0) {
-    writeLine(runtime, "allowed projects: none");
+    writeLine(runtime, `allowed projects: ${color.yellow("none")}`);
     return;
   }
 
   writeLine(runtime, "allowed projects:");
   for (const project of config.allowedProjects) {
-    writeLine(runtime, `- ${project.path} -> ${project.displayName}`);
+    writeLine(runtime, `📂 ${color.dimGray(project.path)} -> ${color.blue(project.displayName)}`);
   }
 }
 

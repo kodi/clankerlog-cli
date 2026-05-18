@@ -28,10 +28,6 @@ describe("doctor command", () => {
     const runtime = createMemoryRuntime({
       configPath,
       cwd: root,
-      env: {
-        CLANKERLOG_AGENT: "codex",
-        CLANKERLOG_MODEL: "gpt-5.5",
-      },
     });
 
     await writeFile(
@@ -46,16 +42,21 @@ describe("doctor command", () => {
 
     await handleDoctor({}, runtime);
 
-    expect(runtime.stdoutText()).toContain(`config: ok (${configPath})`);
-    expect(runtime.stdoutText()).toContain("auth: ok clk_live_abc...redacted");
-    expect(runtime.stdoutText()).not.toContain("clk_live_abcdef_secret");
-    expect(runtime.stdoutText()).toContain("endpoint: https://ingest.dev.clankerlog.ai/v1/clanks");
-    expect(runtime.stdoutText()).toContain("api check: ok keyId=devkey");
-    expect(runtime.stdoutText()).toContain(`- ${projectPath} -> CLI`);
-    expect(runtime.stdoutText()).toContain("current project: allowed as CLI");
-    expect(runtime.stdoutText()).toContain(
-      "project config: ok displayName=Project File stack=typescript",
-    );
+    const rawOutput = runtime.stdoutText();
+    const output = stripAnsi(rawOutput);
+    expect(output).toContain(`config: ok (${configPath})`);
+    expect(output).toContain("auth: ok clk_live_abc...redacted");
+    expect(output).not.toContain("clk_live_abcdef_secret");
+    expect(output).toContain("endpoint: https://ingest.dev.clankerlog.ai/v1/clanks");
+    expect(output).toContain("api check: ok");
+    expect(output).not.toContain("agent:");
+    expect(output).not.toContain("model:");
+    expect(output).not.toContain("keyId=devkey");
+    expect(output).toContain(`📂 ${projectPath} -> CLI`);
+    expect(output).toContain("\n\nallowed projects:\n");
+    expect(output).toContain("\n\ncurrent project: allowed as CLI\n");
+    expect(output).toContain("project config: ok displayName=Project File stack=typescript");
+    expect(rawOutput).toContain("\x1b[34mCLI\x1b[0m");
     expect(globalThis.fetch).toHaveBeenCalledWith(
       "https://ingest.dev.clankerlog.ai/v1/auth/check",
       expect.objectContaining({
@@ -83,7 +84,7 @@ describe("doctor command", () => {
 
     await handleDoctor({}, runtime);
 
-    expect(runtime.stdoutText()).toContain(
+    expect(stripAnsi(runtime.stdoutText())).toContain(
       "api check: failed Authentication failed (401). Check your ClankerLog API key.",
     );
   });
@@ -96,13 +97,18 @@ describe("doctor command", () => {
 
     await handleDoctor({}, runtime);
 
-    expect(runtime.stdoutText()).toContain("config error:");
-    expect(runtime.stdoutText()).toContain("config: error");
-    expect(runtime.stdoutText()).toContain("api check: skipped (missing API key)");
-    expect(runtime.stdoutText()).toContain("current project: denied");
+    const output = stripAnsi(runtime.stdoutText());
+    expect(output).toContain("config error:");
+    expect(output).toContain("config: error");
+    expect(output).toContain("api check: skipped (missing API key)");
+    expect(output).toContain("current project: denied");
   });
 });
 
 async function makeTempDir(): Promise<string> {
   return mkdtemp(path.join(tmpdir(), "clankerlog-doctor-"));
+}
+
+function stripAnsi(value: string): string {
+  return value.replace(/\x1b\[[0-9;]*m/gu, "");
 }

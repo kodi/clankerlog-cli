@@ -120,8 +120,6 @@ First check the CLI can resolve the local project and endpoint:
 
 ```bash
 /Users/kodi/.local/bin/clankerlog-dev doctor \
-  --agent codex \
-  --model gpt-5.5 \
   --endpoint http://127.0.0.1:8787/v1/clanks
 ```
 
