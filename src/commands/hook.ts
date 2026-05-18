@@ -29,11 +29,23 @@ const claudeStopInputSchema = z.looseObject({
   transcript_path: z.string().nullable().optional(),
 });
 
+const cursorStopInputSchema = z.looseObject({
+  workspace_roots: z.array(z.string().trim().min(1)).min(1),
+  conversation_id: z.string().trim().min(1),
+  cursor_version: z.string().trim().min(1),
+  generation_id: z.string().trim().min(1),
+  hook_event_name: z.literal("stop").optional(),
+  model: z.string().trim().min(1).max(120),
+  transcript_path: z.string().nullable(),
+  user_email: z.string().nullable(),
+});
+
 export function registerHookCommand(program: Command): void {
   const hook = program.command("hook").description("Run coding-agent hook integrations.");
 
   const codex = hook.command("codex").description("Run Codex hook integrations.");
   const claude = hook.command("claude").description("Run Claude Code hook integrations.");
+  const cursor = hook.command("cursor").description("Run Cursor hook integrations.");
 
   codex
     .command("stop")
@@ -49,6 +61,14 @@ export function registerHookCommand(program: Command): void {
     .option("--dry-run", "Print the resolved clank payload without sending it")
     .action(async (options: HookStopOptions, command: Command) => {
       await handleClaudeStopHook(createRuntime(command), options);
+    });
+
+  cursor
+    .command("stop")
+    .description("Handle a Cursor stop hook payload from stdin.")
+    .option("--dry-run", "Print the resolved clank payload without sending it")
+    .action(async (options: HookStopOptions, command: Command) => {
+      await handleCursorStopHook(createRuntime(command), options);
     });
 }
 
@@ -99,6 +119,34 @@ export async function handleClaudeStopHook(
     }
 
     // Hooks must never interrupt Claude Code. Normal CLI diagnostics remain
+    // available through `clankerlog doctor` and manual `clankerlog ping --dry-run`.
+  }
+}
+
+export async function handleCursorStopHook(
+  runtime: CliRuntime,
+  options: HookStopOptions = {},
+): Promise<void> {
+  const input = await parseCursorStopInput(runtime, options);
+  const hookRuntime = createHookRuntime(runtime, input.workspace_roots[0] as string, {
+    quiet: !options.dryRun,
+  });
+
+  try {
+    await handlePing(
+      {
+        agent: runtime.env.CLANKERLOG_AGENT ?? "cursor",
+        dryRun: options.dryRun ?? false,
+        model: input.model,
+      },
+      hookRuntime,
+    );
+  } catch (error) {
+    if (options.dryRun) {
+      throw error;
+    }
+
+    // Hooks must never interrupt Cursor. Normal CLI diagnostics remain
     // available through `clankerlog doctor` and manual `clankerlog ping --dry-run`.
   }
 }
@@ -177,6 +225,46 @@ async function parseClaudeStopInput(
   if (!result.success) {
     throw new CliError(
       `Claude Code Stop hook payload was invalid: ${result.error.issues[0]?.message ?? "schema validation failed"}`,
+    );
+  }
+
+  return result.data;
+}
+
+async function parseCursorStopInput(
+  runtime: CliRuntime,
+  options: HookStopOptions,
+): Promise<CursorStopInput> {
+  const raw = await readStdin(runtime.stdin, { allowDryRunFallback: options.dryRun ?? false });
+
+  if (!raw.trim()) {
+    if (options.dryRun) {
+      return cursorStopInputSchema.parse({
+        workspace_roots: [runtime.cwd],
+        conversation_id: "dry-run-conversation",
+        cursor_version: "dry-run-cursor",
+        generation_id: "dry-run-generation",
+        hook_event_name: "stop",
+        model: runtime.env.CLANKERLOG_MODEL ?? "dry-run-model",
+        transcript_path: null,
+        user_email: null,
+      });
+    }
+
+    throw new CliError("Cursor stop hook payload was empty.");
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new CliError("Cursor stop hook payload was not valid JSON.");
+  }
+
+  const result = cursorStopInputSchema.safeParse(parsed);
+  if (!result.success) {
+    throw new CliError(
+      `Cursor stop hook payload was invalid: ${result.error.issues[0]?.message ?? "schema validation failed"}`,
     );
   }
 
@@ -266,6 +354,7 @@ class NullWritable extends Writable {
 
 type CodexStopInput = z.infer<typeof codexStopInputSchema>;
 type ClaudeStopInput = z.infer<typeof claudeStopInputSchema>;
+type CursorStopInput = z.infer<typeof cursorStopInputSchema>;
 
 interface HookStopOptions {
   readonly dryRun?: boolean;

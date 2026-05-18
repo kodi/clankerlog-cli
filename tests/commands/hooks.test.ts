@@ -71,6 +71,28 @@ describe("hook config transforms", () => {
     expect(() => buildHookCommand("claude")).toThrow("requires --model");
   });
 
+  it("creates a Cursor stop hook that reads the model from hook stdin", () => {
+    const plan = planInstallHook({}, "cursor");
+
+    expect(plan.changed).toBe(true);
+    expect(plan.command).toBe("CLANKERLOG_AGENT=cursor clankerlog hook cursor stop");
+    expect(plan.config).toEqual({
+      hooks: {
+        stop: [
+          {
+            command: "CLANKERLOG_AGENT=cursor clankerlog hook cursor stop",
+          },
+        ],
+      },
+    });
+  });
+
+  it("can pin a Cursor model through environment when requested", () => {
+    expect(buildHookCommand("cursor", { model: "gpt-5.5" })).toBe(
+      "CLANKERLOG_AGENT=cursor CLANKERLOG_MODEL='gpt-5.5' clankerlog hook cursor stop",
+    );
+  });
+
   it("preserves existing Stop hooks, non-Stop hooks, and unrelated settings", () => {
     const existingCommand = {
       type: "command",
@@ -228,6 +250,28 @@ describe("hook config transforms", () => {
     expect(plan.config).toBe(config);
   });
 
+  it("removes only ClankerLog Cursor hooks and preserves neighboring hooks", () => {
+    const installed = planInstallHook(
+      {
+        version: 1,
+        hooks: {
+          stop: [{ command: "echo existing" }],
+        },
+      },
+      "cursor",
+    );
+
+    const plan = planUninstallHook(installed.config, "cursor");
+
+    expect(plan.changed).toBe(true);
+    expect(plan.config).toEqual({
+      version: 1,
+      hooks: {
+        stop: [{ command: "echo existing" }],
+      },
+    });
+  });
+
   it("reports status without mutating config", () => {
     const config = planInstallHook({}, "claude", { model: "claude-opus-4.5" }).config;
 
@@ -249,6 +293,9 @@ describe("hook config transforms", () => {
     expect(() => planInstallHook({ hooks: { Stop: [{}] } }, "codex")).toThrow(
       "`hooks.Stop[0].hooks` must be an array",
     );
+    expect(() => planInstallHook({ hooks: { stop: {} } }, "cursor")).toThrow(
+      "`hooks.stop` must be an array",
+    );
   });
 });
 
@@ -261,6 +308,9 @@ describe("hook config filesystem helpers", () => {
     );
     expect(resolveHookConfigPath("claude", { homeDirectory: home })).toBe(
       path.join(home, ".claude", "settings.json"),
+    );
+    expect(resolveHookConfigPath("cursor", { homeDirectory: home })).toBe(
+      path.join(home, ".cursor", "hooks.json"),
     );
   });
 
@@ -446,6 +496,37 @@ describe("hooks install command", () => {
       ]),
     ).rejects.toThrow("claude-sonnet-4.5");
   });
+
+  it("wires Cursor install through Commander", async () => {
+    const root = await makeTempDir();
+    const configPath = path.join(root, ".cursor", "hooks.json");
+    const stdout = captureStdout();
+    const program = buildProgram();
+    program.exitOverride();
+
+    await program.parseAsync([
+      "node",
+      "clankerlog",
+      "hooks",
+      "install",
+      "cursor",
+      "--hook-config",
+      configPath,
+    ]);
+
+    expect(stdout.text()).toContain(`Target: ${configPath}`);
+    expect(stdout.text()).toContain("Command: CLANKERLOG_AGENT=cursor clankerlog hook cursor stop");
+    expect(stdout.text()).toContain("Action: installed");
+    expect(await readJson(configPath)).toEqual({
+      hooks: {
+        stop: [
+          {
+            command: "CLANKERLOG_AGENT=cursor clankerlog hook cursor stop",
+          },
+        ],
+      },
+    });
+  });
 });
 
 describe("hooks status and uninstall commands", () => {
@@ -618,6 +699,52 @@ describe("hooks status and uninstall commands", () => {
     ]);
 
     expect(stdout.text()).toContain("is not installed");
+  });
+
+  it("reports and uninstalls Cursor hooks through Commander", async () => {
+    const root = await makeTempDir();
+    const configPath = path.join(root, ".cursor", "hooks.json");
+    const installed = planInstallHook(
+      {
+        hooks: {
+          stop: [{ command: "echo existing" }],
+        },
+      },
+      "cursor",
+    ).config;
+    await mkdir(path.dirname(configPath), { recursive: true });
+    await writeFile(configPath, `${JSON.stringify(installed, null, 2)}\n`);
+    const stdout = captureStdout();
+    const program = buildProgram();
+    program.exitOverride();
+
+    await program.parseAsync([
+      "node",
+      "clankerlog",
+      "hooks",
+      "status",
+      "cursor",
+      "--hook-config",
+      configPath,
+    ]);
+    await program.parseAsync([
+      "node",
+      "clankerlog",
+      "hooks",
+      "uninstall",
+      "cursor",
+      "--hook-config",
+      configPath,
+    ]);
+
+    expect(stdout.text()).toContain("Status: ClankerLog Cursor Stop hook is installed.");
+    expect(stdout.text()).toContain("Command matches expected: yes");
+    expect(stdout.text()).toContain("Action: removed");
+    expect(await readJson(configPath)).toEqual({
+      hooks: {
+        stop: [{ command: "echo existing" }],
+      },
+    });
   });
 });
 

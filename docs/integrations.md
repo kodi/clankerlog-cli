@@ -1,6 +1,6 @@
 # ClankerLog Integrations
 
-This document records the working Codex and Claude Code hook integrations.
+This document records the working Codex, Claude Code, and Cursor hook integrations.
 Treat it as both a runbook for local testing and the manual JSON fallback for
 the `clankerlog hooks` helper commands.
 
@@ -186,6 +186,7 @@ Use the helper commands for normal setup:
 ```bash
 clankerlog hooks install codex
 clankerlog hooks install claude --model claude-sonnet-4.5
+clankerlog hooks install cursor
 clankerlog hooks status codex
 clankerlog hooks uninstall codex
 ```
@@ -199,7 +200,8 @@ clankerlog hooks uninstall codex --dry-run
 
 The helpers:
 
-- Create missing `~/.codex/hooks.json` or `~/.claude/settings.json` files.
+- Create missing `~/.codex/hooks.json`, `~/.claude/settings.json`, or
+  `~/.cursor/hooks.json` files.
 - Preserve existing Stop hooks, non-Stop hooks, and unrelated settings.
 - Never replace Codex `notify` in `~/.codex/config.toml`.
 - Refuse malformed JSON or unsupported `hooks.Stop` shapes without writing.
@@ -298,4 +300,103 @@ Add `--dry-run` to print the resolved clank payload without sending it:
 ```bash
 printf '%s\n' '{"cwd":"/Users/kodi/data/personal/clankerlog-cli","hook_event_name":"Stop","last_assistant_message":"ignore me","permission_mode":"default","session_id":"local-test-session","stop_hook_active":false,"transcript_path":"/tmp/ignore-transcript.jsonl"}' \
   | CLANKERLOG_MODEL='gpt-5.5(low)' /Users/kodi/.local/bin/clankerlog-dev hook claude stop --dry-run
+```
+
+## Cursor Stop Hook
+
+Cursor can run a command when the agent stops. The useful integration point for
+ClankerLog is the lowercase `stop` hook because Cursor sends a common JSON
+payload on stdin that includes the workspace roots and model.
+
+The local path is:
+
+```txt
+Cursor stop hook -> clankerlog-dev hook cursor stop -> local ingestion endpoint -> local D1
+```
+
+For local development, the hook command uses the repo shim:
+
+```bash
+CLANKERLOG_AGENT=cursor /Users/kodi/.local/bin/clankerlog-dev hook cursor stop
+```
+
+User-facing Cursor setup should use the published CLI name through the helper:
+
+```bash
+clankerlog hooks install cursor
+```
+
+Cursor defines hooks in:
+
+```txt
+~/.cursor/hooks.json
+```
+
+Example hook config:
+
+```json
+{
+  "hooks": {
+    "stop": [
+      {
+        "command": "CLANKERLOG_AGENT=cursor clankerlog hook cursor stop"
+      }
+    ]
+  }
+}
+```
+
+Cursor provides `model` in the common hook payload, so the default installed
+command does not need `CLANKERLOG_MODEL`. If a user wants to force a model
+label, the helper can pin one into the command:
+
+```bash
+clankerlog hooks install cursor --model gpt-5.5
+```
+
+That writes:
+
+```json
+{
+  "hooks": {
+    "stop": [
+      {
+        "command": "CLANKERLOG_AGENT=cursor CLANKERLOG_MODEL='gpt-5.5' clankerlog hook cursor stop"
+      }
+    ]
+  }
+}
+```
+
+Cursor sends the stop hook input as JSON on stdin. The current CLI command
+validates the fields we need and allows future extra fields:
+
+```json
+{
+  "conversation_id": "local-test-conversation",
+  "generation_id": "local-test-generation",
+  "model": "gpt-5.5",
+  "hook_event_name": "stop",
+  "cursor_version": "2.6.22",
+  "workspace_roots": ["/Users/kodi/data/personal/clankerlog-cli"],
+  "user_email": "ignored-by-clankerlog@example.com",
+  "transcript_path": "/tmp/ignored-transcript.jsonl"
+}
+```
+
+ClankerLog uses:
+
+- `workspace_roots[0]` as the project/workspace to resolve the allow-list entry.
+- `model` as the model name in the clank payload.
+- `CLANKERLOG_AGENT`, defaulting to `cursor`, as the agent name.
+
+ClankerLog intentionally does not read `user_email` or `transcript_path`. The
+hook is a trigger plus minimal metadata source, not a transcript or identity
+collector.
+
+Add `--dry-run` to print the resolved clank payload without sending it:
+
+```bash
+printf '%s\n' '{"conversation_id":"local-test-conversation","generation_id":"local-test-generation","model":"gpt-5.5","hook_event_name":"stop","cursor_version":"2.6.22","workspace_roots":["/Users/kodi/data/personal/clankerlog-cli"],"user_email":"ignored-by-clankerlog@example.com","transcript_path":"/tmp/ignore-transcript.jsonl"}' \
+  | CLANKERLOG_AGENT=cursor /Users/kodi/.local/bin/clankerlog-dev hook cursor stop --dry-run
 ```

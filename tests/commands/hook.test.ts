@@ -4,7 +4,11 @@ import path from "node:path";
 import { Readable } from "node:stream";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildProgram } from "../../src/cli.js";
-import { handleClaudeStopHook, handleCodexStopHook } from "../../src/commands/hook.js";
+import {
+  handleClaudeStopHook,
+  handleCodexStopHook,
+  handleCursorStopHook,
+} from "../../src/commands/hook.js";
 import { saveGlobalConfig } from "../../src/config.js";
 import { createMemoryRuntime } from "../helpers.js";
 
@@ -269,6 +273,77 @@ describe("claude stop hook", () => {
   });
 });
 
+describe("cursor stop hook", () => {
+  it("sends one quiet clank using workspace root and model from hook stdin", async () => {
+    const root = await makeTempDir();
+    await writeFile(path.join(root, "package.json"), "{}");
+    const projectPath = await realpath(root);
+    const configPath = path.join(root, "global", "config.json");
+    const fetchMock = vi.fn<typeof fetch>(
+      async () => new Response(JSON.stringify({ id: "clank_hook", ok: true }), { status: 202 }),
+    );
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [{ displayName: "Cursor Hook Project", path: projectPath }],
+      apiKey: "clk_live_hook_secret",
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    const runtime = createMemoryRuntime({
+      configPath,
+      cwd: await makeTempDir(),
+      stdin: JSON.stringify(cursorStopPayload({ workspaceRoot: projectPath, model: "gpt-5.5" })),
+    });
+
+    await handleCursorStopHook(runtime);
+
+    expect(runtime.stdoutText()).toBe("");
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    const body = JSON.parse(String(request.body));
+    expect(body).toMatchObject({
+      agent: "cursor",
+      model: "gpt-5.5",
+      project: { display_name: "Cursor Hook Project" },
+      type: "clank",
+    });
+    expect(JSON.stringify(body)).not.toContain("transcript.jsonl");
+    expect(JSON.stringify(body)).not.toContain("kodi@example.com");
+  });
+
+  it("wires the hook cursor stop CLI command through Commander", async () => {
+    const root = await makeTempDir();
+    await writeFile(path.join(root, "package.json"), "{}");
+    const projectPath = await realpath(root);
+    const configHome = path.join(root, "xdg-config");
+    const configPath = path.join(configHome, "clankerlog", "config.json");
+    const fetchMock = vi.fn<typeof fetch>(
+      async () => new Response(JSON.stringify({ id: "clank_hook", ok: true }), { status: 202 }),
+    );
+    globalThis.fetch = fetchMock as typeof fetch;
+    vi.stubEnv("XDG_CONFIG_HOME", configHome);
+    Object.defineProperty(process, "stdin", {
+      configurable: true,
+      value: Readable.from([
+        JSON.stringify(cursorStopPayload({ workspaceRoot: projectPath, model: "gpt-5.5" })),
+      ]),
+    });
+
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [{ displayName: "Cursor Hook Project", path: projectPath }],
+      apiKey: "clk_live_hook_secret",
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    const program = buildProgram();
+    program.exitOverride();
+    await program.parseAsync(["node", "clankerlog", "hook", "cursor", "stop"]);
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+});
+
 function codexStopPayload(options: { cwd: string; model: string }) {
   return {
     cwd: options.cwd,
@@ -292,6 +367,19 @@ function claudeStopPayload(options: { cwd: string }) {
     session_id: "session_123",
     stop_hook_active: false,
     transcript_path: "/tmp/transcript.jsonl",
+  };
+}
+
+function cursorStopPayload(options: { workspaceRoot: string; model: string }) {
+  return {
+    conversation_id: "conversation_123",
+    cursor_version: "2.6.22",
+    generation_id: "generation_123",
+    hook_event_name: "stop",
+    model: options.model,
+    transcript_path: "/tmp/transcript.jsonl",
+    user_email: "kodi@example.com",
+    workspace_roots: [options.workspaceRoot],
   };
 }
 

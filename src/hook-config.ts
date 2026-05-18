@@ -5,7 +5,7 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { CliError } from "./errors.js";
 
-export type HookAgent = "codex" | "claude";
+export type HookAgent = "codex" | "claude" | "cursor";
 
 export interface HookAgentDefinition {
   readonly agent: HookAgent;
@@ -49,6 +49,7 @@ export interface HookStatus {
 export type HookConfigObject = Record<string, unknown>;
 
 interface StopHookLocation {
+  readonly format: "grouped" | "direct";
   readonly groupIndex: number;
   readonly hookIndex: number;
   readonly hook: HookConfigObject;
@@ -64,6 +65,12 @@ export const HOOK_AGENT_DEFINITIONS: Record<HookAgent, HookAgentDefinition> = {
   codex: {
     agent: "codex",
     configPath: (homeDirectory: string) => path.join(homeDirectory, ".codex", "hooks.json"),
+    defaultTimeoutSeconds: 10,
+    statusMessage: "Sending ClankerLog clank",
+  },
+  cursor: {
+    agent: "cursor",
+    configPath: (homeDirectory: string) => path.join(homeDirectory, ".cursor", "hooks.json"),
     defaultTimeoutSeconds: 10,
     statusMessage: "Sending ClankerLog clank",
   },
@@ -91,6 +98,21 @@ export function planInstallHook(
 
   const nextConfig = cloneHookConfig(source);
   const hooks = ensureObjectProperty(nextConfig, "hooks");
+
+  if (agent === "cursor") {
+    const stop = ensureDirectStopHooks(hooks);
+    stop.push(buildHookObject(agent, command));
+
+    return {
+      action: "install",
+      agent,
+      changed: true,
+      command,
+      config: nextConfig,
+      summary: `Install ClankerLog ${agent} Stop hook.`,
+    };
+  }
+
   const stop = ensureStopGroups(hooks);
   const group = stop[0] ?? { hooks: [] };
   const groupHooks = getGroupHooks(group);
@@ -137,12 +159,17 @@ export function planUninstallHook(config: unknown, agent: HookAgent): HookTransf
 
   const nextConfig = cloneHookConfig(source);
   const hooks = nextConfig.hooks as HookConfigObject;
-  const stop = hooks.Stop as HookConfigObject[];
 
   for (const location of locations.toReversed()) {
-    const group = stop[location.groupIndex] as HookConfigObject;
-    const groupHooks = group.hooks as HookConfigObject[];
-    groupHooks.splice(location.hookIndex, 1);
+    if (location.format === "direct") {
+      const stop = hooks.stop as HookConfigObject[];
+      stop.splice(location.hookIndex, 1);
+    } else {
+      const stop = hooks.Stop as HookConfigObject[];
+      const group = stop[location.groupIndex] as HookConfigObject;
+      const groupHooks = group.hooks as HookConfigObject[];
+      groupHooks.splice(location.hookIndex, 1);
+    }
   }
 
   return {
@@ -253,6 +280,13 @@ export function buildHookCommand(agent: HookAgent, options: InstallHookOptions =
     return "CLANKERLOG_AGENT=codex clankerlog hook codex stop";
   }
 
+  if (agent === "cursor") {
+    const modelPrefix = options.model?.trim()
+      ? `CLANKERLOG_MODEL=${shellQuote(options.model.trim())} `
+      : "";
+    return `CLANKERLOG_AGENT=cursor ${modelPrefix}clankerlog hook cursor stop`;
+  }
+
   const model = options.model?.trim();
   if (!model) {
     throw new CliError(
@@ -295,28 +329,39 @@ export function validateHookConfig(config: unknown): HookConfigObject {
   }
 
   const stop = hooks.Stop;
-  if (stop === undefined) {
-    return config;
-  }
-
-  if (!Array.isArray(stop)) {
-    throw new CliError("Hook config `hooks.Stop` must be an array.");
-  }
-
-  for (const [groupIndex, group] of stop.entries()) {
-    if (!isPlainObject(group)) {
-      throw new CliError(`Hook config \`hooks.Stop[${groupIndex}]\` must be an object.`);
+  if (stop !== undefined) {
+    if (!Array.isArray(stop)) {
+      throw new CliError("Hook config `hooks.Stop` must be an array.");
     }
 
-    if (!Array.isArray(group.hooks)) {
-      throw new CliError(`Hook config \`hooks.Stop[${groupIndex}].hooks\` must be an array.`);
+    for (const [groupIndex, group] of stop.entries()) {
+      if (!isPlainObject(group)) {
+        throw new CliError(`Hook config \`hooks.Stop[${groupIndex}]\` must be an object.`);
+      }
+
+      if (!Array.isArray(group.hooks)) {
+        throw new CliError(`Hook config \`hooks.Stop[${groupIndex}].hooks\` must be an array.`);
+      }
+
+      for (const [hookIndex, hook] of group.hooks.entries()) {
+        if (!isPlainObject(hook)) {
+          throw new CliError(
+            `Hook config \`hooks.Stop[${groupIndex}].hooks[${hookIndex}]\` must be an object.`,
+          );
+        }
+      }
+    }
+  }
+
+  const cursorStop = hooks.stop;
+  if (cursorStop !== undefined) {
+    if (!Array.isArray(cursorStop)) {
+      throw new CliError("Hook config `hooks.stop` must be an array.");
     }
 
-    for (const [hookIndex, hook] of group.hooks.entries()) {
+    for (const [hookIndex, hook] of cursorStop.entries()) {
       if (!isPlainObject(hook)) {
-        throw new CliError(
-          `Hook config \`hooks.Stop[${groupIndex}].hooks[${hookIndex}]\` must be an object.`,
-        );
+        throw new CliError(`Hook config \`hooks.stop[${hookIndex}]\` must be an object.`);
       }
     }
   }
@@ -325,6 +370,12 @@ export function validateHookConfig(config: unknown): HookConfigObject {
 }
 
 function buildHookObject(agent: HookAgent, command: string): HookConfigObject {
+  if (agent === "cursor") {
+    return {
+      command,
+    };
+  }
+
   const definition = HOOK_AGENT_DEFINITIONS[agent];
 
   return {
@@ -357,6 +408,17 @@ function ensureStopGroups(hooks: HookConfigObject): HookConfigObject[] {
   return next;
 }
 
+function ensureDirectStopHooks(hooks: HookConfigObject): HookConfigObject[] {
+  const stop = hooks.stop;
+  if (Array.isArray(stop)) {
+    return stop;
+  }
+
+  const next: HookConfigObject[] = [];
+  hooks.stop = next;
+  return next;
+}
+
 function getGroupHooks(group: HookConfigObject): HookConfigObject[] {
   if (Array.isArray(group.hooks)) {
     return group.hooks as HookConfigObject[];
@@ -369,11 +431,25 @@ function getGroupHooks(group: HookConfigObject): HookConfigObject[] {
 
 function findClankerLogHooks(config: HookConfigObject, agent: HookAgent): StopHookLocation[] {
   const hooks = config.hooks;
-  if (!isPlainObject(hooks) || !Array.isArray(hooks.Stop)) {
+  if (!isPlainObject(hooks)) {
     return [];
   }
 
   const locations: StopHookLocation[] = [];
+
+  if (agent === "cursor" && Array.isArray(hooks.stop)) {
+    for (const [hookIndex, hook] of hooks.stop.entries()) {
+      if (isPlainObject(hook) && isClankerLogHook(hook, agent)) {
+        locations.push({ format: "direct", groupIndex: -1, hookIndex, hook });
+      }
+    }
+
+    return locations;
+  }
+
+  if (!Array.isArray(hooks.Stop)) {
+    return [];
+  }
 
   for (const [groupIndex, group] of hooks.Stop.entries()) {
     const groupHooks = (group as HookConfigObject).hooks;
@@ -383,7 +459,7 @@ function findClankerLogHooks(config: HookConfigObject, agent: HookAgent): StopHo
 
     for (const [hookIndex, hook] of groupHooks.entries()) {
       if (isPlainObject(hook) && isClankerLogHook(hook, agent)) {
-        locations.push({ groupIndex, hookIndex, hook });
+        locations.push({ format: "grouped", groupIndex, hookIndex, hook });
       }
     }
   }
@@ -401,11 +477,11 @@ function isClankerLogHook(hook: HookConfigObject, agent: HookAgent): boolean {
 }
 
 function isExpectedClankerLogHook(hook: HookConfigObject, agent: HookAgent): boolean {
-  if (hook.type !== "command") {
+  if (agent !== "cursor" && hook.type !== "command") {
     return false;
   }
 
-  if (hook.statusMessage !== HOOK_AGENT_DEFINITIONS[agent].statusMessage) {
+  if (agent !== "cursor" && hook.statusMessage !== HOOK_AGENT_DEFINITIONS[agent].statusMessage) {
     return false;
   }
 
@@ -416,6 +492,15 @@ function isExpectedClankerLogHook(hook: HookConfigObject, agent: HookAgent): boo
 
   if (agent === "codex") {
     return command === buildHookCommand("codex");
+  }
+
+  if (agent === "cursor") {
+    return (
+      command === buildHookCommand("cursor") ||
+      /^CLANKERLOG_AGENT=cursor CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+) clankerlog hook cursor stop$/.test(
+        command,
+      )
+    );
   }
 
   return /^CLANKERLOG_AGENT=claude CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+) clankerlog hook claude stop$/.test(

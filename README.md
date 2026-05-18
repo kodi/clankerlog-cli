@@ -84,6 +84,26 @@ Install the Claude Code Stop hook with the model name ClankerLog should report:
 clankerlog hooks install claude --model claude-sonnet-4.5
 ```
 
+Install the Cursor stop hook:
+
+```bash
+clankerlog hooks install cursor
+```
+
+Equivalent Cursor config:
+
+```json
+{
+  "hooks": {
+    "stop": [
+      {
+        "command": "CLANKERLOG_AGENT=cursor clankerlog hook cursor stop"
+      }
+    ]
+  }
+}
+```
+
 Preview the filesystem change without writing it:
 
 ```bash
@@ -97,9 +117,9 @@ clankerlog hooks status codex
 clankerlog hooks uninstall codex
 ```
 
-Hook commands read the agent hook JSON from stdin, use the workspace `cwd`, and
-ignore assistant messages and transcript paths. Both hook commands support
-`--dry-run` for local payload inspection.
+Hook commands read the agent hook JSON from stdin, use the workspace path from
+the hook payload, and ignore assistant messages and transcript paths. Hook
+commands support `--dry-run` for local payload inspection.
 
 See [docs/integrations.md](docs/integrations.md) for the fuller manual install
 runbook, local development commands, and integration notes.

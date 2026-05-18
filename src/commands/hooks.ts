@@ -43,6 +43,16 @@ export function registerHooksCommand(program: Command): void {
       await handleInstallHook("claude", createRuntime(command), options);
     });
 
+  install
+    .command("cursor")
+    .description("Install the Cursor stop hook.")
+    .option("--dry-run", "Show the hook config change without writing it")
+    .option("--model <model>", "Optional Cursor model override; by default Cursor supplies it")
+    .addOption(new Option("--hook-config <path>").hideHelp())
+    .action(async (options: InstallOptions, command: Command) => {
+      await handleInstallHook("cursor", createRuntime(command), options);
+    });
+
   status
     .command("codex")
     .description("Inspect the Codex Stop hook.")
@@ -57,6 +67,14 @@ export function registerHooksCommand(program: Command): void {
     .addOption(new Option("--hook-config <path>").hideHelp())
     .action(async (options: InstallOptions, command: Command) => {
       await handleHookStatus("claude", createRuntime(command), options);
+    });
+
+  status
+    .command("cursor")
+    .description("Inspect the Cursor stop hook.")
+    .addOption(new Option("--hook-config <path>").hideHelp())
+    .action(async (options: InstallOptions, command: Command) => {
+      await handleHookStatus("cursor", createRuntime(command), options);
     });
 
   uninstall
@@ -75,6 +93,15 @@ export function registerHooksCommand(program: Command): void {
     .addOption(new Option("--hook-config <path>").hideHelp())
     .action(async (options: InstallOptions, command: Command) => {
       await handleUninstallHook("claude", createRuntime(command), options);
+    });
+
+  uninstall
+    .command("cursor")
+    .description("Remove the Cursor stop hook.")
+    .option("--dry-run", "Show the hook config change without writing it")
+    .addOption(new Option("--hook-config <path>").hideHelp())
+    .action(async (options: InstallOptions, command: Command) => {
+      await handleUninstallHook("cursor", createRuntime(command), options);
     });
 }
 
@@ -188,5 +215,13 @@ function writeLine(runtime: CliRuntime, line: string): void {
 }
 
 function agentName(agent: HookAgent): string {
-  return agent === "claude" ? "Claude Code" : "Codex";
+  if (agent === "claude") {
+    return "Claude Code";
+  }
+
+  if (agent === "cursor") {
+    return "Cursor";
+  }
+
+  return "Codex";
 }
