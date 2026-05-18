@@ -56,7 +56,7 @@ export async function handleCodexStopHook(
   runtime: CliRuntime,
   options: HookStopOptions = {},
 ): Promise<void> {
-  const input = await parseCodexStopInput(runtime);
+  const input = await parseCodexStopInput(runtime, options);
   const hookRuntime = createHookRuntime(runtime, input.cwd, { quiet: !options.dryRun });
 
   try {
@@ -82,7 +82,7 @@ export async function handleClaudeStopHook(
   runtime: CliRuntime,
   options: HookStopOptions = {},
 ): Promise<void> {
-  const input = await parseClaudeStopInput(runtime);
+  const input = await parseClaudeStopInput(runtime, options);
   const hookRuntime = createHookRuntime(runtime, input.cwd, { quiet: !options.dryRun });
 
   try {
@@ -103,10 +103,27 @@ export async function handleClaudeStopHook(
   }
 }
 
-async function parseCodexStopInput(runtime: CliRuntime): Promise<CodexStopInput> {
-  const raw = await readStdin(runtime.stdin);
+async function parseCodexStopInput(
+  runtime: CliRuntime,
+  options: HookStopOptions,
+): Promise<CodexStopInput> {
+  const raw = await readStdin(runtime.stdin, { allowDryRunFallback: options.dryRun ?? false });
 
   if (!raw.trim()) {
+    if (options.dryRun) {
+      return codexStopInputSchema.parse({
+        cwd: runtime.cwd,
+        hook_event_name: "Stop",
+        last_assistant_message: null,
+        model: runtime.env.CLANKERLOG_MODEL ?? "dry-run-model",
+        permission_mode: "default",
+        session_id: "dry-run-session",
+        stop_hook_active: false,
+        transcript_path: null,
+        turn_id: "dry-run-turn",
+      });
+    }
+
     throw new CliError("Codex Stop hook payload was empty.");
   }
 
@@ -127,10 +144,25 @@ async function parseCodexStopInput(runtime: CliRuntime): Promise<CodexStopInput>
   return result.data;
 }
 
-async function parseClaudeStopInput(runtime: CliRuntime): Promise<ClaudeStopInput> {
-  const raw = await readStdin(runtime.stdin);
+async function parseClaudeStopInput(
+  runtime: CliRuntime,
+  options: HookStopOptions,
+): Promise<ClaudeStopInput> {
+  const raw = await readStdin(runtime.stdin, { allowDryRunFallback: options.dryRun ?? false });
 
   if (!raw.trim()) {
+    if (options.dryRun) {
+      return claudeStopInputSchema.parse({
+        cwd: runtime.cwd,
+        hook_event_name: "Stop",
+        last_assistant_message: null,
+        permission_mode: "default",
+        session_id: "dry-run-session",
+        stop_hook_active: false,
+        transcript_path: null,
+      });
+    }
+
     throw new CliError("Claude Code Stop hook payload was empty.");
   }
 
@@ -166,19 +198,60 @@ function createHookRuntime(
   };
 }
 
-function readStdin(stream: NodeJS.ReadableStream): Promise<string> {
+function readStdin(
+  stream: NodeJS.ReadableStream,
+  options: { allowDryRunFallback: boolean },
+): Promise<string> {
+  if (options.allowDryRunFallback && stdinIsTty(stream)) {
+    return Promise.resolve("");
+  }
+
   return new Promise((resolve, reject) => {
     const chunks: string[] = [];
+    let fallbackTimer: NodeJS.Timeout | undefined;
+
+    const cleanup = () => {
+      if (fallbackTimer) {
+        clearTimeout(fallbackTimer);
+      }
+      stream.off("data", onData);
+      stream.off("end", onEnd);
+      stream.off("error", onError);
+    };
+
+    const finish = (value: string) => {
+      cleanup();
+      resolve(value);
+    };
+
+    const onData = (chunk: string | Buffer) => {
+      chunks.push(chunk.toString());
+    };
+
+    const onEnd = () => {
+      finish(chunks.join(""));
+    };
+
+    const onError = (error: Error) => {
+      cleanup();
+      reject(error);
+    };
 
     stream.setEncoding("utf8");
-    stream.on("data", (chunk: string | Buffer) => {
-      chunks.push(chunk.toString());
-    });
-    stream.on("end", () => {
-      resolve(chunks.join(""));
-    });
-    stream.on("error", reject);
+    stream.on("data", onData);
+    stream.on("end", onEnd);
+    stream.on("error", onError);
+
+    if (options.allowDryRunFallback) {
+      fallbackTimer = setTimeout(() => {
+        finish(chunks.join(""));
+      }, 50);
+    }
   });
+}
+
+function stdinIsTty(stream: NodeJS.ReadableStream): boolean {
+  return Boolean((stream as NodeJS.ReadStream).isTTY);
 }
 
 class NullWritable extends Writable {

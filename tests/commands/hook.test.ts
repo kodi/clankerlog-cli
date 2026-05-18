@@ -238,6 +238,35 @@ describe("claude stop hook", () => {
     expect(runtime.stdoutText()).toContain('"agent": "claude"');
     expect(runtime.stdoutText()).toContain('"model": "gpt-5.5(low)"');
   });
+
+  it("supports dry-run without stdin by using the current workspace", async () => {
+    const root = await makeTempDir();
+    await writeFile(path.join(root, "package.json"), "{}");
+    const projectPath = await realpath(root);
+    const configPath = path.join(root, "global", "config.json");
+    const fetchMock = vi.fn();
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [{ displayName: "Claude Hook Project", path: projectPath }],
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    const runtime = createMemoryRuntime({
+      configPath,
+      cwd: projectPath,
+      env: {
+        CLANKERLOG_MODEL: "gpt-5.5",
+      },
+    });
+
+    await handleClaudeStopHook(runtime, { dryRun: true });
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(runtime.stdoutText()).toContain('"agent": "claude"');
+    expect(runtime.stdoutText()).toContain('"model": "gpt-5.5"');
+    expect(runtime.stdoutText()).toContain('"display_name": "Claude Hook Project"');
+  });
 });
 
 function codexStopPayload(options: { cwd: string; model: string }) {

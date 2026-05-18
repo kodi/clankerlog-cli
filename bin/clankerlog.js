@@ -609,32 +609,53 @@ function registerHookCommand(program) {
 	const hook = program.command("hook").description("Run coding-agent hook integrations.");
 	const codex = hook.command("codex").description("Run Codex hook integrations.");
 	const claude = hook.command("claude").description("Run Claude Code hook integrations.");
-	codex.command("stop").description("Handle a Codex Stop hook payload from stdin.").action(async (_options, command) => {
-		await handleCodexStopHook(createRuntime(command));
+	codex.command("stop").description("Handle a Codex Stop hook payload from stdin.").option("--dry-run", "Print the resolved clank payload without sending it").action(async (options, command) => {
+		await handleCodexStopHook(createRuntime(command), options);
 	});
-	claude.command("stop").description("Handle a Claude Code Stop hook payload from stdin.").action(async (_options, command) => {
-		await handleClaudeStopHook(createRuntime(command));
+	claude.command("stop").description("Handle a Claude Code Stop hook payload from stdin.").option("--dry-run", "Print the resolved clank payload without sending it").action(async (options, command) => {
+		await handleClaudeStopHook(createRuntime(command), options);
 	});
 }
-async function handleCodexStopHook(runtime) {
-	const input = await parseCodexStopInput(runtime);
-	const hookRuntime = createHookRuntime(runtime, input.cwd);
+async function handleCodexStopHook(runtime, options = {}) {
+	const input = await parseCodexStopInput(runtime, options);
+	const hookRuntime = createHookRuntime(runtime, input.cwd, { quiet: !options.dryRun });
 	try {
 		await handlePing({
 			agent: runtime.env.CLANKERLOG_AGENT ?? "codex",
+			dryRun: options.dryRun ?? false,
 			model: input.model
 		}, hookRuntime);
-	} catch {}
+	} catch (error) {
+		if (options.dryRun) throw error;
+	}
 }
-async function handleClaudeStopHook(runtime) {
-	const hookRuntime = createHookRuntime(runtime, (await parseClaudeStopInput(runtime)).cwd);
+async function handleClaudeStopHook(runtime, options = {}) {
+	const hookRuntime = createHookRuntime(runtime, (await parseClaudeStopInput(runtime, options)).cwd, { quiet: !options.dryRun });
 	try {
-		await handlePing({ agent: runtime.env.CLANKERLOG_AGENT ?? "claude" }, hookRuntime);
-	} catch {}
+		await handlePing({
+			agent: runtime.env.CLANKERLOG_AGENT ?? "claude",
+			dryRun: options.dryRun ?? false
+		}, hookRuntime);
+	} catch (error) {
+		if (options.dryRun) throw error;
+	}
 }
-async function parseCodexStopInput(runtime) {
-	const raw = await readStdin(runtime.stdin);
-	if (!raw.trim()) throw new CliError("Codex Stop hook payload was empty.");
+async function parseCodexStopInput(runtime, options) {
+	const raw = await readStdin(runtime.stdin, { allowDryRunFallback: options.dryRun ?? false });
+	if (!raw.trim()) {
+		if (options.dryRun) return codexStopInputSchema.parse({
+			cwd: runtime.cwd,
+			hook_event_name: "Stop",
+			last_assistant_message: null,
+			model: runtime.env.CLANKERLOG_MODEL ?? "dry-run-model",
+			permission_mode: "default",
+			session_id: "dry-run-session",
+			stop_hook_active: false,
+			transcript_path: null,
+			turn_id: "dry-run-turn"
+		});
+		throw new CliError("Codex Stop hook payload was empty.");
+	}
 	let parsed;
 	try {
 		parsed = JSON.parse(raw);
@@ -645,9 +666,20 @@ async function parseCodexStopInput(runtime) {
 	if (!result.success) throw new CliError(`Codex Stop hook payload was invalid: ${result.error.issues[0]?.message ?? "schema validation failed"}`);
 	return result.data;
 }
-async function parseClaudeStopInput(runtime) {
-	const raw = await readStdin(runtime.stdin);
-	if (!raw.trim()) throw new CliError("Claude Code Stop hook payload was empty.");
+async function parseClaudeStopInput(runtime, options) {
+	const raw = await readStdin(runtime.stdin, { allowDryRunFallback: options.dryRun ?? false });
+	if (!raw.trim()) {
+		if (options.dryRun) return claudeStopInputSchema.parse({
+			cwd: runtime.cwd,
+			hook_event_name: "Stop",
+			last_assistant_message: null,
+			permission_mode: "default",
+			session_id: "dry-run-session",
+			stop_hook_active: false,
+			transcript_path: null
+		});
+		throw new CliError("Claude Code Stop hook payload was empty.");
+	}
 	let parsed;
 	try {
 		parsed = JSON.parse(raw);
@@ -658,28 +690,52 @@ async function parseClaudeStopInput(runtime) {
 	if (!result.success) throw new CliError(`Claude Code Stop hook payload was invalid: ${result.error.issues[0]?.message ?? "schema validation failed"}`);
 	return result.data;
 }
-function createHookRuntime(runtime, cwd) {
+function createHookRuntime(runtime, cwd, options) {
 	return {
 		configPath: runtime.configPath,
 		cwd,
 		env: runtime.env,
 		stderr: runtime.stderr,
 		stdin: runtime.stdin,
-		stdout: new NullWritable()
+		stdout: options.quiet ? new NullWritable() : runtime.stdout
 	};
 }
-function readStdin(stream) {
+function readStdin(stream, options) {
+	if (options.allowDryRunFallback && stdinIsTty(stream)) return Promise.resolve("");
 	return new Promise((resolve, reject) => {
 		const chunks = [];
-		stream.setEncoding("utf8");
-		stream.on("data", (chunk) => {
+		let fallbackTimer;
+		const cleanup = () => {
+			if (fallbackTimer) clearTimeout(fallbackTimer);
+			stream.off("data", onData);
+			stream.off("end", onEnd);
+			stream.off("error", onError);
+		};
+		const finish = (value) => {
+			cleanup();
+			resolve(value);
+		};
+		const onData = (chunk) => {
 			chunks.push(chunk.toString());
-		});
-		stream.on("end", () => {
-			resolve(chunks.join(""));
-		});
-		stream.on("error", reject);
+		};
+		const onEnd = () => {
+			finish(chunks.join(""));
+		};
+		const onError = (error) => {
+			cleanup();
+			reject(error);
+		};
+		stream.setEncoding("utf8");
+		stream.on("data", onData);
+		stream.on("end", onEnd);
+		stream.on("error", onError);
+		if (options.allowDryRunFallback) fallbackTimer = setTimeout(() => {
+			finish(chunks.join(""));
+		}, 50);
 	});
+}
+function stdinIsTty(stream) {
+	return Boolean(stream.isTTY);
 }
 var NullWritable = class extends Writable {
 	_write(_chunk, _encoding, callback) {
