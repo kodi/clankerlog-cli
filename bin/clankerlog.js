@@ -606,15 +606,29 @@ const claudeStopInputSchema = z.looseObject({
 	stop_hook_active: z.boolean(),
 	transcript_path: z.string().nullable().optional()
 });
+const cursorStopInputSchema = z.looseObject({
+	workspace_roots: z.array(z.string().trim().min(1)).min(1),
+	conversation_id: z.string().trim().min(1),
+	cursor_version: z.string().trim().min(1),
+	generation_id: z.string().trim().min(1),
+	hook_event_name: z.literal("stop").optional(),
+	model: z.string().trim().min(1).max(120),
+	transcript_path: z.string().nullable(),
+	user_email: z.string().nullable()
+});
 function registerHookCommand(program) {
 	const hook = program.command("hook").description("Run coding-agent hook integrations.");
 	const codex = hook.command("codex").description("Run Codex hook integrations.");
 	const claude = hook.command("claude").description("Run Claude Code hook integrations.");
+	const cursor = hook.command("cursor").description("Run Cursor hook integrations.");
 	codex.command("stop").description("Handle a Codex Stop hook payload from stdin.").option("--dry-run", "Print the resolved clank payload without sending it").action(async (options, command) => {
 		await handleCodexStopHook(createRuntime(command), options);
 	});
 	claude.command("stop").description("Handle a Claude Code Stop hook payload from stdin.").option("--dry-run", "Print the resolved clank payload without sending it").action(async (options, command) => {
 		await handleClaudeStopHook(createRuntime(command), options);
+	});
+	cursor.command("stop").description("Handle a Cursor stop hook payload from stdin.").option("--dry-run", "Print the resolved clank payload without sending it").action(async (options, command) => {
+		await handleCursorStopHook(createRuntime(command), options);
 	});
 }
 async function handleCodexStopHook(runtime, options = {}) {
@@ -636,6 +650,19 @@ async function handleClaudeStopHook(runtime, options = {}) {
 		await handlePing({
 			agent: runtime.env.CLANKERLOG_AGENT ?? "claude",
 			dryRun: options.dryRun ?? false
+		}, hookRuntime);
+	} catch (error) {
+		if (options.dryRun) throw error;
+	}
+}
+async function handleCursorStopHook(runtime, options = {}) {
+	const input = await parseCursorStopInput(runtime, options);
+	const hookRuntime = createHookRuntime(runtime, input.workspace_roots[0], { quiet: !options.dryRun });
+	try {
+		await handlePing({
+			agent: runtime.env.CLANKERLOG_AGENT ?? "cursor",
+			dryRun: options.dryRun ?? false,
+			model: input.model
 		}, hookRuntime);
 	} catch (error) {
 		if (options.dryRun) throw error;
@@ -689,6 +716,31 @@ async function parseClaudeStopInput(runtime, options) {
 	}
 	const result = claudeStopInputSchema.safeParse(parsed);
 	if (!result.success) throw new CliError(`Claude Code Stop hook payload was invalid: ${result.error.issues[0]?.message ?? "schema validation failed"}`);
+	return result.data;
+}
+async function parseCursorStopInput(runtime, options) {
+	const raw = await readStdin(runtime.stdin, { allowDryRunFallback: options.dryRun ?? false });
+	if (!raw.trim()) {
+		if (options.dryRun) return cursorStopInputSchema.parse({
+			workspace_roots: [runtime.cwd],
+			conversation_id: "dry-run-conversation",
+			cursor_version: "dry-run-cursor",
+			generation_id: "dry-run-generation",
+			hook_event_name: "stop",
+			model: runtime.env.CLANKERLOG_MODEL ?? "dry-run-model",
+			transcript_path: null,
+			user_email: null
+		});
+		throw new CliError("Cursor stop hook payload was empty.");
+	}
+	let parsed;
+	try {
+		parsed = JSON.parse(raw);
+	} catch {
+		throw new CliError("Cursor stop hook payload was not valid JSON.");
+	}
+	const result = cursorStopInputSchema.safeParse(parsed);
+	if (!result.success) throw new CliError(`Cursor stop hook payload was invalid: ${result.error.issues[0]?.message ?? "schema validation failed"}`);
 	return result.data;
 }
 function createHookRuntime(runtime, cwd, options) {
@@ -757,6 +809,12 @@ const HOOK_AGENT_DEFINITIONS = {
 		configPath: (homeDirectory) => path.join(homeDirectory, ".codex", "hooks.json"),
 		defaultTimeoutSeconds: 10,
 		statusMessage: "Sending ClankerLog clank"
+	},
+	cursor: {
+		agent: "cursor",
+		configPath: (homeDirectory) => path.join(homeDirectory, ".cursor", "hooks.json"),
+		defaultTimeoutSeconds: 10,
+		statusMessage: "Sending ClankerLog clank"
 	}
 };
 function planInstallHook(config, agent, options = {}) {
@@ -772,7 +830,19 @@ function planInstallHook(config, agent, options = {}) {
 		summary: `ClankerLog ${agent} Stop hook is already installed.`
 	};
 	const nextConfig = cloneHookConfig(source);
-	const stop = ensureStopGroups(ensureObjectProperty(nextConfig, "hooks"));
+	const hooks = ensureObjectProperty(nextConfig, "hooks");
+	if (agent === "cursor") {
+		ensureDirectStopHooks(hooks).push(buildHookObject(agent, command));
+		return {
+			action: "install",
+			agent,
+			changed: true,
+			command,
+			config: nextConfig,
+			summary: `Install ClankerLog ${agent} Stop hook.`
+		};
+	}
+	const stop = ensureStopGroups(hooks);
 	const group = stop[0] ?? { hooks: [] };
 	const groupHooks = getGroupHooks(group);
 	if (!stop[0]) stop.push(group);
@@ -797,8 +867,9 @@ function planUninstallHook(config, agent) {
 		summary: `ClankerLog ${agent} Stop hook is not installed.`
 	};
 	const nextConfig = cloneHookConfig(source);
-	const stop = nextConfig.hooks.Stop;
-	for (const location of locations.toReversed()) stop[location.groupIndex].hooks.splice(location.hookIndex, 1);
+	const hooks = nextConfig.hooks;
+	for (const location of locations.toReversed()) if (location.format === "direct") hooks.stop.splice(location.hookIndex, 1);
+	else hooks.Stop[location.groupIndex].hooks.splice(location.hookIndex, 1);
 	return {
 		action: "uninstall",
 		agent,
@@ -868,6 +939,7 @@ async function writeHookConfigFileAtomic(configPath, config) {
 }
 function buildHookCommand(agent, options = {}) {
 	if (agent === "codex") return "CLANKERLOG_AGENT=codex clankerlog hook codex stop";
+	if (agent === "cursor") return `CLANKERLOG_AGENT=cursor ${options.model?.trim() ? `CLANKERLOG_MODEL=${shellQuote(options.model.trim())} ` : ""}clankerlog hook cursor stop`;
 	const model = options.model?.trim();
 	if (!model) throw new CliError("Claude Code hook install requires --model, for example `--model claude-sonnet-4.5`.");
 	return `CLANKERLOG_AGENT=claude CLANKERLOG_MODEL=${shellQuote(model)} clankerlog hook claude stop`;
@@ -887,16 +959,23 @@ function validateHookConfig(config) {
 	if (hooks === void 0) return config;
 	if (!isPlainObject(hooks)) throw new CliError("Hook config `hooks` must be a JSON object.");
 	const stop = hooks.Stop;
-	if (stop === void 0) return config;
-	if (!Array.isArray(stop)) throw new CliError("Hook config `hooks.Stop` must be an array.");
-	for (const [groupIndex, group] of stop.entries()) {
-		if (!isPlainObject(group)) throw new CliError(`Hook config \`hooks.Stop[${groupIndex}]\` must be an object.`);
-		if (!Array.isArray(group.hooks)) throw new CliError(`Hook config \`hooks.Stop[${groupIndex}].hooks\` must be an array.`);
-		for (const [hookIndex, hook] of group.hooks.entries()) if (!isPlainObject(hook)) throw new CliError(`Hook config \`hooks.Stop[${groupIndex}].hooks[${hookIndex}]\` must be an object.`);
+	if (stop !== void 0) {
+		if (!Array.isArray(stop)) throw new CliError("Hook config `hooks.Stop` must be an array.");
+		for (const [groupIndex, group] of stop.entries()) {
+			if (!isPlainObject(group)) throw new CliError(`Hook config \`hooks.Stop[${groupIndex}]\` must be an object.`);
+			if (!Array.isArray(group.hooks)) throw new CliError(`Hook config \`hooks.Stop[${groupIndex}].hooks\` must be an array.`);
+			for (const [hookIndex, hook] of group.hooks.entries()) if (!isPlainObject(hook)) throw new CliError(`Hook config \`hooks.Stop[${groupIndex}].hooks[${hookIndex}]\` must be an object.`);
+		}
+	}
+	const cursorStop = hooks.stop;
+	if (cursorStop !== void 0) {
+		if (!Array.isArray(cursorStop)) throw new CliError("Hook config `hooks.stop` must be an array.");
+		for (const [hookIndex, hook] of cursorStop.entries()) if (!isPlainObject(hook)) throw new CliError(`Hook config \`hooks.stop[${hookIndex}]\` must be an object.`);
 	}
 	return config;
 }
 function buildHookObject(agent, command) {
+	if (agent === "cursor") return { command };
 	const definition = HOOK_AGENT_DEFINITIONS[agent];
 	return {
 		type: "command",
@@ -919,6 +998,13 @@ function ensureStopGroups(hooks) {
 	hooks.Stop = next;
 	return next;
 }
+function ensureDirectStopHooks(hooks) {
+	const stop = hooks.stop;
+	if (Array.isArray(stop)) return stop;
+	const next = [];
+	hooks.stop = next;
+	return next;
+}
 function getGroupHooks(group) {
 	if (Array.isArray(group.hooks)) return group.hooks;
 	const hooks = [];
@@ -927,12 +1013,23 @@ function getGroupHooks(group) {
 }
 function findClankerLogHooks(config, agent) {
 	const hooks = config.hooks;
-	if (!isPlainObject(hooks) || !Array.isArray(hooks.Stop)) return [];
+	if (!isPlainObject(hooks)) return [];
 	const locations = [];
+	if (agent === "cursor" && Array.isArray(hooks.stop)) {
+		for (const [hookIndex, hook] of hooks.stop.entries()) if (isPlainObject(hook) && isClankerLogHook(hook, agent)) locations.push({
+			format: "direct",
+			groupIndex: -1,
+			hookIndex,
+			hook
+		});
+		return locations;
+	}
+	if (!Array.isArray(hooks.Stop)) return [];
 	for (const [groupIndex, group] of hooks.Stop.entries()) {
 		const groupHooks = group.hooks;
 		if (!Array.isArray(groupHooks)) continue;
 		for (const [hookIndex, hook] of groupHooks.entries()) if (isPlainObject(hook) && isClankerLogHook(hook, agent)) locations.push({
+			format: "grouped",
 			groupIndex,
 			hookIndex,
 			hook
@@ -946,11 +1043,12 @@ function isClankerLogHook(hook, agent) {
 	return isExpectedClankerLogHook(hook, agent);
 }
 function isExpectedClankerLogHook(hook, agent) {
-	if (hook.type !== "command") return false;
-	if (hook.statusMessage !== HOOK_AGENT_DEFINITIONS[agent].statusMessage) return false;
+	if (agent !== "cursor" && hook.type !== "command") return false;
+	if (agent !== "cursor" && hook.statusMessage !== HOOK_AGENT_DEFINITIONS[agent].statusMessage) return false;
 	const command = getHookCommand(hook);
 	if (!command) return false;
 	if (agent === "codex") return command === buildHookCommand("codex");
+	if (agent === "cursor") return command === buildHookCommand("cursor") || /^CLANKERLOG_AGENT=cursor CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+) clankerlog hook cursor stop$/.test(command);
 	return /^CLANKERLOG_AGENT=claude CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+) clankerlog hook claude stop$/.test(command);
 }
 function getHookCommand(hook) {
@@ -989,17 +1087,26 @@ function registerHooksCommand(program) {
 	install.command("claude").description("Install the Claude Code Stop hook.").option("--dry-run", "Show the hook config change without writing it").option("--model <model>", "Claude model name, for example claude-sonnet-4.5").addOption(new Option("--hook-config <path>").hideHelp()).action(async (options, command) => {
 		await handleInstallHook("claude", createRuntime(command), options);
 	});
+	install.command("cursor").description("Install the Cursor stop hook.").option("--dry-run", "Show the hook config change without writing it").option("--model <model>", "Optional Cursor model override; by default Cursor supplies it").addOption(new Option("--hook-config <path>").hideHelp()).action(async (options, command) => {
+		await handleInstallHook("cursor", createRuntime(command), options);
+	});
 	status.command("codex").description("Inspect the Codex Stop hook.").addOption(new Option("--hook-config <path>").hideHelp()).action(async (options, command) => {
 		await handleHookStatus("codex", createRuntime(command), options);
 	});
 	status.command("claude").description("Inspect the Claude Code Stop hook.").addOption(new Option("--hook-config <path>").hideHelp()).action(async (options, command) => {
 		await handleHookStatus("claude", createRuntime(command), options);
 	});
+	status.command("cursor").description("Inspect the Cursor stop hook.").addOption(new Option("--hook-config <path>").hideHelp()).action(async (options, command) => {
+		await handleHookStatus("cursor", createRuntime(command), options);
+	});
 	uninstall.command("codex").description("Remove the Codex Stop hook.").option("--dry-run", "Show the hook config change without writing it").addOption(new Option("--hook-config <path>").hideHelp()).action(async (options, command) => {
 		await handleUninstallHook("codex", createRuntime(command), options);
 	});
 	uninstall.command("claude").description("Remove the Claude Code Stop hook.").option("--dry-run", "Show the hook config change without writing it").addOption(new Option("--hook-config <path>").hideHelp()).action(async (options, command) => {
 		await handleUninstallHook("claude", createRuntime(command), options);
+	});
+	uninstall.command("cursor").description("Remove the Cursor stop hook.").option("--dry-run", "Show the hook config change without writing it").addOption(new Option("--hook-config <path>").hideHelp()).action(async (options, command) => {
+		await handleUninstallHook("cursor", createRuntime(command), options);
 	});
 }
 async function handleInstallHook(agent, runtime, options = {}) {
@@ -1053,7 +1160,9 @@ function writeLine(runtime, line) {
 	runtime.stdout.write(`${line}\n`);
 }
 function agentName(agent) {
-	return agent === "claude" ? "Claude Code" : "Codex";
+	if (agent === "claude") return "Claude Code";
+	if (agent === "cursor") return "Cursor";
+	return "Codex";
 }
 //#endregion
 //#region src/commands/init.ts
