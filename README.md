@@ -105,7 +105,7 @@ through `CLANKERLOG_MODEL` because Claude's Stop payload does not include one:
         "hooks": [
           {
             "type": "command",
-            "command": "CLANKERLOG_AGENT=claude CLANKERLOG_MODEL=gpt-5.5(low) clankerlog hook claude stop",
+            "command": "CLANKERLOG_AGENT=claude CLANKERLOG_MODEL='gpt-5.5(low)' clankerlog hook claude stop",
             "timeout": 10
           }
         ]

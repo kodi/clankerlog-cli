@@ -140,6 +140,13 @@ printf '%s\n' '{"cwd":"/Users/kodi/data/personal/clankerlog-cli","hook_event_nam
   | CLANKERLOG_AGENT=codex /Users/kodi/.local/bin/clankerlog-dev hook codex stop
 ```
 
+Add `--dry-run` to print the resolved clank payload without sending it:
+
+```bash
+printf '%s\n' '{"cwd":"/Users/kodi/data/personal/clankerlog-cli","hook_event_name":"Stop","last_assistant_message":"ignore me","model":"gpt-5.5","permission_mode":"default","session_id":"local-test-session","stop_hook_active":false,"transcript_path":"/tmp/ignore-transcript.jsonl","turn_id":"local-test-turn"}' \
+  | CLANKERLOG_AGENT=codex /Users/kodi/.local/bin/clankerlog-dev hook codex stop --dry-run
+```
+
 The hook command should be quiet on stdout. That keeps Codex hook output clean.
 Ingestion failures are swallowed inside the hook command so a ClankerLog outage
 does not interrupt Codex. Use `doctor` and `ping --dry-run` for diagnostics.
@@ -237,7 +244,7 @@ Claude Code Stop hook -> clankerlog-dev hook claude stop -> local ingestion endp
 For local development, the hook command uses the repo shim:
 
 ```bash
-CLANKERLOG_AGENT=claude CLANKERLOG_MODEL=gpt-5.5(low) /Users/kodi/.local/bin/clankerlog-dev hook claude stop
+CLANKERLOG_AGENT=claude CLANKERLOG_MODEL='gpt-5.5(low)' /Users/kodi/.local/bin/clankerlog-dev hook claude stop
 ```
 
 Claude Code defines hooks in:
@@ -256,7 +263,7 @@ Example hook entry:
         "hooks": [
           {
             "type": "command",
-            "command": "CLANKERLOG_AGENT=claude CLANKERLOG_MODEL=gpt-5.5(low) /Users/kodi/.local/bin/clankerlog-dev hook claude stop",
+            "command": "CLANKERLOG_AGENT=claude CLANKERLOG_MODEL='gpt-5.5(low)' /Users/kodi/.local/bin/clankerlog-dev hook claude stop",
             "timeout": 10,
             "statusMessage": "Sending ClankerLog clank"
           }
@@ -291,3 +298,10 @@ ClankerLog uses:
 Claude Code's Stop hook payload does not include `model`, so the hook command
 relies on `CLANKERLOG_MODEL`. ClankerLog intentionally does not read
 `last_assistant_message` or `transcript_path`.
+
+Add `--dry-run` to print the resolved clank payload without sending it:
+
+```bash
+printf '%s\n' '{"cwd":"/Users/kodi/data/personal/clankerlog-cli","hook_event_name":"Stop","last_assistant_message":"ignore me","permission_mode":"default","session_id":"local-test-session","stop_hook_active":false,"transcript_path":"/tmp/ignore-transcript.jsonl"}' \
+  | CLANKERLOG_MODEL='gpt-5.5(low)' /Users/kodi/.local/bin/clankerlog-dev hook claude stop --dry-run
+```
