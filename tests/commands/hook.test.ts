@@ -1,16 +1,23 @@
 import { mkdtemp, realpath, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { Readable } from "node:stream";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { buildProgram } from "../../src/cli.js";
 import { handleCodexStopHook } from "../../src/commands/hook.js";
 import { saveGlobalConfig } from "../../src/config.js";
 import { createMemoryRuntime } from "../helpers.js";
 
 const originalFetch = globalThis.fetch;
+const originalStdin = Object.getOwnPropertyDescriptor(process, "stdin");
 
 afterEach(() => {
   globalThis.fetch = originalFetch;
+  if (originalStdin) {
+    Object.defineProperty(process, "stdin", originalStdin);
+  }
   vi.restoreAllMocks();
+  vi.unstubAllEnvs();
 });
 
 describe("codex stop hook", () => {
@@ -71,6 +78,37 @@ describe("codex stop hook", () => {
     expect(fetchMock).not.toHaveBeenCalled();
     expect(runtime.stdoutText()).toBe("");
     expect(runtime.stderrText()).toBe("");
+  });
+
+  it("wires the hook codex stop CLI command through Commander", async () => {
+    const root = await makeTempDir();
+    await writeFile(path.join(root, "package.json"), "{}");
+    const projectPath = await realpath(root);
+    const configHome = path.join(root, "xdg-config");
+    const configPath = path.join(configHome, "clankerlog", "config.json");
+    const fetchMock = vi.fn<typeof fetch>(
+      async () => new Response(JSON.stringify({ id: "clank_hook", ok: true }), { status: 202 }),
+    );
+    globalThis.fetch = fetchMock as typeof fetch;
+    vi.stubEnv("XDG_CONFIG_HOME", configHome);
+    Object.defineProperty(process, "stdin", {
+      configurable: true,
+      value: Readable.from([
+        JSON.stringify(codexStopPayload({ cwd: projectPath, model: "gpt-5.5" })),
+      ]),
+    });
+
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [{ displayName: "Hook Project", path: projectPath }],
+      apiKey: "clk_live_hook_secret",
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    const program = buildProgram();
+    program.exitOverride();
+    await program.parseAsync(["node", "clankerlog", "hook", "codex", "stop"]);
+
+    expect(fetchMock).toHaveBeenCalledOnce();
   });
 });
 
