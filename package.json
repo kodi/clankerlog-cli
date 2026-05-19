@@ -9,6 +9,10 @@
     "coding-agents"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kodi/clankerlog-cli"
+  },
   "bin": {
     "clankerlog": "./bin/clankerlog.js"
   },
