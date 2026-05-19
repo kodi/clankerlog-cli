@@ -22,6 +22,8 @@ const color = {
   yellow: (value: string) => `\x1b[33m${value}\x1b[0m`,
 };
 
+const spinnerFrames = ["-", "\\", "|", "/"];
+
 export interface DoctorOptions {
   readonly apiKey?: string;
   readonly endpoint?: string;
@@ -87,13 +89,62 @@ async function writeApiCheck(
     return;
   }
 
+  const spinner = startApiCheckSpinner(runtime);
   const result = await checkAuth({ apiKey, endpoint });
+  spinner.stop();
+
   if (result.ok) {
     writeLine(runtime, `api check: ${color.green("ok")}`);
     return;
   }
 
   writeLine(runtime, `api check: ${color.red("failed")} ${result.message}`);
+}
+
+function startApiCheckSpinner(runtime: CliRuntime): { readonly stop: () => void } {
+  const terminal = asTerminalStream(runtime.stdout);
+  if (!terminal) {
+    return { stop: () => undefined };
+  }
+
+  let index = 0;
+  const render = (): void => {
+    const frame = spinnerFrames[index % spinnerFrames.length] ?? "-";
+    terminal.clearLine(0);
+    terminal.cursorTo(0);
+    terminal.write(`api check: ${color.yellow(frame)} checking remote`);
+    index += 1;
+  };
+
+  render();
+  const interval = setInterval(render, 80);
+
+  return {
+    stop: () => {
+      clearInterval(interval);
+      terminal.clearLine(0);
+      terminal.cursorTo(0);
+    },
+  };
+}
+
+interface TerminalStream extends NodeJS.WritableStream {
+  readonly isTTY: true;
+  clearLine(dir: 0): boolean;
+  cursorTo(x: 0): boolean;
+}
+
+function asTerminalStream(stream: NodeJS.WritableStream): TerminalStream | undefined {
+  const candidate = stream as Partial<TerminalStream>;
+  if (
+    candidate.isTTY === true &&
+    typeof candidate.clearLine === "function" &&
+    typeof candidate.cursorTo === "function"
+  ) {
+    return candidate as TerminalStream;
+  }
+
+  return undefined;
 }
 
 async function readDoctorConfig(
