@@ -2,7 +2,19 @@
 
 Privacy-friendly command-line clanks for coding-agent activity.
 
+[clankerlog.ai](https://clankerlog.ai)
+
 > No code. No prompts. No secrets. Just clanks.
+
+## Contents
+
+- [Quick Start](#quick-start)
+- [Project Setup](#project-setup)
+- [Agent Hooks](#agent-hooks)
+- [Useful Options](#useful-options)
+- [Doctor](#doctor)
+- [Privacy](#privacy)
+- [Development](#development)
 
 ## Quick Start
 
@@ -70,8 +82,11 @@ clankerlog init --stack typescript,pnpm
 
 ## Agent Hooks
 
-For day-to-day use, wire ClankerLog into your coding agent's stop hook so clanks
-are sent automatically after agent turns.
+For day-to-day use, wire ClankerLog into your coding agent's hook system so
+clanks are sent automatically after agent activity. Pick the agent you use and
+run its installer.
+
+### Codex
 
 Install the Codex Stop hook:
 
@@ -79,27 +94,9 @@ Install the Codex Stop hook:
 clankerlog hooks install codex
 ```
 
-Equivalent Codex config in `~/.codex/hooks.json`:
-
-```json
-{
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "clankerlog hook codex stop",
-            "statusMessage": "Sending ClankerLog clank"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
 After installing, run `/hooks` in Codex if command approval is required.
+
+### Claude Code
 
 Install the Claude Code Stop hook with the model name ClankerLog should report:
 
@@ -107,11 +104,15 @@ Install the Claude Code Stop hook with the model name ClankerLog should report:
 clankerlog hooks install claude --model claude-sonnet-4.5
 ```
 
+### Cursor
+
 Install the Cursor stop hook:
 
 ```bash
 clankerlog hooks install cursor
 ```
+
+### Hermes
 
 Install the Hermes shell hook:
 
@@ -119,14 +120,7 @@ Install the Hermes shell hook:
 clankerlog hooks install hermes
 ```
 
-Install the Pi `agent_end` extension:
-
-```bash
-clankerlog hooks install pi
-```
-
-This writes `~/.pi/agent/extensions/clankerlog.ts`. If Pi is already running,
-run `/reload` after installing.
+### OpenClaw
 
 Install the global OpenClaw `message:sent` hook:
 
@@ -144,21 +138,23 @@ automatically, run:
 openclaw hooks enable clankerlog
 ```
 
-Equivalent Cursor config:
+### Pi
 
-```json
-{
-  "hooks": {
-    "stop": [
-      {
-        "command": "clankerlog hook cursor stop"
-      }
-    ]
-  }
-}
+Install the Pi `agent_end` extension:
+
+```bash
+clankerlog hooks install pi
 ```
 
-Preview the filesystem change without writing it:
+This writes `~/.pi/agent/extensions/clankerlog.ts`. If Pi is already running,
+run `/reload` after installing.
+
+### Managing Hooks
+
+Supported agent names are `codex`, `claude`, `cursor`, `hermes`, `openclaw`,
+and `pi`.
+
+Preview an install without writing files:
 
 ```bash
 clankerlog hooks install codex --dry-run
@@ -167,22 +163,14 @@ clankerlog hooks install codex --dry-run
 Check or remove an installed hook:
 
 ```bash
-clankerlog hooks status codex
-clankerlog hooks uninstall codex
-clankerlog hooks status pi
-clankerlog hooks uninstall pi
-clankerlog hooks status openclaw
-clankerlog hooks uninstall openclaw
+clankerlog hooks status <agent>
+clankerlog hooks uninstall <agent>
 ```
 
 Hook commands read the agent hook JSON payload from stdin, use the workspace
 path from the hook payload, and ignore assistant messages, message content, and
 transcript paths. Hook commands support `--dry-run` for local payload
 inspection.
-
-The Pi integration is an extension rather than a stdin hook. It listens for
-Pi's `agent_end` lifecycle event and runs `clankerlog ping --agent pi` from
-the active Pi workspace without reading message content.
 
 See [docs/integrations.md](docs/integrations.md) for the fuller manual install
 runbook, local development commands, and integration notes.
