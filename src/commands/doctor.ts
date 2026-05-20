@@ -9,6 +9,7 @@ import {
 } from "../config.js";
 import { checkAuth } from "../ingest.js";
 import { writeLine } from "../output.js";
+import { formatHomePath } from "../path-display.js";
 import { findAllowedProject, resolveProjectPath } from "../project.js";
 import { redactApiKey } from "../redact.js";
 import { createRuntime, type CliRuntime } from "../runtime.js";
@@ -55,7 +56,7 @@ export async function handleDoctor(options: DoctorOptions, runtime: CliRuntime):
 
   writeLine(
     runtime,
-    `config: ${configOk ? color.green("ok") : color.red("error")} (${configPath})`,
+    `config: ${configOk ? color.green("ok") : color.red("error")} (${formatHomePath(configPath)})`,
   );
   writeLine(
     runtime,
@@ -187,7 +188,10 @@ function writeAllowedProjects(config: GlobalConfig, runtime: CliRuntime): void {
 
   writeLine(runtime, "allowed projects:");
   for (const project of config.allowedProjects) {
-    writeLine(runtime, `📂 ${color.dimGray(project.path)} -> ${color.blue(project.displayName)}`);
+    writeLine(
+      runtime,
+      `📂 ${color.dimGray(formatHomePath(project.path))} -> ${color.blue(project.displayName)}`,
+    );
   }
 }
 
@@ -197,7 +201,10 @@ function writeProjectConfig(
   runtime: CliRuntime,
 ): void {
   if (!projectConfig) {
-    writeLine(runtime, `project config: missing (${resolveProjectConfigPath(projectPath)})`);
+    writeLine(
+      runtime,
+      `project config: missing (${formatHomePath(resolveProjectConfigPath(projectPath))})`,
+    );
     return;
   }
 

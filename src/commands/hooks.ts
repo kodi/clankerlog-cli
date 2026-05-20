@@ -10,6 +10,7 @@ import {
   uninstallHookConfig,
   writeHookConfigFileAtomic,
 } from "../hook-config.js";
+import { formatHomePath } from "../path-display.js";
 import { createRuntime, type CliRuntime } from "../runtime.js";
 
 interface InstallOptions {
@@ -147,7 +148,7 @@ export async function handleInstallHook(
   const config = await loadHookConfigFile(targetPath, agent);
   const plan = planInstallHook(config, agent, fileOptions);
 
-  writeLine(runtime, `Target: ${targetPath}`);
+  writeLine(runtime, `Target: ${formatHomePath(targetPath)}`);
   if (plan.command) {
     writeLine(runtime, `Command: ${plan.command}`);
   }
@@ -180,7 +181,7 @@ export async function handleHookStatus(
 ): Promise<void> {
   const status = await getHookConfigStatus(agent, toHookConfigFileOptions(options));
 
-  writeLine(runtime, `Target: ${status.targetPath}`);
+  writeLine(runtime, `Target: ${formatHomePath(status.targetPath)}`);
   writeLine(
     runtime,
     `Status: ${status.installed ? `ClankerLog ${agentName(agent)} Stop hook is installed.` : `ClankerLog ${agentName(agent)} Stop hook is not installed.`}`,
@@ -199,7 +200,7 @@ export async function handleUninstallHook(
 ): Promise<void> {
   const plan = await uninstallHookConfig(agent, toHookConfigFileOptions(options));
 
-  writeLine(runtime, `Target: ${plan.targetPath}`);
+  writeLine(runtime, `Target: ${formatHomePath(plan.targetPath)}`);
   if (plan.command) {
     writeLine(runtime, `Command: ${plan.command}`);
   }

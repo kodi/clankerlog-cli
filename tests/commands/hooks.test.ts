@@ -1,5 +1,5 @@
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import path from "node:path";
 import { parse as parseYaml } from "yaml";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -647,6 +647,27 @@ describe("hooks install command", () => {
         ],
       },
     });
+  });
+
+  it("prints home-relative hook targets", async () => {
+    const configPath = path.join(homedir(), ".clankerlog-cli-path-display", "hooks.json");
+    const stdout = captureStdout();
+    const program = buildProgram();
+    program.exitOverride();
+
+    await program.parseAsync([
+      "node",
+      "clankerlog",
+      "hooks",
+      "install",
+      "codex",
+      "--hook-config",
+      configPath,
+      "--dry-run",
+    ]);
+
+    expect(stdout.text()).toContain("Target: ~/.clankerlog-cli-path-display/hooks.json");
+    expect(stdout.text()).not.toContain(`Target: ${configPath}`);
   });
 });
 
