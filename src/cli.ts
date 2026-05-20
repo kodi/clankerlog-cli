@@ -26,7 +26,7 @@ export function buildProgram(): Command {
   program
     .name("clankerlog")
     .description("Send privacy-friendly coding-agent activity clanks to ClankerLog.")
-    .version("0.0.1")
+    .version(getCliVersion())
     .showHelpAfterError()
     .configureOutput({
       writeErr: (text) => {

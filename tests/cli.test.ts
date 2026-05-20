@@ -3,9 +3,14 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { describe, expect, it } from "vitest";
-import { isCliEntrypoint } from "../src/cli.js";
+import packageJson from "../package.json" with { type: "json" };
+import { buildProgram, isCliEntrypoint } from "../src/cli.js";
 
 describe("cli entrypoint detection", () => {
+  it("uses the package version for Commander --version output", () => {
+    expect(buildProgram().version()).toBe(packageJson.version);
+  });
+
   it("treats an npm-style symlink to the bin file as the CLI entrypoint", async () => {
     const root = await mkdtemp(path.join(tmpdir(), "clankerlog-cli-entrypoint-"));
     const target = path.join(root, "lib", "node_modules", "clankerlog", "bin", "clankerlog.js");
