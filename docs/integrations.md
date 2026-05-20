@@ -189,12 +189,15 @@ clankerlog hooks install codex
 clankerlog hooks install claude --model claude-sonnet-4.5
 clankerlog hooks install cursor
 clankerlog hooks install hermes
+clankerlog hooks install pi
 clankerlog hooks install openclaw
 clankerlog hooks status codex
 clankerlog hooks status hermes
+clankerlog hooks status pi
 clankerlog hooks status openclaw
 clankerlog hooks uninstall codex
 clankerlog hooks uninstall hermes
+clankerlog hooks uninstall pi
 clankerlog hooks uninstall openclaw
 ```
 
@@ -203,6 +206,8 @@ Install and uninstall support `--dry-run`:
 ```bash
 clankerlog hooks install codex --dry-run
 clankerlog hooks uninstall codex --dry-run
+clankerlog hooks install pi --dry-run
+clankerlog hooks uninstall pi --dry-run
 clankerlog hooks install openclaw --dry-run
 clankerlog hooks uninstall openclaw --dry-run
 ```
@@ -211,6 +216,8 @@ The helpers:
 
 - Create missing `~/.codex/hooks.json`, `~/.claude/settings.json`,
   `~/.cursor/hooks.json`, or `~/.hermes/config.yaml` files.
+- Create the managed Pi extension file at
+  `~/.pi/agent/extensions/clankerlog.ts`.
 - Create the managed OpenClaw hook directory at
   `~/.openclaw/hooks/clankerlog/`.
 - Preserve existing Stop hooks, shell hooks, non-Stop hooks, and unrelated
@@ -227,6 +234,51 @@ Use `clankerlog-dev` only for local source-based testing:
 
 ```bash
 /Users/kodi/.local/bin/clankerlog-dev hook codex stop
+```
+
+## Pi Agent End Extension
+
+Pi exposes lifecycle events through TypeScript extensions. ClankerLog installs a
+managed global extension here:
+
+```txt
+~/.pi/agent/extensions/clankerlog.ts
+```
+
+Install it with:
+
+```bash
+clankerlog hooks install pi
+```
+
+The generated extension listens for Pi's `agent_end` event and runs:
+
+```bash
+clankerlog ping --agent pi --model <active Pi model>
+```
+
+The spawned command runs from Pi's active `ctx.cwd`, so normal ClankerLog
+allowed-project checks still apply. The extension passes only agent, model, and
+workspace context through the existing `ping` command. It does not read or
+forward Pi message content, prompts, responses, transcripts, source code,
+diffs, terminal output, or secrets.
+
+If Pi is already running, reload extensions after installation:
+
+```txt
+/reload
+```
+
+Status inspects the extension file and does not send a test clank:
+
+```bash
+clankerlog hooks status pi
+```
+
+Uninstall removes only the exact ClankerLog-managed extension file:
+
+```bash
+clankerlog hooks uninstall pi
 ```
 
 ## OpenClaw Message Hook

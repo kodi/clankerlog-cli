@@ -119,6 +119,15 @@ Install the Hermes shell hook:
 clankerlog hooks install hermes
 ```
 
+Install the Pi `agent_end` extension:
+
+```bash
+clankerlog hooks install pi
+```
+
+This writes `~/.pi/agent/extensions/clankerlog.ts`. If Pi is already running,
+run `/reload` after installing.
+
 Install the global OpenClaw `message:sent` hook:
 
 ```bash
@@ -160,6 +169,8 @@ Check or remove an installed hook:
 ```bash
 clankerlog hooks status codex
 clankerlog hooks uninstall codex
+clankerlog hooks status pi
+clankerlog hooks uninstall pi
 clankerlog hooks status openclaw
 clankerlog hooks uninstall openclaw
 ```
@@ -168,6 +179,10 @@ Hook commands read the agent hook JSON payload from stdin, use the workspace
 path from the hook payload, and ignore assistant messages, message content, and
 transcript paths. Hook commands support `--dry-run` for local payload
 inspection.
+
+The Pi integration is an extension rather than a stdin hook. It listens for
+Pi's `agent_end` lifecycle event and runs `clankerlog ping --agent pi` from
+the active Pi workspace without reading message content.
 
 See [docs/integrations.md](docs/integrations.md) for the fuller manual install
 runbook, local development commands, and integration notes.
