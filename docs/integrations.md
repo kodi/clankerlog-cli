@@ -251,9 +251,9 @@ Install it with:
 clankerlog hooks install openclaw
 ```
 
-The generated `HOOK.md` declares the `message:sent` event and the generated
-`handler.ts` filters to successful outbound message events. It then runs the
-published CLI command:
+The generated `HOOK.md` declares the `message:sent` event. The generated
+`handler.ts` sends only for successful outbound message events. It then runs
+the published CLI command:
 
 ```bash
 clankerlog hook openclaw message-sent
@@ -273,8 +273,10 @@ user-facing installed hook files. It passes only minimal metadata:
 ClankerLog intentionally does not read or forward OpenClaw message content,
 prompts, responses, transcripts, source code, diffs, terminal output, or
 secrets. The handler gets `workspaceDir` from `event.context.workspaceDir` when
-available, then `CLANKERLOG_WORKSPACE_DIR`, then the hook process cwd. It gets
-the model from `CLANKERLOG_MODEL`.
+available, then `CLANKERLOG_WORKSPACE_DIR`, then the OpenClaw session store at
+`~/.openclaw/agents/<agent>/sessions/sessions.json` using `event.sessionKey`.
+Only after those fail does it fall back to the hook process cwd. It gets the
+model from `CLANKERLOG_MODEL`, then from the same OpenClaw session record.
 
 Status inspects the hook files and, when the OpenClaw CLI is available, reports
 whether OpenClaw sees or enables the hook. It does not send a test clank:

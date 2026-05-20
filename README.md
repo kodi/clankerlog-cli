@@ -126,9 +126,9 @@ clankerlog hooks install openclaw
 ```
 
 This writes a managed hook directory at `~/.openclaw/hooks/clankerlog/` with
-`HOOK.md` and `handler.ts`. The generated handler listens only for successful
-outbound messages, calls `clankerlog hook openclaw message-sent`, and does not
-read or forward message content. If OpenClaw does not enable the hook
+`HOOK.md` and `handler.ts`. The generated handler sends clanks only for
+successful outbound messages, calls `clankerlog hook openclaw message-sent`, and
+does not read or forward message content. If OpenClaw does not enable the hook
 automatically, run:
 
 ```bash

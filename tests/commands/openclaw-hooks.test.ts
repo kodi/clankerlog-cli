@@ -29,6 +29,13 @@ describe("OpenClaw hook directory management", () => {
     await expect(readFile(path.join(hookDir, "handler.ts"), "utf8")).resolves.toBe(
       buildOpenClawHandler(),
     );
+    expect(buildOpenClawHookMd()).toContain('events: ["message:sent"]');
+    expect(buildOpenClawHandler()).not.toContain("writeDebugLog");
+    expect(buildOpenClawHandler()).not.toContain("openclaw-hook.log");
+    expect(buildOpenClawHandler()).toContain("openClawSessionInfo");
+    expect(buildOpenClawHandler()).toContain("systemPromptReport?.model");
+    expect(buildOpenClawHandler()).toContain("sessions.json");
+    expect(buildOpenClawHandler()).not.toContain("event.context.content");
   });
 
   it("is idempotent when the generated files already match", async () => {
