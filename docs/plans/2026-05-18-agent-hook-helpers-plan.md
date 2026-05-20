@@ -129,7 +129,7 @@ Recommended installed hook objects:
 ```json
 {
   "type": "command",
-  "command": "CLANKERLOG_AGENT=codex clankerlog hook codex stop",
+  "command": "clankerlog hook codex stop",
   "timeout": 10,
   "statusMessage": "Sending ClankerLog clank"
 }
@@ -138,7 +138,7 @@ Recommended installed hook objects:
 ```json
 {
   "type": "command",
-  "command": "CLANKERLOG_AGENT=claude CLANKERLOG_MODEL='claude-sonnet-4.5' clankerlog hook claude stop",
+  "command": "CLANKERLOG_MODEL='claude-sonnet-4.5' clankerlog hook claude stop",
   "timeout": 10,
   "statusMessage": "Sending ClankerLog clank"
 }

@@ -19,7 +19,7 @@ Codex Stop hook -> clankerlog-dev hook codex stop -> local ingestion endpoint ->
 For local development, the hook command uses the repo shim:
 
 ```bash
-CLANKERLOG_AGENT=codex /Users/kodi/.local/bin/clankerlog-dev hook codex stop
+/Users/kodi/.local/bin/clankerlog-dev hook codex stop
 ```
 
 `clankerlog-dev` points at `src/cli.ts`, so local hook testing exercises the
@@ -49,7 +49,7 @@ Equivalent installed content:
         "hooks": [
           {
             "type": "command",
-            "command": "CLANKERLOG_AGENT=codex clankerlog hook codex stop",
+            "command": "clankerlog hook codex stop",
             "timeout": 10,
             "statusMessage": "Sending ClankerLog clank"
           }
@@ -91,7 +91,8 @@ ClankerLog uses:
 
 - `cwd` as the project/workspace to resolve the allow-list entry.
 - `model` as the model name in the clank payload.
-- `CLANKERLOG_AGENT`, defaulting to `codex`, as the agent name.
+- `codex` as the default agent name, unless `CLANKERLOG_AGENT` is explicitly
+  set for a custom generic integration.
 
 ClankerLog intentionally does not read `last_assistant_message` or
 `transcript_path`. The hook is a trigger plus minimal metadata source, not a
@@ -143,14 +144,14 @@ To simulate Codex stdin directly:
 
 ```bash
 printf '%s\n' '{"cwd":"/Users/kodi/data/personal/clankerlog-cli","hook_event_name":"Stop","last_assistant_message":"ignore me","model":"gpt-5.5","permission_mode":"default","session_id":"local-test-session","stop_hook_active":false,"transcript_path":"/tmp/ignore-transcript.jsonl","turn_id":"local-test-turn"}' \
-  | CLANKERLOG_AGENT=codex /Users/kodi/.local/bin/clankerlog-dev hook codex stop
+  | /Users/kodi/.local/bin/clankerlog-dev hook codex stop
 ```
 
 Add `--dry-run` to print the resolved clank payload without sending it:
 
 ```bash
 printf '%s\n' '{"cwd":"/Users/kodi/data/personal/clankerlog-cli","hook_event_name":"Stop","last_assistant_message":"ignore me","model":"gpt-5.5","permission_mode":"default","session_id":"local-test-session","stop_hook_active":false,"transcript_path":"/tmp/ignore-transcript.jsonl","turn_id":"local-test-turn"}' \
-  | CLANKERLOG_AGENT=codex /Users/kodi/.local/bin/clankerlog-dev hook codex stop --dry-run
+  | /Users/kodi/.local/bin/clankerlog-dev hook codex stop --dry-run
 ```
 
 The hook command should be quiet on stdout. That keeps Codex hook output clean.
@@ -218,7 +219,7 @@ The helpers:
 Use `clankerlog-dev` only for local source-based testing:
 
 ```bash
-CLANKERLOG_AGENT=codex /Users/kodi/.local/bin/clankerlog-dev hook codex stop
+/Users/kodi/.local/bin/clankerlog-dev hook codex stop
 ```
 
 After installing Codex hooks, run `/hooks` in Codex if command approval is
@@ -264,7 +265,7 @@ Example hook entry:
         "hooks": [
           {
             "type": "command",
-            "command": "CLANKERLOG_AGENT=claude CLANKERLOG_MODEL='claude-sonnet-4.5' clankerlog hook claude stop",
+            "command": "CLANKERLOG_MODEL='claude-sonnet-4.5' clankerlog hook claude stop",
             "timeout": 10,
             "statusMessage": "Sending ClankerLog clank"
           }
@@ -294,7 +295,7 @@ ClankerLog uses:
 
 - `cwd` as the project/workspace to resolve the allow-list entry.
 - `CLANKERLOG_MODEL` as the model name in the clank payload.
-- `CLANKERLOG_AGENT`, defaulting to `claude`, as the agent name.
+- `claude` as the default agent name.
 
 Claude Code's Stop hook payload does not include `model`, so the hook command
 relies on `CLANKERLOG_MODEL`. ClankerLog intentionally does not read
@@ -322,7 +323,7 @@ Cursor stop hook -> clankerlog-dev hook cursor stop -> local ingestion endpoint 
 For local development, the hook command uses the repo shim:
 
 ```bash
-CLANKERLOG_AGENT=cursor /Users/kodi/.local/bin/clankerlog-dev hook cursor stop
+/Users/kodi/.local/bin/clankerlog-dev hook cursor stop
 ```
 
 User-facing Cursor setup should use the published CLI name through the helper:
@@ -344,7 +345,7 @@ Example hook config:
   "hooks": {
     "stop": [
       {
-        "command": "CLANKERLOG_AGENT=cursor clankerlog hook cursor stop"
+        "command": "clankerlog hook cursor stop"
       }
     ]
   }
@@ -366,7 +367,7 @@ That writes:
   "hooks": {
     "stop": [
       {
-        "command": "CLANKERLOG_AGENT=cursor CLANKERLOG_MODEL='gpt-5.5' clankerlog hook cursor stop"
+        "command": "CLANKERLOG_MODEL='gpt-5.5' clankerlog hook cursor stop"
       }
     ]
   }
@@ -393,7 +394,7 @@ ClankerLog uses:
 
 - `workspace_roots[0]` as the project/workspace to resolve the allow-list entry.
 - `model` as the model name in the clank payload.
-- `CLANKERLOG_AGENT`, defaulting to `cursor`, as the agent name.
+- `cursor` as the default agent name.
 
 ClankerLog intentionally does not read `user_email` or `transcript_path`. The
 hook is a trigger plus minimal metadata source, not a transcript or identity
@@ -403,7 +404,7 @@ Add `--dry-run` to print the resolved clank payload without sending it:
 
 ```bash
 printf '%s\n' '{"conversation_id":"local-test-conversation","generation_id":"local-test-generation","model":"gpt-5.5","hook_event_name":"stop","cursor_version":"2.6.22","workspace_roots":["/Users/kodi/data/personal/clankerlog-cli"],"user_email":"ignored-by-clankerlog@example.com","transcript_path":"/tmp/ignore-transcript.jsonl"}' \
-  | CLANKERLOG_AGENT=cursor /Users/kodi/.local/bin/clankerlog-dev hook cursor stop --dry-run
+  | /Users/kodi/.local/bin/clankerlog-dev hook cursor stop --dry-run
 ```
 
 ## Hermes Shell Hook
@@ -481,7 +482,7 @@ ClankerLog uses:
 
 - `cwd` as the project/workspace to resolve the allow-list entry.
 - `extra.model` as the model name in the clank payload.
-- `CLANKERLOG_AGENT`, defaulting to `hermes`, as the agent name.
+- `hermes` as the default agent name.
 
 ClankerLog intentionally does not read `extra.user_message`,
 `extra.assistant_response`, or `extra.conversation_history`. The hook is a

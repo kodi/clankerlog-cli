@@ -288,14 +288,14 @@ export async function writeHookConfigFileAtomic(
 
 export function buildHookCommand(agent: HookAgent, options: InstallHookOptions = {}): string {
   if (agent === "codex") {
-    return "CLANKERLOG_AGENT=codex clankerlog hook codex stop";
+    return "clankerlog hook codex stop";
   }
 
   if (agent === "cursor") {
     const modelPrefix = options.model?.trim()
       ? `CLANKERLOG_MODEL=${shellQuote(options.model.trim())} `
       : "";
-    return `CLANKERLOG_AGENT=cursor ${modelPrefix}clankerlog hook cursor stop`;
+    return `${modelPrefix}clankerlog hook cursor stop`;
   }
 
   if (agent === "hermes") {
@@ -309,7 +309,7 @@ export function buildHookCommand(agent: HookAgent, options: InstallHookOptions =
     );
   }
 
-  return `CLANKERLOG_AGENT=claude CLANKERLOG_MODEL=${shellQuote(model)} clankerlog hook claude stop`;
+  return `CLANKERLOG_MODEL=${shellQuote(model)} clankerlog hook claude stop`;
 }
 
 async function applyHookConfigFilePlan(
@@ -532,9 +532,7 @@ function isExpectedClankerLogHook(hook: HookConfigObject, agent: HookAgent): boo
   if (agent === "cursor") {
     return (
       command === buildHookCommand("cursor") ||
-      /^CLANKERLOG_AGENT=cursor CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+) clankerlog hook cursor stop$/.test(
-        command,
-      )
+      /^CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+) clankerlog hook cursor stop$/.test(command)
     );
   }
 
@@ -542,15 +540,32 @@ function isExpectedClankerLogHook(hook: HookConfigObject, agent: HookAgent): boo
     return command === buildHookCommand("hermes");
   }
 
-  return /^CLANKERLOG_AGENT=claude CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+) clankerlog hook claude stop$/.test(
-    command,
-  );
+  return /^CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+) clankerlog hook claude stop$/.test(command);
 }
 
 function isLegacyClankerLogHook(hook: HookConfigObject, agent: HookAgent): boolean {
   const command = getHookCommand(hook);
   if (!command) {
     return false;
+  }
+
+  if (agent === "codex") {
+    return command === "CLANKERLOG_AGENT=codex clankerlog hook codex stop";
+  }
+
+  if (agent === "cursor") {
+    return (
+      command === "CLANKERLOG_AGENT=cursor clankerlog hook cursor stop" ||
+      /^CLANKERLOG_AGENT=cursor CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+) clankerlog hook cursor stop$/.test(
+        command,
+      )
+    );
+  }
+
+  if (agent === "claude") {
+    return /^CLANKERLOG_AGENT=claude CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+) clankerlog hook claude stop$/.test(
+      command,
+    );
   }
 
   if (agent === "hermes") {

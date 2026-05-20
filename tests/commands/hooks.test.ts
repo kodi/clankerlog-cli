@@ -23,7 +23,7 @@ describe("hook config transforms", () => {
     const plan = planInstallHook({}, "codex");
 
     expect(plan.changed).toBe(true);
-    expect(plan.command).toBe("CLANKERLOG_AGENT=codex clankerlog hook codex stop");
+    expect(plan.command).toBe("clankerlog hook codex stop");
     expect(plan.config).toEqual({
       hooks: {
         Stop: [
@@ -31,7 +31,7 @@ describe("hook config transforms", () => {
             hooks: [
               {
                 type: "command",
-                command: "CLANKERLOG_AGENT=codex clankerlog hook codex stop",
+                command: "clankerlog hook codex stop",
                 timeout: 10,
                 statusMessage: "Sending ClankerLog clank",
               },
@@ -46,9 +46,7 @@ describe("hook config transforms", () => {
     const plan = planInstallHook({}, "claude", { model: "claude-sonnet-4.5" });
 
     expect(plan.changed).toBe(true);
-    expect(plan.command).toBe(
-      "CLANKERLOG_AGENT=claude CLANKERLOG_MODEL='claude-sonnet-4.5' clankerlog hook claude stop",
-    );
+    expect(plan.command).toBe("CLANKERLOG_MODEL='claude-sonnet-4.5' clankerlog hook claude stop");
     expect(plan.config).toEqual({
       hooks: {
         Stop: [
@@ -56,8 +54,7 @@ describe("hook config transforms", () => {
             hooks: [
               {
                 type: "command",
-                command:
-                  "CLANKERLOG_AGENT=claude CLANKERLOG_MODEL='claude-sonnet-4.5' clankerlog hook claude stop",
+                command: "CLANKERLOG_MODEL='claude-sonnet-4.5' clankerlog hook claude stop",
                 timeout: 10,
                 statusMessage: "Sending ClankerLog clank",
               },
@@ -76,12 +73,12 @@ describe("hook config transforms", () => {
     const plan = planInstallHook({}, "cursor");
 
     expect(plan.changed).toBe(true);
-    expect(plan.command).toBe("CLANKERLOG_AGENT=cursor clankerlog hook cursor stop");
+    expect(plan.command).toBe("clankerlog hook cursor stop");
     expect(plan.config).toEqual({
       hooks: {
         stop: [
           {
-            command: "CLANKERLOG_AGENT=cursor clankerlog hook cursor stop",
+            command: "clankerlog hook cursor stop",
           },
         ],
       },
@@ -107,7 +104,7 @@ describe("hook config transforms", () => {
 
   it("can pin a Cursor model through environment when requested", () => {
     expect(buildHookCommand("cursor", { model: "gpt-5.5" })).toBe(
-      "CLANKERLOG_AGENT=cursor CLANKERLOG_MODEL='gpt-5.5' clankerlog hook cursor stop",
+      "CLANKERLOG_MODEL='gpt-5.5' clankerlog hook cursor stop",
     );
   });
 
@@ -172,7 +169,7 @@ describe("hook config transforms", () => {
             hooks: [
               {
                 type: "command",
-                command: "CLANKERLOG_AGENT=codex clankerlog hook codex stop",
+                command: "clankerlog hook codex stop",
                 timeout: 10,
                 statusMessage: "Sending ClankerLog clank",
               },
@@ -184,7 +181,7 @@ describe("hook config transforms", () => {
 
     expect(getHookStatus(config, "codex")).toEqual({
       agent: "codex",
-      command: "CLANKERLOG_AGENT=codex clankerlog hook codex stop",
+      command: "clankerlog hook codex stop",
       commandMatchesExpected: true,
       installed: true,
     });
@@ -317,8 +314,7 @@ describe("hook config transforms", () => {
 
     expect(getHookStatus(config, "claude")).toEqual({
       agent: "claude",
-      command:
-        "CLANKERLOG_AGENT=claude CLANKERLOG_MODEL='claude-opus-4.5' clankerlog hook claude stop",
+      command: "CLANKERLOG_MODEL='claude-opus-4.5' clankerlog hook claude stop",
       commandMatchesExpected: true,
       installed: true,
     });
@@ -533,7 +529,7 @@ describe("hooks install command", () => {
     ]);
 
     expect(stdout.text()).toContain(`Target: ${configPath}`);
-    expect(stdout.text()).toContain("Command: CLANKERLOG_AGENT=codex clankerlog hook codex stop");
+    expect(stdout.text()).toContain("Command: clankerlog hook codex stop");
     expect(stdout.text()).toContain("Action: installed");
     expect(stdout.text()).toContain("/hooks");
     expect(countClankerLogCommands(await readJson(configPath))).toBe(1);
@@ -561,7 +557,7 @@ describe("hooks install command", () => {
 
     expect(stdout.text()).toContain(`Target: ${configPath}`);
     expect(stdout.text()).toContain(
-      "Command: CLANKERLOG_AGENT=claude CLANKERLOG_MODEL='claude-sonnet-4.5' clankerlog hook claude stop",
+      "Command: CLANKERLOG_MODEL='claude-sonnet-4.5' clankerlog hook claude stop",
     );
     expect(stdout.text()).toContain("Action: would install");
     await expect(readFile(configPath, "utf8")).rejects.toThrow();
@@ -604,13 +600,13 @@ describe("hooks install command", () => {
     ]);
 
     expect(stdout.text()).toContain(`Target: ${configPath}`);
-    expect(stdout.text()).toContain("Command: CLANKERLOG_AGENT=cursor clankerlog hook cursor stop");
+    expect(stdout.text()).toContain("Command: clankerlog hook cursor stop");
     expect(stdout.text()).toContain("Action: installed");
     expect(await readJson(configPath)).toEqual({
       hooks: {
         stop: [
           {
-            command: "CLANKERLOG_AGENT=cursor clankerlog hook cursor stop",
+            command: "clankerlog hook cursor stop",
           },
         ],
       },
@@ -714,7 +710,7 @@ describe("hooks status and uninstall commands", () => {
                 hooks: [
                   {
                     type: "command",
-                    command: "clankerlog hook codex stop",
+                    command: "CLANKERLOG_AGENT=codex clankerlog hook codex stop",
                     timeout: 10,
                     statusMessage: "Sending ClankerLog clank",
                     clankerlog: {

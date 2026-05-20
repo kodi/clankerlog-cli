@@ -7,7 +7,7 @@ Privacy-friendly command-line clanks for coding-agent activity.
 ## Quick Start
 
 This is the easiest path: install the CLI, save your API key, allow one project,
-then send a test clank.
+preview the payload, then connect Codex hooks for automatic clanks.
 
 ```bash
 npm install -g clankerlog
@@ -28,15 +28,16 @@ Preview the payload without sending it:
 clankerlog ping --dry-run --agent codex --model gpt-5.5
 ```
 
-Send one clank:
+Connect the Codex Stop hook:
 
 ```bash
-clankerlog ping --agent codex --model gpt-5.5
+clankerlog hooks install codex
 ```
 
-That is the whole golden path. The CLI infers stack tags from project files when
-you do not pass `--stack`, and `clankerlog init` defaults the public project name
-to the folder name.
+Then run `/hooks` in Codex if command approval is required. That is the whole
+golden path. The CLI infers stack tags from project files when you do not pass
+`--stack`, and `clankerlog init` defaults the public project name to the folder
+name.
 
 ## Project Setup
 
@@ -78,6 +79,28 @@ Install the Codex Stop hook:
 clankerlog hooks install codex
 ```
 
+Equivalent Codex config in `~/.codex/hooks.json`:
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "clankerlog hook codex stop",
+            "statusMessage": "Sending ClankerLog clank"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+After installing, run `/hooks` in Codex if command approval is required.
+
 Install the Claude Code Stop hook with the model name ClankerLog should report:
 
 ```bash
@@ -103,7 +126,7 @@ Equivalent Cursor config:
   "hooks": {
     "stop": [
       {
-        "command": "CLANKERLOG_AGENT=cursor clankerlog hook cursor stop"
+        "command": "clankerlog hook cursor stop"
       }
     ]
   }
@@ -162,6 +185,10 @@ CLANKERLOG_AGENT
 CLANKERLOG_MODEL
 CLANKERLOG_STACK
 ```
+
+Use `CLANKERLOG_AGENT` for generic integrations that call `clankerlog ping`
+directly. Agent-specific hooks like `clankerlog hook codex stop` infer their
+default agent name.
 
 ## Doctor
 
