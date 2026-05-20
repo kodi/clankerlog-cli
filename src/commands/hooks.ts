@@ -53,6 +53,15 @@ export function registerHooksCommand(program: Command): void {
       await handleInstallHook("cursor", createRuntime(command), options);
     });
 
+  install
+    .command("hermes")
+    .description("Install the Hermes post_llm_call shell hook.")
+    .option("--dry-run", "Show the hook config change without writing it")
+    .addOption(new Option("--hook-config <path>").hideHelp())
+    .action(async (options: InstallOptions, command: Command) => {
+      await handleInstallHook("hermes", createRuntime(command), options);
+    });
+
   status
     .command("codex")
     .description("Inspect the Codex Stop hook.")
@@ -75,6 +84,14 @@ export function registerHooksCommand(program: Command): void {
     .addOption(new Option("--hook-config <path>").hideHelp())
     .action(async (options: InstallOptions, command: Command) => {
       await handleHookStatus("cursor", createRuntime(command), options);
+    });
+
+  status
+    .command("hermes")
+    .description("Inspect the Hermes post_llm_call shell hook.")
+    .addOption(new Option("--hook-config <path>").hideHelp())
+    .action(async (options: InstallOptions, command: Command) => {
+      await handleHookStatus("hermes", createRuntime(command), options);
     });
 
   uninstall
@@ -103,6 +120,15 @@ export function registerHooksCommand(program: Command): void {
     .action(async (options: InstallOptions, command: Command) => {
       await handleUninstallHook("cursor", createRuntime(command), options);
     });
+
+  uninstall
+    .command("hermes")
+    .description("Remove the Hermes post_llm_call shell hook.")
+    .option("--dry-run", "Show the hook config change without writing it")
+    .addOption(new Option("--hook-config <path>").hideHelp())
+    .action(async (options: InstallOptions, command: Command) => {
+      await handleUninstallHook("hermes", createRuntime(command), options);
+    });
 }
 
 export async function handleInstallHook(
@@ -118,7 +144,7 @@ export async function handleInstallHook(
 
   const fileOptions = toHookConfigFileOptions(options);
   const targetPath = resolveHookConfigPath(agent, fileOptions);
-  const config = await loadHookConfigFile(targetPath);
+  const config = await loadHookConfigFile(targetPath, agent);
   const plan = planInstallHook(config, agent, fileOptions);
 
   writeLine(runtime, `Target: ${targetPath}`);
@@ -138,7 +164,7 @@ export async function handleInstallHook(
   }
 
   if (plan.changed) {
-    await writeHookConfigFileAtomic(targetPath, plan.config);
+    await writeHookConfigFileAtomic(targetPath, plan.config, agent);
     writeLine(runtime, `Action: installed ClankerLog ${agentName(agent)} Stop hook.`);
   } else {
     writeLine(runtime, `Action: ClankerLog ${agentName(agent)} Stop hook is already installed.`);
@@ -221,6 +247,10 @@ function agentName(agent: HookAgent): string {
 
   if (agent === "cursor") {
     return "Cursor";
+  }
+
+  if (agent === "hermes") {
+    return "Hermes";
   }
 
   return "Codex";

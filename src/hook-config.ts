@@ -3,9 +3,10 @@ import { constants } from "node:fs";
 import { access, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
+import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import { CliError } from "./errors.js";
 
-export type HookAgent = "codex" | "claude" | "cursor";
+export type HookAgent = "codex" | "claude" | "cursor" | "hermes";
 
 export interface HookAgentDefinition {
   readonly agent: HookAgent;
@@ -49,7 +50,7 @@ export interface HookStatus {
 export type HookConfigObject = Record<string, unknown>;
 
 interface StopHookLocation {
-  readonly format: "grouped" | "direct";
+  readonly format: "grouped" | "direct" | "hermes";
   readonly groupIndex: number;
   readonly hookIndex: number;
   readonly hook: HookConfigObject;
@@ -71,6 +72,12 @@ export const HOOK_AGENT_DEFINITIONS: Record<HookAgent, HookAgentDefinition> = {
   cursor: {
     agent: "cursor",
     configPath: (homeDirectory: string) => path.join(homeDirectory, ".cursor", "hooks.json"),
+    defaultTimeoutSeconds: 10,
+    statusMessage: "Sending ClankerLog clank",
+  },
+  hermes: {
+    agent: "hermes",
+    configPath: (homeDirectory: string) => path.join(homeDirectory, ".hermes", "config.yaml"),
     defaultTimeoutSeconds: 10,
     statusMessage: "Sending ClankerLog clank",
   },
@@ -99,8 +106,8 @@ export function planInstallHook(
   const nextConfig = cloneHookConfig(source);
   const hooks = ensureObjectProperty(nextConfig, "hooks");
 
-  if (agent === "cursor") {
-    const stop = ensureDirectStopHooks(hooks);
+  if (agent === "cursor" || agent === "hermes") {
+    const stop = ensureDirectStopHooks(hooks, directStopKey(agent));
     stop.push(buildHookObject(agent, command));
 
     return {
@@ -138,7 +145,7 @@ export async function installHookConfig(
   options: HookConfigFileOptions = {},
 ): Promise<HookConfigFilePlan> {
   const targetPath = resolveHookConfigPath(agent, options);
-  const config = await loadHookConfigFile(targetPath);
+  const config = await loadHookConfigFile(targetPath, agent);
   const plan = planInstallHook(config, agent, options);
   return applyHookConfigFilePlan(targetPath, plan, options.dryRun ?? false);
 }
@@ -161,8 +168,8 @@ export function planUninstallHook(config: unknown, agent: HookAgent): HookTransf
   const hooks = nextConfig.hooks as HookConfigObject;
 
   for (const location of locations.toReversed()) {
-    if (location.format === "direct") {
-      const stop = hooks.stop as HookConfigObject[];
+    if (location.format === "direct" || location.format === "hermes") {
+      const stop = hooks[directStopKey(agent)] as HookConfigObject[];
       stop.splice(location.hookIndex, 1);
     } else {
       const stop = hooks.Stop as HookConfigObject[];
@@ -187,7 +194,7 @@ export async function uninstallHookConfig(
   options: HookConfigFileOptions = {},
 ): Promise<HookConfigFilePlan> {
   const targetPath = resolveHookConfigPath(agent, options);
-  const config = await loadHookConfigFile(targetPath);
+  const config = await loadHookConfigFile(targetPath, agent);
   const plan = planUninstallHook(config, agent);
   return applyHookConfigFilePlan(targetPath, plan, options.dryRun ?? false);
 }
@@ -210,7 +217,7 @@ export async function getHookConfigStatus(
   options: HookConfigFileOptions = {},
 ): Promise<HookStatus & { readonly targetPath: string }> {
   const targetPath = resolveHookConfigPath(agent, options);
-  const config = await loadHookConfigFile(targetPath);
+  const config = await loadHookConfigFile(targetPath, agent);
 
   return {
     ...getHookStatus(config, agent),
@@ -229,7 +236,10 @@ export function resolveHookConfigPath(
   return HOOK_AGENT_DEFINITIONS[agent].configPath(options.homeDirectory ?? homedir());
 }
 
-export async function loadHookConfigFile(configPath: string): Promise<HookConfigObject> {
+export async function loadHookConfigFile(
+  configPath: string,
+  agent: HookAgent = "codex",
+): Promise<HookConfigObject> {
   if (!(await fileExists(configPath))) {
     return {};
   }
@@ -243,9 +253,9 @@ export async function loadHookConfigFile(configPath: string): Promise<HookConfig
 
   let parsed: unknown;
   try {
-    parsed = raw.trim() ? JSON.parse(raw) : {};
+    parsed = raw.trim() ? parseHookConfigContent(raw, agent) : {};
   } catch {
-    throw new CliError(`Hook config at ${configPath} is not valid JSON.`);
+    throw new CliError(`Hook config at ${configPath} is not valid ${configFormat(agent)}.`);
   }
 
   try {
@@ -258,6 +268,7 @@ export async function loadHookConfigFile(configPath: string): Promise<HookConfig
 export async function writeHookConfigFileAtomic(
   configPath: string,
   config: HookConfigObject,
+  agent: HookAgent = "codex",
 ): Promise<void> {
   await mkdir(path.dirname(configPath), { mode: 0o700, recursive: true });
 
@@ -267,7 +278,7 @@ export async function writeHookConfigFileAtomic(
   );
 
   try {
-    await writeFile(tempPath, `${JSON.stringify(config, null, 2)}\n`, { mode: 0o600 });
+    await writeFile(tempPath, serializeHookConfigContent(config, agent), { mode: 0o600 });
     await rename(tempPath, configPath);
   } catch (error) {
     await rm(tempPath, { force: true });
@@ -287,6 +298,10 @@ export function buildHookCommand(agent: HookAgent, options: InstallHookOptions =
     return `CLANKERLOG_AGENT=cursor ${modelPrefix}clankerlog hook cursor stop`;
   }
 
+  if (agent === "hermes") {
+    return "clankerlog hook hermes stop";
+  }
+
   const model = options.model?.trim();
   if (!model) {
     throw new CliError(
@@ -303,7 +318,7 @@ async function applyHookConfigFilePlan(
   dryRun: boolean,
 ): Promise<HookConfigFilePlan> {
   if (plan.changed && !dryRun) {
-    await writeHookConfigFileAtomic(targetPath, plan.config);
+    await writeHookConfigFileAtomic(targetPath, plan.config, plan.agent);
   }
 
   return {
@@ -353,15 +368,19 @@ export function validateHookConfig(config: unknown): HookConfigObject {
     }
   }
 
-  const cursorStop = hooks.stop;
-  if (cursorStop !== undefined) {
-    if (!Array.isArray(cursorStop)) {
-      throw new CliError("Hook config `hooks.stop` must be an array.");
+  for (const key of ["stop", "post_llm_call"]) {
+    const directStop = hooks[key];
+    if (directStop === undefined) {
+      continue;
     }
 
-    for (const [hookIndex, hook] of cursorStop.entries()) {
+    if (!Array.isArray(directStop)) {
+      throw new CliError(`Hook config \`hooks.${key}\` must be an array.`);
+    }
+
+    for (const [hookIndex, hook] of directStop.entries()) {
       if (!isPlainObject(hook)) {
-        throw new CliError(`Hook config \`hooks.stop[${hookIndex}]\` must be an object.`);
+        throw new CliError(`Hook config \`hooks.${key}[${hookIndex}]\` must be an object.`);
       }
     }
   }
@@ -373,6 +392,13 @@ function buildHookObject(agent: HookAgent, command: string): HookConfigObject {
   if (agent === "cursor") {
     return {
       command,
+    };
+  }
+
+  if (agent === "hermes") {
+    return {
+      command,
+      timeout: HOOK_AGENT_DEFINITIONS.hermes.defaultTimeoutSeconds,
     };
   }
 
@@ -408,14 +434,14 @@ function ensureStopGroups(hooks: HookConfigObject): HookConfigObject[] {
   return next;
 }
 
-function ensureDirectStopHooks(hooks: HookConfigObject): HookConfigObject[] {
-  const stop = hooks.stop;
+function ensureDirectStopHooks(hooks: HookConfigObject, key: string): HookConfigObject[] {
+  const stop = hooks[key];
   if (Array.isArray(stop)) {
     return stop;
   }
 
   const next: HookConfigObject[] = [];
-  hooks.stop = next;
+  hooks[key] = next;
   return next;
 }
 
@@ -437,10 +463,15 @@ function findClankerLogHooks(config: HookConfigObject, agent: HookAgent): StopHo
 
   const locations: StopHookLocation[] = [];
 
-  if (agent === "cursor" && Array.isArray(hooks.stop)) {
-    for (const [hookIndex, hook] of hooks.stop.entries()) {
+  if ((agent === "cursor" || agent === "hermes") && Array.isArray(hooks[directStopKey(agent)])) {
+    for (const [hookIndex, hook] of (hooks[directStopKey(agent)] as HookConfigObject[]).entries()) {
       if (isPlainObject(hook) && isClankerLogHook(hook, agent)) {
-        locations.push({ format: "direct", groupIndex: -1, hookIndex, hook });
+        locations.push({
+          format: agent === "hermes" ? "hermes" : "direct",
+          groupIndex: -1,
+          hookIndex,
+          hook,
+        });
       }
     }
 
@@ -473,15 +504,19 @@ function isClankerLogHook(hook: HookConfigObject, agent: HookAgent): boolean {
     return true;
   }
 
-  return isExpectedClankerLogHook(hook, agent);
+  return isExpectedClankerLogHook(hook, agent) || isLegacyClankerLogHook(hook, agent);
 }
 
 function isExpectedClankerLogHook(hook: HookConfigObject, agent: HookAgent): boolean {
-  if (agent !== "cursor" && hook.type !== "command") {
+  if (agent !== "cursor" && agent !== "hermes" && hook.type !== "command") {
     return false;
   }
 
-  if (agent !== "cursor" && hook.statusMessage !== HOOK_AGENT_DEFINITIONS[agent].statusMessage) {
+  if (
+    agent !== "cursor" &&
+    agent !== "hermes" &&
+    hook.statusMessage !== HOOK_AGENT_DEFINITIONS[agent].statusMessage
+  ) {
     return false;
   }
 
@@ -503,9 +538,28 @@ function isExpectedClankerLogHook(hook: HookConfigObject, agent: HookAgent): boo
     );
   }
 
+  if (agent === "hermes") {
+    return command === buildHookCommand("hermes");
+  }
+
   return /^CLANKERLOG_AGENT=claude CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+) clankerlog hook claude stop$/.test(
     command,
   );
+}
+
+function isLegacyClankerLogHook(hook: HookConfigObject, agent: HookAgent): boolean {
+  const command = getHookCommand(hook);
+  if (!command) {
+    return false;
+  }
+
+  if (agent === "hermes") {
+    return /^CLANKERLOG_AGENT=hermes(?: CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+))? (?:\/Users\/kodi\/\.local\/bin\/clankerlog-dev|clankerlog) hook hermes stop$/.test(
+      command,
+    );
+  }
+
+  return false;
 }
 
 function getHookCommand(hook: HookConfigObject | undefined): string | undefined {
@@ -522,6 +576,26 @@ function isPlainObject(value: unknown): value is HookConfigObject {
 
 function shellQuote(value: string): string {
   return `'${value.replaceAll("'", "'\\''")}'`;
+}
+
+function directStopKey(agent: HookAgent): "stop" | "post_llm_call" {
+  return agent === "hermes" ? "post_llm_call" : "stop";
+}
+
+function parseHookConfigContent(raw: string, agent: HookAgent): unknown {
+  return agent === "hermes" ? parseYaml(raw) : JSON.parse(raw);
+}
+
+function serializeHookConfigContent(config: HookConfigObject, agent: HookAgent): string {
+  if (agent === "hermes") {
+    return stringifyYaml(config, { lineWidth: 0 });
+  }
+
+  return `${JSON.stringify(config, null, 2)}\n`;
+}
+
+function configFormat(agent: HookAgent): "JSON" | "YAML" {
+  return agent === "hermes" ? "YAML" : "JSON";
 }
 
 async function fileExists(filePath: string): Promise<boolean> {

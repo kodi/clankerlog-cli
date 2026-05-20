@@ -187,8 +187,11 @@ Use the helper commands for normal setup:
 clankerlog hooks install codex
 clankerlog hooks install claude --model claude-sonnet-4.5
 clankerlog hooks install cursor
+clankerlog hooks install hermes
 clankerlog hooks status codex
+clankerlog hooks status hermes
 clankerlog hooks uninstall codex
+clankerlog hooks uninstall hermes
 ```
 
 Install and uninstall support `--dry-run`:
@@ -200,13 +203,15 @@ clankerlog hooks uninstall codex --dry-run
 
 The helpers:
 
-- Create missing `~/.codex/hooks.json`, `~/.claude/settings.json`, or
-  `~/.cursor/hooks.json` files.
-- Preserve existing Stop hooks, non-Stop hooks, and unrelated settings.
+- Create missing `~/.codex/hooks.json`, `~/.claude/settings.json`,
+  `~/.cursor/hooks.json`, or `~/.hermes/config.yaml` files.
+- Preserve existing Stop hooks, shell hooks, non-Stop hooks, and unrelated
+  settings.
 - Never replace Codex `notify` in `~/.codex/config.toml`.
-- Refuse malformed JSON or unsupported `hooks.Stop` shapes without writing.
+- Refuse malformed JSON/YAML or unsupported hook shapes without writing.
 - Show the exact command that will be installed.
-- Identify ClankerLog-owned hooks by the published command and status message.
+- Identify ClankerLog-owned hooks by the published command and, where available,
+  status message.
 - Do not run hook payload simulations from `status`; status inspects config
   only.
 
@@ -399,4 +404,92 @@ Add `--dry-run` to print the resolved clank payload without sending it:
 ```bash
 printf '%s\n' '{"conversation_id":"local-test-conversation","generation_id":"local-test-generation","model":"gpt-5.5","hook_event_name":"stop","cursor_version":"2.6.22","workspace_roots":["/Users/kodi/data/personal/clankerlog-cli"],"user_email":"ignored-by-clankerlog@example.com","transcript_path":"/tmp/ignore-transcript.jsonl"}' \
   | CLANKERLOG_AGENT=cursor /Users/kodi/.local/bin/clankerlog-dev hook cursor stop --dry-run
+```
+
+## Hermes Shell Hook
+
+Hermes has several hook systems. For ClankerLog, use Hermes shell hooks because
+they work in both Hermes CLI and gateway sessions and pass a JSON payload to the
+configured command on stdin. Gateway-only `~/.hermes/hooks/*/HOOK.yaml` hooks do
+not fire in the CLI.
+
+Hermes does not have a hook named `Stop`. The closest successful-turn equivalent
+is `post_llm_call`, which fires once per turn after the agent produces a final
+response. `on_session_end` is also accepted by the CLI command for manual
+experiments, but it can fire for interrupted or failed turns, so the command
+ignores payloads where `extra.completed` is `false` or `extra.interrupted` is
+`true`.
+
+The local path is:
+
+```txt
+Hermes post_llm_call shell hook -> clankerlog-dev hook hermes stop -> local ingestion endpoint -> local D1
+```
+
+For local development, the hook command uses the repo shim:
+
+```bash
+/Users/kodi/.local/bin/clankerlog-dev hook hermes stop
+```
+
+User-facing Hermes setup should use the helper:
+
+```bash
+clankerlog hooks install hermes
+```
+
+Hermes defines shell hooks in:
+
+```txt
+~/.hermes/config.yaml
+```
+
+Equivalent shell hook config:
+
+```yaml
+hooks:
+  post_llm_call:
+    - command: "clankerlog hook hermes stop"
+      timeout: 10
+```
+
+Hermes prompts for approval the first time it sees a unique event and command
+pair unless the user opts into auto-accept with Hermes' documented
+`--accept-hooks`, `HERMES_ACCEPT_HOOKS=1`, or `hooks_auto_accept: true` paths.
+
+Hermes sends the shell hook input as JSON on stdin. The current CLI command
+validates the fields we need and allows future extra fields:
+
+```json
+{
+  "hook_event_name": "post_llm_call",
+  "tool_name": null,
+  "tool_input": null,
+  "session_id": "local-test-session",
+  "cwd": "/Users/kodi/data/personal/clankerlog-cli",
+  "extra": {
+    "model": "nous/hermes-4",
+    "platform": "cli",
+    "user_message": "ignored by ClankerLog",
+    "assistant_response": "ignored by ClankerLog",
+    "conversation_history": ["ignored by ClankerLog"]
+  }
+}
+```
+
+ClankerLog uses:
+
+- `cwd` as the project/workspace to resolve the allow-list entry.
+- `extra.model` as the model name in the clank payload.
+- `CLANKERLOG_AGENT`, defaulting to `hermes`, as the agent name.
+
+ClankerLog intentionally does not read `extra.user_message`,
+`extra.assistant_response`, or `extra.conversation_history`. The hook is a
+trigger plus minimal metadata source, not a transcript collector.
+
+Add `--dry-run` to print the resolved clank payload without sending it:
+
+```bash
+printf '%s\n' '{"hook_event_name":"post_llm_call","tool_name":null,"tool_input":null,"session_id":"local-test-session","cwd":"/Users/kodi/data/personal/clankerlog-cli","extra":{"model":"nous/hermes-4","platform":"cli","user_message":"ignore me","assistant_response":"ignore me","conversation_history":["ignore me"]}}' \
+  | /Users/kodi/.local/bin/clankerlog-dev hook hermes stop --dry-run
 ```

@@ -90,6 +90,12 @@ Install the Cursor stop hook:
 clankerlog hooks install cursor
 ```
 
+Install the Hermes shell hook:
+
+```bash
+clankerlog hooks install hermes
+```
+
 Equivalent Cursor config:
 
 ```json
@@ -117,9 +123,9 @@ clankerlog hooks status codex
 clankerlog hooks uninstall codex
 ```
 
-Hook commands read the agent hook JSON from stdin, use the workspace path from
-the hook payload, and ignore assistant messages and transcript paths. Hook
-commands support `--dry-run` for local payload inspection.
+Hook commands read the agent hook JSON payload from stdin, use the workspace
+path from the hook payload, and ignore assistant messages and transcript paths.
+Hook commands support `--dry-run` for local payload inspection.
 
 See [docs/integrations.md](docs/integrations.md) for the fuller manual install
 runbook, local development commands, and integration notes.

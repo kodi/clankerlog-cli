@@ -40,12 +40,27 @@ const cursorStopInputSchema = z.looseObject({
   user_email: z.string().nullable(),
 });
 
+const hermesStopInputSchema = z.looseObject({
+  cwd: z.string().trim().min(1),
+  extra: z
+    .looseObject({
+      completed: z.boolean().optional(),
+      interrupted: z.boolean().optional(),
+      model: z.string().trim().min(1).max(200).optional(),
+      platform: z.string().trim().min(1).max(80).optional(),
+    })
+    .optional(),
+  hook_event_name: z.enum(["post_llm_call", "on_session_end"]),
+  session_id: z.string().trim().min(1).nullable().optional(),
+});
+
 export function registerHookCommand(program: Command): void {
   const hook = program.command("hook").description("Run coding-agent hook integrations.");
 
   const codex = hook.command("codex").description("Run Codex hook integrations.");
   const claude = hook.command("claude").description("Run Claude Code hook integrations.");
   const cursor = hook.command("cursor").description("Run Cursor hook integrations.");
+  const hermes = hook.command("hermes").description("Run Hermes hook integrations.");
 
   codex
     .command("stop")
@@ -69,6 +84,14 @@ export function registerHookCommand(program: Command): void {
     .option("--dry-run", "Print the resolved clank payload without sending it")
     .action(async (options: HookStopOptions, command: Command) => {
       await handleCursorStopHook(createRuntime(command), options);
+    });
+
+  hermes
+    .command("stop")
+    .description("Handle a Hermes shell hook payload from stdin.")
+    .option("--dry-run", "Print the resolved clank payload without sending it")
+    .action(async (options: HookStopOptions, command: Command) => {
+      await handleHermesStopHook(createRuntime(command), options);
     });
 }
 
@@ -147,6 +170,36 @@ export async function handleCursorStopHook(
     }
 
     // Hooks must never interrupt Cursor. Normal CLI diagnostics remain
+    // available through `clankerlog doctor` and manual `clankerlog ping --dry-run`.
+  }
+}
+
+export async function handleHermesStopHook(
+  runtime: CliRuntime,
+  options: HookStopOptions = {},
+): Promise<void> {
+  const input = await parseHermesStopInput(runtime, options);
+  if (shouldSkipHermesStopInput(input)) {
+    return;
+  }
+
+  const hookRuntime = createHookRuntime(runtime, input.cwd, { quiet: !options.dryRun });
+
+  try {
+    await handlePing(
+      {
+        agent: runtime.env.CLANKERLOG_AGENT ?? "hermes",
+        dryRun: options.dryRun ?? false,
+        ...(input.extra?.model ? { model: input.extra.model } : {}),
+      },
+      hookRuntime,
+    );
+  } catch (error) {
+    if (options.dryRun) {
+      throw error;
+    }
+
+    // Hooks must never interrupt Hermes. Normal CLI diagnostics remain
     // available through `clankerlog doctor` and manual `clankerlog ping --dry-run`.
   }
 }
@@ -271,6 +324,52 @@ async function parseCursorStopInput(
   return result.data;
 }
 
+async function parseHermesStopInput(
+  runtime: CliRuntime,
+  options: HookStopOptions,
+): Promise<HermesStopInput> {
+  const raw = await readStdin(runtime.stdin, { allowDryRunFallback: options.dryRun ?? false });
+
+  if (!raw.trim()) {
+    if (options.dryRun) {
+      return hermesStopInputSchema.parse({
+        cwd: runtime.cwd,
+        extra: {
+          model: runtime.env.CLANKERLOG_MODEL ?? "dry-run-model",
+          platform: "cli",
+        },
+        hook_event_name: "post_llm_call",
+        session_id: "dry-run-session",
+      });
+    }
+
+    throw new CliError("Hermes hook payload was empty.");
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new CliError("Hermes hook payload was not valid JSON.");
+  }
+
+  const result = hermesStopInputSchema.safeParse(parsed);
+  if (!result.success) {
+    throw new CliError(
+      `Hermes hook payload was invalid: ${result.error.issues[0]?.message ?? "schema validation failed"}`,
+    );
+  }
+
+  return result.data;
+}
+
+function shouldSkipHermesStopInput(input: HermesStopInput): boolean {
+  return (
+    input.hook_event_name === "on_session_end" &&
+    (input.extra?.completed === false || input.extra?.interrupted === true)
+  );
+}
+
 function createHookRuntime(
   runtime: CliRuntime,
   cwd: string,
@@ -355,6 +454,7 @@ class NullWritable extends Writable {
 type CodexStopInput = z.infer<typeof codexStopInputSchema>;
 type ClaudeStopInput = z.infer<typeof claudeStopInputSchema>;
 type CursorStopInput = z.infer<typeof cursorStopInputSchema>;
+type HermesStopInput = z.infer<typeof hermesStopInputSchema>;
 
 interface HookStopOptions {
   readonly dryRun?: boolean;

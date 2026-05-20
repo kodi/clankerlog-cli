@@ -8,6 +8,7 @@ import {
   handleClaudeStopHook,
   handleCodexStopHook,
   handleCursorStopHook,
+  handleHermesStopHook,
 } from "../../src/commands/hook.js";
 import { saveGlobalConfig } from "../../src/config.js";
 import { createMemoryRuntime } from "../helpers.js";
@@ -344,6 +345,133 @@ describe("cursor stop hook", () => {
   });
 });
 
+describe("hermes stop hook", () => {
+  it("sends one quiet clank using cwd and model from post_llm_call shell hook stdin", async () => {
+    const root = await makeTempDir();
+    await writeFile(path.join(root, "package.json"), "{}");
+    const projectPath = await realpath(root);
+    const configPath = path.join(root, "global", "config.json");
+    const fetchMock = vi.fn<typeof fetch>(
+      async () => new Response(JSON.stringify({ id: "clank_hook", ok: true }), { status: 202 }),
+    );
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [{ displayName: "Hermes Hook Project", path: projectPath }],
+      apiKey: "clk_live_hook_secret",
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    const runtime = createMemoryRuntime({
+      configPath,
+      cwd: await makeTempDir(),
+      stdin: JSON.stringify(hermesPostLlmPayload({ cwd: projectPath, model: "nous/hermes-4" })),
+    });
+
+    await handleHermesStopHook(runtime);
+
+    expect(runtime.stdoutText()).toBe("");
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    const body = JSON.parse(String(request.body));
+    expect(body).toMatchObject({
+      agent: "hermes",
+      model: "nous/hermes-4",
+      project: { display_name: "Hermes Hook Project" },
+      type: "clank",
+    });
+    expect(JSON.stringify(body)).not.toContain("do not collect me");
+    expect(JSON.stringify(body)).not.toContain("conversation_history");
+  });
+
+  it("wires the hook hermes stop CLI command through Commander", async () => {
+    const root = await makeTempDir();
+    await writeFile(path.join(root, "package.json"), "{}");
+    const projectPath = await realpath(root);
+    const configHome = path.join(root, "xdg-config");
+    const configPath = path.join(configHome, "clankerlog", "config.json");
+    const fetchMock = vi.fn<typeof fetch>(
+      async () => new Response(JSON.stringify({ id: "clank_hook", ok: true }), { status: 202 }),
+    );
+    globalThis.fetch = fetchMock as typeof fetch;
+    vi.stubEnv("XDG_CONFIG_HOME", configHome);
+    Object.defineProperty(process, "stdin", {
+      configurable: true,
+      value: Readable.from([
+        JSON.stringify(hermesPostLlmPayload({ cwd: projectPath, model: "nous/hermes-4" })),
+      ]),
+    });
+
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [{ displayName: "Hermes Hook Project", path: projectPath }],
+      apiKey: "clk_live_hook_secret",
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    const program = buildProgram();
+    program.exitOverride();
+    await program.parseAsync(["node", "clankerlog", "hook", "hermes", "stop"]);
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
+  it("ignores interrupted on_session_end payloads", async () => {
+    const root = await makeTempDir();
+    const fetchMock = vi.fn();
+    globalThis.fetch = fetchMock as typeof fetch;
+    const runtime = createMemoryRuntime({
+      configPath: path.join(root, "global", "config.json"),
+      cwd: root,
+      stdin: JSON.stringify({
+        cwd: root,
+        extra: {
+          completed: false,
+          interrupted: true,
+          model: "nous/hermes-4",
+          platform: "cli",
+        },
+        hook_event_name: "on_session_end",
+        session_id: "session_123",
+      }),
+    });
+
+    await handleHermesStopHook(runtime);
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(runtime.stdoutText()).toBe("");
+    expect(runtime.stderrText()).toBe("");
+  });
+
+  it("supports dry-run without stdin by using the current workspace", async () => {
+    const root = await makeTempDir();
+    await writeFile(path.join(root, "package.json"), "{}");
+    const projectPath = await realpath(root);
+    const configPath = path.join(root, "global", "config.json");
+    const fetchMock = vi.fn();
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [{ displayName: "Hermes Hook Project", path: projectPath }],
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    const runtime = createMemoryRuntime({
+      configPath,
+      cwd: projectPath,
+      env: {
+        CLANKERLOG_MODEL: "nous/hermes-4",
+      },
+    });
+
+    await handleHermesStopHook(runtime, { dryRun: true });
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(runtime.stdoutText()).toContain('"agent": "hermes"');
+    expect(runtime.stdoutText()).toContain('"model": "nous/hermes-4"');
+    expect(runtime.stdoutText()).toContain('"display_name": "Hermes Hook Project"');
+  });
+});
+
 function codexStopPayload(options: { cwd: string; model: string }) {
   return {
     cwd: options.cwd,
@@ -380,6 +508,23 @@ function cursorStopPayload(options: { workspaceRoot: string; model: string }) {
     transcript_path: "/tmp/transcript.jsonl",
     user_email: "kodi@example.com",
     workspace_roots: [options.workspaceRoot],
+  };
+}
+
+function hermesPostLlmPayload(options: { cwd: string; model: string }) {
+  return {
+    cwd: options.cwd,
+    extra: {
+      assistant_response: "do not collect me",
+      conversation_history: [{ content: "do not collect me", role: "user" }],
+      model: options.model,
+      platform: "cli",
+      user_message: "do not collect me",
+    },
+    hook_event_name: "post_llm_call",
+    session_id: "session_123",
+    tool_input: null,
+    tool_name: null,
   };
 }
 

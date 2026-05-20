@@ -1,6 +1,7 @@
 import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { parse as parseYaml } from "yaml";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildProgram } from "../../src/cli.js";
 import {
@@ -81,6 +82,23 @@ describe("hook config transforms", () => {
         stop: [
           {
             command: "CLANKERLOG_AGENT=cursor clankerlog hook cursor stop",
+          },
+        ],
+      },
+    });
+  });
+
+  it("creates a Hermes post_llm_call shell hook that reads the model from hook stdin", () => {
+    const plan = planInstallHook({}, "hermes");
+
+    expect(plan.changed).toBe(true);
+    expect(plan.command).toBe("clankerlog hook hermes stop");
+    expect(plan.config).toEqual({
+      hooks: {
+        post_llm_call: [
+          {
+            command: "clankerlog hook hermes stop",
+            timeout: 10,
           },
         ],
       },
@@ -272,6 +290,28 @@ describe("hook config transforms", () => {
     });
   });
 
+  it("removes only ClankerLog Hermes hooks and preserves neighboring hooks", () => {
+    const installed = planInstallHook(
+      {
+        hooks: {
+          post_llm_call: [{ command: "echo existing", timeout: 1 }],
+        },
+        model: "nous/hermes-4",
+      },
+      "hermes",
+    );
+
+    const plan = planUninstallHook(installed.config, "hermes");
+
+    expect(plan.changed).toBe(true);
+    expect(plan.config).toEqual({
+      hooks: {
+        post_llm_call: [{ command: "echo existing", timeout: 1 }],
+      },
+      model: "nous/hermes-4",
+    });
+  });
+
   it("reports status without mutating config", () => {
     const config = planInstallHook({}, "claude", { model: "claude-opus-4.5" }).config;
 
@@ -296,6 +336,9 @@ describe("hook config transforms", () => {
     expect(() => planInstallHook({ hooks: { stop: {} } }, "cursor")).toThrow(
       "`hooks.stop` must be an array",
     );
+    expect(() => planInstallHook({ hooks: { post_llm_call: {} } }, "hermes")).toThrow(
+      "`hooks.post_llm_call` must be an array",
+    );
   });
 });
 
@@ -311,6 +354,9 @@ describe("hook config filesystem helpers", () => {
     );
     expect(resolveHookConfigPath("cursor", { homeDirectory: home })).toBe(
       path.join(home, ".cursor", "hooks.json"),
+    );
+    expect(resolveHookConfigPath("hermes", { homeDirectory: home })).toBe(
+      path.join(home, ".hermes", "config.yaml"),
     );
   });
 
@@ -352,6 +398,39 @@ describe("hook config filesystem helpers", () => {
     expect(second.changed).toBe(false);
     expect(second.willWrite).toBe(false);
     expect(countClankerLogCommands(await readJson(configPath))).toBe(1);
+  });
+
+  it("installs a Hermes hook file as YAML and preserves unrelated config", async () => {
+    const root = await makeTempDir();
+    const configPath = path.join(root, ".hermes", "config.yaml");
+    await mkdir(path.dirname(configPath), { recursive: true });
+    await writeFile(
+      configPath,
+      [
+        "default_model: nous/hermes-4",
+        "hooks:",
+        "  pre_llm_call:",
+        "    - command: echo existing",
+        "",
+      ].join("\n"),
+    );
+
+    const plan = await installHookConfig("hermes", { configPath });
+
+    expect(plan.changed).toBe(true);
+    expect(plan.command).toBe("clankerlog hook hermes stop");
+    expect(await readYaml(configPath)).toEqual({
+      default_model: "nous/hermes-4",
+      hooks: {
+        pre_llm_call: [{ command: "echo existing" }],
+        post_llm_call: [
+          {
+            command: "clankerlog hook hermes stop",
+            timeout: 10,
+          },
+        ],
+      },
+    });
   });
 
   it("uninstalls through the filesystem helper and preserves unrelated hooks", async () => {
@@ -412,6 +491,16 @@ describe("hook config filesystem helpers", () => {
 
     await expect(installHookConfig("codex", { configPath })).rejects.toThrow("not valid JSON");
     await expect(readFile(configPath, "utf8")).resolves.toBe("{not json");
+  });
+
+  it("refuses malformed Hermes YAML without rewriting the file", async () => {
+    const root = await makeTempDir();
+    const configPath = path.join(root, ".hermes", "config.yaml");
+    await mkdir(path.dirname(configPath), { recursive: true });
+    await writeFile(configPath, "hooks: [not yaml");
+
+    await expect(installHookConfig("hermes", { configPath })).rejects.toThrow("not valid YAML");
+    await expect(readFile(configPath, "utf8")).resolves.toBe("hooks: [not yaml");
   });
 
   it("refuses unsupported hook shapes without rewriting the file", async () => {
@@ -522,6 +611,38 @@ describe("hooks install command", () => {
         stop: [
           {
             command: "CLANKERLOG_AGENT=cursor clankerlog hook cursor stop",
+          },
+        ],
+      },
+    });
+  });
+
+  it("wires Hermes install through Commander", async () => {
+    const root = await makeTempDir();
+    const configPath = path.join(root, ".hermes", "config.yaml");
+    const stdout = captureStdout();
+    const program = buildProgram();
+    program.exitOverride();
+
+    await program.parseAsync([
+      "node",
+      "clankerlog",
+      "hooks",
+      "install",
+      "hermes",
+      "--hook-config",
+      configPath,
+    ]);
+
+    expect(stdout.text()).toContain(`Target: ${configPath}`);
+    expect(stdout.text()).toContain("Command: clankerlog hook hermes stop");
+    expect(stdout.text()).toContain("Action: installed");
+    expect(await readYaml(configPath)).toEqual({
+      hooks: {
+        post_llm_call: [
+          {
+            command: "clankerlog hook hermes stop",
+            timeout: 10,
           },
         ],
       },
@@ -746,10 +867,71 @@ describe("hooks status and uninstall commands", () => {
       },
     });
   });
+
+  it("reports and uninstalls Hermes hooks through Commander", async () => {
+    const root = await makeTempDir();
+    const configPath = path.join(root, ".hermes", "config.yaml");
+    const installed = planInstallHook(
+      {
+        hooks: {
+          post_llm_call: [{ command: "echo existing" }],
+        },
+      },
+      "hermes",
+    ).config;
+    await mkdir(path.dirname(configPath), { recursive: true });
+    await writeFile(
+      configPath,
+      [
+        "hooks:",
+        "  post_llm_call:",
+        "    - command: echo existing",
+        "    - command: clankerlog hook hermes stop",
+        "      timeout: 10",
+        "",
+      ].join("\n"),
+    );
+    const stdout = captureStdout();
+    const program = buildProgram();
+    program.exitOverride();
+
+    await program.parseAsync([
+      "node",
+      "clankerlog",
+      "hooks",
+      "status",
+      "hermes",
+      "--hook-config",
+      configPath,
+    ]);
+    await program.parseAsync([
+      "node",
+      "clankerlog",
+      "hooks",
+      "uninstall",
+      "hermes",
+      "--hook-config",
+      configPath,
+    ]);
+
+    expect(stdout.text()).toContain("Status: ClankerLog Hermes Stop hook is installed.");
+    expect(stdout.text()).toContain("Command matches expected: yes");
+    expect(stdout.text()).toContain("Action: removed");
+    expect(await readYaml(configPath)).toEqual({
+      hooks: {
+        post_llm_call: [{ command: "echo existing" }],
+      },
+    });
+    expect(installed).toMatchObject({ hooks: { post_llm_call: expect.any(Array) } });
+  });
 });
 
 async function readJson(filePath: string): Promise<unknown> {
   return JSON.parse(await readFile(filePath, "utf8"));
+}
+
+async function readYaml(filePath: string): Promise<unknown> {
+  return parseYaml(await readFile(filePath, "utf8"));
 }
 
 async function makeTempDir(): Promise<string> {
