@@ -10,12 +10,19 @@ import {
   uninstallHookConfig,
   writeHookConfigFileAtomic,
 } from "../hook-config.js";
+import {
+  getOpenClawHookStatus,
+  installOpenClawHook,
+  type OpenClawHookOptions,
+  uninstallOpenClawHook,
+} from "../openclaw-hook.js";
 import { formatHomePath } from "../path-display.js";
 import { createRuntime, type CliRuntime } from "../runtime.js";
 
 interface InstallOptions {
   readonly dryRun?: boolean | undefined;
   readonly hookConfig?: string | undefined;
+  readonly hookDir?: string | undefined;
   readonly model?: string | undefined;
 }
 
@@ -63,6 +70,15 @@ export function registerHooksCommand(program: Command): void {
       await handleInstallHook("hermes", createRuntime(command), options);
     });
 
+  install
+    .command("openclaw")
+    .description("Install the global OpenClaw message:sent hook.")
+    .option("--dry-run", "Show the hook files that would be written without writing them")
+    .addOption(new Option("--hook-dir <path>").hideHelp())
+    .action(async (options: InstallOptions, command: Command) => {
+      await handleInstallOpenClawHook(createRuntime(command), options);
+    });
+
   status
     .command("codex")
     .description("Inspect the Codex Stop hook.")
@@ -93,6 +109,14 @@ export function registerHooksCommand(program: Command): void {
     .addOption(new Option("--hook-config <path>").hideHelp())
     .action(async (options: InstallOptions, command: Command) => {
       await handleHookStatus("hermes", createRuntime(command), options);
+    });
+
+  status
+    .command("openclaw")
+    .description("Inspect the global OpenClaw message:sent hook.")
+    .addOption(new Option("--hook-dir <path>").hideHelp())
+    .action(async (options: InstallOptions, command: Command) => {
+      await handleOpenClawHookStatus(createRuntime(command), options);
     });
 
   uninstall
@@ -129,6 +153,15 @@ export function registerHooksCommand(program: Command): void {
     .addOption(new Option("--hook-config <path>").hideHelp())
     .action(async (options: InstallOptions, command: Command) => {
       await handleUninstallHook("hermes", createRuntime(command), options);
+    });
+
+  uninstall
+    .command("openclaw")
+    .description("Remove the global OpenClaw message:sent hook.")
+    .option("--dry-run", "Show the hook directory removal without deleting it")
+    .addOption(new Option("--hook-dir <path>").hideHelp())
+    .action(async (options: InstallOptions, command: Command) => {
+      await handleUninstallOpenClawHook(createRuntime(command), options);
     });
 }
 
@@ -223,6 +256,87 @@ export async function handleUninstallHook(
   );
 }
 
+export async function handleInstallOpenClawHook(
+  runtime: CliRuntime,
+  options: InstallOptions = {},
+): Promise<void> {
+  const plan = await installOpenClawHook(toOpenClawHookOptions(options));
+
+  writeLine(runtime, `Target: ${formatHomePath(plan.hookDir)}`);
+  writeLine(runtime, `Files: ${HOOK_FILE_LIST}`);
+  writeLine(runtime, "Command: clankerlog hook openclaw message-sent");
+
+  if (options.dryRun) {
+    writeLine(
+      runtime,
+      plan.changed
+        ? "Action: would install ClankerLog OpenClaw message:sent hook."
+        : "Action: ClankerLog OpenClaw hook is already installed.",
+    );
+    writeOpenClawNextStep(runtime);
+    return;
+  }
+
+  writeLine(
+    runtime,
+    plan.changed
+      ? "Action: installed ClankerLog OpenClaw message:sent hook."
+      : "Action: ClankerLog OpenClaw hook is already installed.",
+  );
+  writeOpenClawNextStep(runtime);
+}
+
+export async function handleOpenClawHookStatus(
+  runtime: CliRuntime,
+  options: InstallOptions = {},
+): Promise<void> {
+  const status = await getOpenClawHookStatus(toOpenClawHookOptions(options));
+
+  writeLine(runtime, `Target: ${formatHomePath(status.hookDir)}`);
+  writeLine(
+    runtime,
+    `Status: ${status.installed ? "ClankerLog OpenClaw hook is installed." : "ClankerLog OpenClaw hook is not installed."}`,
+  );
+  writeLine(runtime, `HOOK.md matches expected: ${status.hookMdMatchesExpected ? "yes" : "no"}`);
+  writeLine(
+    runtime,
+    `handler.ts matches expected: ${status.handlerMatchesExpected ? "yes" : "no"}`,
+  );
+
+  if (status.openClawCliAvailable) {
+    writeLine(runtime, `OpenClaw CLI sees hook: ${status.discoveredByOpenClaw ? "yes" : "no"}`);
+    writeLine(runtime, `OpenClaw CLI reports enabled: ${status.enabledByOpenClaw ? "yes" : "no"}`);
+  } else {
+    writeLine(runtime, "OpenClaw CLI status: unavailable");
+  }
+}
+
+export async function handleUninstallOpenClawHook(
+  runtime: CliRuntime,
+  options: InstallOptions = {},
+): Promise<void> {
+  const plan = await uninstallOpenClawHook(toOpenClawHookOptions(options));
+
+  writeLine(runtime, `Target: ${formatHomePath(plan.hookDir)}`);
+
+  if (options.dryRun) {
+    writeLine(
+      runtime,
+      plan.changed
+        ? "Action: would remove ClankerLog OpenClaw hook."
+        : "Action: ClankerLog OpenClaw hook is not installed.",
+    );
+    return;
+  }
+
+  writeLine(
+    runtime,
+    plan.changed
+      ? "Action: removed ClankerLog OpenClaw hook."
+      : "Action: ClankerLog OpenClaw hook is not installed.",
+  );
+}
+
 function toHookConfigFileOptions(options: InstallOptions): HookConfigFileOptions {
   return {
     configPath: options.hookConfig,
@@ -231,10 +345,25 @@ function toHookConfigFileOptions(options: InstallOptions): HookConfigFileOptions
   };
 }
 
+function toOpenClawHookOptions(options: InstallOptions): OpenClawHookOptions {
+  return {
+    dryRun: options.dryRun,
+    hookDir: options.hookDir,
+    inspectOpenClawCli: options.hookDir ? false : undefined,
+  };
+}
+
 function writeNextStep(runtime: CliRuntime, agent: HookAgent): void {
   if (agent === "codex") {
     writeLine(runtime, "Next: run /hooks in Codex if command approval is required.");
   }
+}
+
+function writeOpenClawNextStep(runtime: CliRuntime): void {
+  writeLine(
+    runtime,
+    "Next: run `openclaw hooks enable clankerlog` if OpenClaw has not enabled it yet.",
+  );
 }
 
 function writeLine(runtime: CliRuntime, line: string): void {
@@ -256,3 +385,5 @@ function agentName(agent: HookAgent): string {
 
   return "Codex";
 }
+
+const HOOK_FILE_LIST = "HOOK.md, handler.ts";

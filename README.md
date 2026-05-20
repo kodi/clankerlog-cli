@@ -119,6 +119,22 @@ Install the Hermes shell hook:
 clankerlog hooks install hermes
 ```
 
+Install the global OpenClaw `message:sent` hook:
+
+```bash
+clankerlog hooks install openclaw
+```
+
+This writes a managed hook directory at `~/.openclaw/hooks/clankerlog/` with
+`HOOK.md` and `handler.ts`. The generated handler listens only for successful
+outbound messages, calls `clankerlog hook openclaw message-sent`, and does not
+read or forward message content. If OpenClaw does not enable the hook
+automatically, run:
+
+```bash
+openclaw hooks enable clankerlog
+```
+
 Equivalent Cursor config:
 
 ```json
@@ -144,11 +160,14 @@ Check or remove an installed hook:
 ```bash
 clankerlog hooks status codex
 clankerlog hooks uninstall codex
+clankerlog hooks status openclaw
+clankerlog hooks uninstall openclaw
 ```
 
 Hook commands read the agent hook JSON payload from stdin, use the workspace
-path from the hook payload, and ignore assistant messages and transcript paths.
-Hook commands support `--dry-run` for local payload inspection.
+path from the hook payload, and ignore assistant messages, message content, and
+transcript paths. Hook commands support `--dry-run` for local payload
+inspection.
 
 See [docs/integrations.md](docs/integrations.md) for the fuller manual install
 runbook, local development commands, and integration notes.

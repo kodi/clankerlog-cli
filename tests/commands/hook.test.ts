@@ -9,6 +9,7 @@ import {
   handleCodexStopHook,
   handleCursorStopHook,
   handleHermesStopHook,
+  handleOpenClawMessageSentHook,
 } from "../../src/commands/hook.js";
 import { saveGlobalConfig } from "../../src/config.js";
 import { createMemoryRuntime } from "../helpers.js";
@@ -472,6 +473,124 @@ describe("hermes stop hook", () => {
   });
 });
 
+describe("openclaw message:sent hook", () => {
+  it("sends one quiet clank using explicit workspace metadata", async () => {
+    const root = await makeTempDir();
+    await writeFile(path.join(root, "package.json"), "{}");
+    const projectPath = await realpath(root);
+    const configPath = path.join(root, "global", "config.json");
+    const fetchMock = vi.fn<typeof fetch>(
+      async () => new Response(JSON.stringify({ id: "clank_hook", ok: true }), { status: 202 }),
+    );
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [{ displayName: "OpenClaw Hook Project", path: projectPath }],
+      apiKey: "clk_live_hook_secret",
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    const runtime = createMemoryRuntime({
+      configPath,
+      cwd: await makeTempDir(),
+      stdin: JSON.stringify(
+        openClawMessageSentPayload({ workspaceDir: projectPath, model: "gpt-5.5" }),
+      ),
+    });
+
+    await handleOpenClawMessageSentHook(runtime);
+
+    expect(runtime.stdoutText()).toBe("");
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    const body = JSON.parse(String(request.body));
+    expect(body).toMatchObject({
+      agent: "openclaw",
+      model: "gpt-5.5",
+      project: { display_name: "OpenClaw Hook Project" },
+      type: "clank",
+    });
+    expect(JSON.stringify(body)).not.toContain("do not collect me");
+  });
+
+  it("rejects unsuccessful message payloads in dry-run validation", async () => {
+    const root = await makeTempDir();
+    const runtime = createMemoryRuntime({
+      configPath: path.join(root, "global", "config.json"),
+      cwd: root,
+      stdin: JSON.stringify({
+        content: "do not collect me",
+        success: false,
+        workspaceDir: root,
+      }),
+    });
+
+    await expect(handleOpenClawMessageSentHook(runtime, { dryRun: true })).rejects.toThrow(
+      "OpenClaw message:sent hook payload was invalid",
+    );
+  });
+
+  it("wires the hook openclaw message-sent CLI command through Commander", async () => {
+    const root = await makeTempDir();
+    await writeFile(path.join(root, "package.json"), "{}");
+    const projectPath = await realpath(root);
+    const configHome = path.join(root, "xdg-config");
+    const configPath = path.join(configHome, "clankerlog", "config.json");
+    const fetchMock = vi.fn<typeof fetch>(
+      async () => new Response(JSON.stringify({ id: "clank_hook", ok: true }), { status: 202 }),
+    );
+    globalThis.fetch = fetchMock as typeof fetch;
+    vi.stubEnv("XDG_CONFIG_HOME", configHome);
+    Object.defineProperty(process, "stdin", {
+      configurable: true,
+      value: Readable.from([
+        JSON.stringify(openClawMessageSentPayload({ workspaceDir: projectPath, model: "gpt-5.5" })),
+      ]),
+    });
+
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [{ displayName: "OpenClaw Hook Project", path: projectPath }],
+      apiKey: "clk_live_hook_secret",
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    const program = buildProgram();
+    program.exitOverride();
+    await program.parseAsync(["node", "clankerlog", "hook", "openclaw", "message-sent"]);
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
+  it("supports dry-run without stdin by using the current workspace", async () => {
+    const root = await makeTempDir();
+    await writeFile(path.join(root, "package.json"), "{}");
+    const projectPath = await realpath(root);
+    const configPath = path.join(root, "global", "config.json");
+    const fetchMock = vi.fn();
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [{ displayName: "OpenClaw Hook Project", path: projectPath }],
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    const runtime = createMemoryRuntime({
+      configPath,
+      cwd: projectPath,
+      env: {
+        CLANKERLOG_MODEL: "gpt-5.5",
+      },
+    });
+
+    await handleOpenClawMessageSentHook(runtime, { dryRun: true });
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(runtime.stdoutText()).toContain('"agent": "openclaw"');
+    expect(runtime.stdoutText()).toContain('"model": "gpt-5.5"');
+    expect(runtime.stdoutText()).toContain('"display_name": "OpenClaw Hook Project"');
+  });
+});
+
 function codexStopPayload(options: { cwd: string; model: string }) {
   return {
     cwd: options.cwd,
@@ -525,6 +644,15 @@ function hermesPostLlmPayload(options: { cwd: string; model: string }) {
     session_id: "session_123",
     tool_input: null,
     tool_name: null,
+  };
+}
+
+function openClawMessageSentPayload(options: { workspaceDir: string; model: string }) {
+  return {
+    content: "do not collect me",
+    model: options.model,
+    success: true,
+    workspaceDir: options.workspaceDir,
   };
 }
 

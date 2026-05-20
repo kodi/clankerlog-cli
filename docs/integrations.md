@@ -1,8 +1,8 @@
 # ClankerLog Integrations
 
-This document records the working Codex, Claude Code, and Cursor hook integrations.
-Treat it as both a runbook for local testing and the manual JSON fallback for
-the `clankerlog hooks` helper commands.
+This document records the working Codex, Claude Code, Cursor, Hermes, and
+OpenClaw hook integrations. Treat it as both a runbook for local testing and
+the manual fallback for the `clankerlog hooks` helper commands.
 
 ## Codex Stop Hook
 
@@ -189,10 +189,13 @@ clankerlog hooks install codex
 clankerlog hooks install claude --model claude-sonnet-4.5
 clankerlog hooks install cursor
 clankerlog hooks install hermes
+clankerlog hooks install openclaw
 clankerlog hooks status codex
 clankerlog hooks status hermes
+clankerlog hooks status openclaw
 clankerlog hooks uninstall codex
 clankerlog hooks uninstall hermes
+clankerlog hooks uninstall openclaw
 ```
 
 Install and uninstall support `--dry-run`:
@@ -200,12 +203,16 @@ Install and uninstall support `--dry-run`:
 ```bash
 clankerlog hooks install codex --dry-run
 clankerlog hooks uninstall codex --dry-run
+clankerlog hooks install openclaw --dry-run
+clankerlog hooks uninstall openclaw --dry-run
 ```
 
 The helpers:
 
 - Create missing `~/.codex/hooks.json`, `~/.claude/settings.json`,
   `~/.cursor/hooks.json`, or `~/.hermes/config.yaml` files.
+- Create the managed OpenClaw hook directory at
+  `~/.openclaw/hooks/clankerlog/`.
 - Preserve existing Stop hooks, shell hooks, non-Stop hooks, and unrelated
   settings.
 - Never replace Codex `notify` in `~/.codex/config.toml`.
@@ -220,6 +227,73 @@ Use `clankerlog-dev` only for local source-based testing:
 
 ```bash
 /Users/kodi/.local/bin/clankerlog-dev hook codex stop
+```
+
+## OpenClaw Message Hook
+
+OpenClaw discovers managed hooks from directories under:
+
+```txt
+~/.openclaw/hooks/
+```
+
+The ClankerLog helper installs:
+
+```txt
+~/.openclaw/hooks/clankerlog/
+├── HOOK.md
+└── handler.ts
+```
+
+Install it with:
+
+```bash
+clankerlog hooks install openclaw
+```
+
+The generated `HOOK.md` declares the `message:sent` event and the generated
+`handler.ts` filters to successful outbound message events. It then runs the
+published CLI command:
+
+```bash
+clankerlog hook openclaw message-sent
+```
+
+The generated handler uses `clankerlog`, not `clankerlog-dev`, because these are
+user-facing installed hook files. It passes only minimal metadata:
+
+```json
+{
+  "workspaceDir": "/path/to/project",
+  "model": "configured-openclaw-model",
+  "success": true
+}
+```
+
+ClankerLog intentionally does not read or forward OpenClaw message content,
+prompts, responses, transcripts, source code, diffs, terminal output, or
+secrets. The handler gets `workspaceDir` from `event.context.workspaceDir` when
+available, then `CLANKERLOG_WORKSPACE_DIR`, then the hook process cwd. It gets
+the model from `CLANKERLOG_MODEL`.
+
+Status inspects the hook files and, when the OpenClaw CLI is available, reports
+whether OpenClaw sees or enables the hook. It does not send a test clank:
+
+```bash
+clankerlog hooks status openclaw
+```
+
+Uninstall removes only a hook directory whose `HOOK.md` and `handler.ts` match
+the ClankerLog-managed files:
+
+```bash
+clankerlog hooks uninstall openclaw
+```
+
+If OpenClaw does not enable the hook automatically after installation, run:
+
+```bash
+openclaw hooks enable clankerlog
 ```
 
 After installing Codex hooks, run `/hooks` in Codex if command approval is

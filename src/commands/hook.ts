@@ -54,6 +54,12 @@ const hermesStopInputSchema = z.looseObject({
   session_id: z.string().trim().min(1).nullable().optional(),
 });
 
+const openClawMessageSentInputSchema = z.looseObject({
+  model: z.string().trim().min(1).max(120).optional(),
+  success: z.literal(true),
+  workspaceDir: z.string().trim().min(1),
+});
+
 export function registerHookCommand(program: Command): void {
   const hook = program.command("hook").description("Run coding-agent hook integrations.");
 
@@ -61,6 +67,7 @@ export function registerHookCommand(program: Command): void {
   const claude = hook.command("claude").description("Run Claude Code hook integrations.");
   const cursor = hook.command("cursor").description("Run Cursor hook integrations.");
   const hermes = hook.command("hermes").description("Run Hermes hook integrations.");
+  const openclaw = hook.command("openclaw").description("Run OpenClaw hook integrations.");
 
   codex
     .command("stop")
@@ -92,6 +99,14 @@ export function registerHookCommand(program: Command): void {
     .option("--dry-run", "Print the resolved clank payload without sending it")
     .action(async (options: HookStopOptions, command: Command) => {
       await handleHermesStopHook(createRuntime(command), options);
+    });
+
+  openclaw
+    .command("message-sent")
+    .description("Handle a successful OpenClaw message:sent hook payload from stdin.")
+    .option("--dry-run", "Print the resolved clank payload without sending it")
+    .action(async (options: HookStopOptions, command: Command) => {
+      await handleOpenClawMessageSentHook(createRuntime(command), options);
     });
 }
 
@@ -201,6 +216,33 @@ export async function handleHermesStopHook(
 
     // Hooks must never interrupt Hermes. Normal CLI diagnostics remain
     // available through `clankerlog doctor` and manual `clankerlog ping --dry-run`.
+  }
+}
+
+export async function handleOpenClawMessageSentHook(
+  runtime: CliRuntime,
+  options: HookStopOptions = {},
+): Promise<void> {
+  const input = await parseOpenClawMessageSentInput(runtime, options);
+  const hookRuntime = createHookRuntime(runtime, input.workspaceDir, { quiet: !options.dryRun });
+
+  try {
+    await handlePing(
+      {
+        agent: runtime.env.CLANKERLOG_AGENT ?? "openclaw",
+        dryRun: options.dryRun ?? false,
+        ...(input.model ? { model: input.model } : {}),
+      },
+      hookRuntime,
+    );
+  } catch (error) {
+    if (options.dryRun) {
+      throw error;
+    }
+
+    // Hooks must never interrupt OpenClaw message delivery. Normal CLI
+    // diagnostics remain available through `clankerlog doctor` and
+    // manual `clankerlog ping --dry-run`.
   }
 }
 
@@ -363,6 +405,41 @@ async function parseHermesStopInput(
   return result.data;
 }
 
+async function parseOpenClawMessageSentInput(
+  runtime: CliRuntime,
+  options: HookStopOptions,
+): Promise<OpenClawMessageSentInput> {
+  const raw = await readStdin(runtime.stdin, { allowDryRunFallback: options.dryRun ?? false });
+
+  if (!raw.trim()) {
+    if (options.dryRun) {
+      return openClawMessageSentInputSchema.parse({
+        model: runtime.env.CLANKERLOG_MODEL ?? "dry-run-model",
+        success: true,
+        workspaceDir: runtime.env.CLANKERLOG_WORKSPACE_DIR ?? runtime.cwd,
+      });
+    }
+
+    throw new CliError("OpenClaw message:sent hook payload was empty.");
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new CliError("OpenClaw message:sent hook payload was not valid JSON.");
+  }
+
+  const result = openClawMessageSentInputSchema.safeParse(parsed);
+  if (!result.success) {
+    throw new CliError(
+      `OpenClaw message:sent hook payload was invalid: ${result.error.issues[0]?.message ?? "schema validation failed"}`,
+    );
+  }
+
+  return result.data;
+}
+
 function shouldSkipHermesStopInput(input: HermesStopInput): boolean {
   return (
     input.hook_event_name === "on_session_end" &&
@@ -455,6 +532,7 @@ type CodexStopInput = z.infer<typeof codexStopInputSchema>;
 type ClaudeStopInput = z.infer<typeof claudeStopInputSchema>;
 type CursorStopInput = z.infer<typeof cursorStopInputSchema>;
 type HermesStopInput = z.infer<typeof hermesStopInputSchema>;
+type OpenClawMessageSentInput = z.infer<typeof openClawMessageSentInputSchema>;
 
 interface HookStopOptions {
   readonly dryRun?: boolean;
