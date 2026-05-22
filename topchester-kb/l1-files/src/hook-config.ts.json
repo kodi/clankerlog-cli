@@ -5,23 +5,36 @@
   "type": "file",
   "path": "src/hook-config.ts",
   "language": "typescript",
-  "content_hash": "sha256:670edac2d25bf9d938ebd8d26cdf0a59dfdb3a971ee41309aebf02d7dcccdf22",
-  "size_bytes": 17344,
-  "last_scanned_at": "2026-05-22T02:00:56.777Z",
+  "content_hash": "sha256:79f94aa8e70b8039d1baf5c73f5b0d6f98c5d0df57b0e369af32d9997940b6c6",
+  "size_bytes": 19836,
+  "last_scanned_at": "2026-05-22T02:54:30.985Z",
   "scan_status": "current",
   "file_role": "source",
-  "summary": "Manages configuration for external development tool hooks, specifically orchestrating installation and removal of clankerlog stop commands in editor-specific configuration files.",
+  "summary": "Manages configuration files for various editor agents to install or remove ClankerLog hooks.",
   "responsibilities": [
-    "Read, validate, and write JSON/YAML configuration files for various hook agents.",
-    "Generate and plan modifications for hooks in different file formats (grouped vs direct).",
-    "Determine the installation status of specific clankerlog hooks.",
-    "Handle atomic file system updates to ensure configuration integrity."
+    "Load and validate JSON/YAML configuration files for supported editor agents (Claude, Codex, Cursor, etc.).",
+    "Identify, install, and uninstall ClankerLog-specific command hooks within agent configurations.",
+    "Support atomic writes of configuration files using temporary files and filesystem renaming.",
+    "Define expected hook command structures and status validation logic per agent.",
+    "Normalize configuration property access for both grouped and direct-injection hook styles."
   ],
   "symbols": [
     {
       "id": "symbol:src/hook-config.ts#HookAgent",
       "kind": "type",
       "name": "HookAgent",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/hook-config.ts#HookAgentDefinition",
+      "kind": "interface",
+      "name": "HookAgentDefinition",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/hook-config.ts#HookTransformPlan",
+      "kind": "interface",
+      "name": "HookTransformPlan",
       "exported": true
     },
     {
@@ -103,9 +116,7 @@
   "test_ids": [],
   "declared_test_targets": [],
   "likely_test_targets": [],
-  "tested_by": [
-    "file:tests/commands/hooks.test.ts"
-  ],
+  "tested_by": [],
   "evidence": [
     {
       "kind": "path",

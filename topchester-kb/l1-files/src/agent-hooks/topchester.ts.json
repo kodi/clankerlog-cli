@@ -1,0 +1,75 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/agent-hooks/topchester.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/agent-hooks/topchester.ts",
+  "language": "typescript",
+  "content_hash": "sha256:febbf5d36b88cf0dfa04be01368e8d0c2e537a5c6997da044f97958cae0cc194",
+  "size_bytes": 3159,
+  "last_scanned_at": "2026-05-22T02:54:22.057Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Implements CLI command hooks and stdin payload parsing for the Topchester agent integration.",
+  "responsibilities": [
+    "Defines Zod schema for Topchester stop hook payloads.",
+    "Registers CLI commands for interacting with Topchester integration.",
+    "Parses and validates stdin JSON inputs for agent hooks.",
+    "Coordinates ping events to the runtime after successful task completion."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/agent-hooks/topchester.ts#topchesterStopInputSchema",
+      "kind": "schema",
+      "name": "topchesterStopInputSchema",
+      "exported": false
+    },
+    {
+      "id": "symbol:src/agent-hooks/topchester.ts#registerTopchesterHookCommand",
+      "kind": "function",
+      "name": "registerTopchesterHookCommand",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/agent-hooks/topchester.ts#registerTopchesterHooksCommands",
+      "kind": "function",
+      "name": "registerTopchesterHooksCommands",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/agent-hooks/topchester.ts#handleTopchesterStopHook",
+      "kind": "function",
+      "name": "handleTopchesterStopHook",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/agent-hooks/topchester.ts#TopchesterStopInput",
+      "kind": "type",
+      "name": "TopchesterStopInput",
+      "exported": false
+    }
+  ],
+  "imports": [
+    "file:src/runtime.ts",
+    "file:src/agent-hooks/config-agent-hooks.ts",
+    "file:src/agent-hooks/runtime-shared.ts"
+  ],
+  "exports": [
+    "registerTopchesterHookCommand",
+    "registerTopchesterHooksCommands",
+    "handleTopchesterStopHook"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/agent-hooks/topchester.ts"
+    }
+  ],
+  "confidence": "high"
+}

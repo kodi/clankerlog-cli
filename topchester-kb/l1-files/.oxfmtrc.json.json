@@ -5,15 +5,15 @@
   "type": "file",
   "path": ".oxfmtrc.json",
   "language": "json",
-  "content_hash": "sha256:fb390e29c698b39aa225a81c653ac410176b4d0ea828081cfd2168657c30a964",
-  "size_bytes": 142,
-  "last_scanned_at": "2026-05-22T01:59:34.010Z",
+  "content_hash": "sha256:39d2ffbf142c3a5df4bab7b3c40e9c97340a7c2957f775235548e801c8319115",
+  "size_bytes": 162,
+  "last_scanned_at": "2026-05-22T02:54:08.455Z",
   "scan_status": "current",
   "file_role": "config",
-  "summary": "Configures the oxfmt code formatter for the project.",
+  "summary": "Configuration file for the oxfmt formatter defining paths to be excluded from processing.",
   "responsibilities": [
-    "Defines formatting ignore patterns via ignorePatterns",
-    "Links the project to the oxfmt JSON schema for validation"
+    "Defines file patterns to ignore during formatting operations",
+    "Excludes binary directories and specific knowledge base folders from oxfmt"
   ],
   "symbols": [],
   "imports": [],
@@ -28,6 +28,10 @@
     {
       "kind": "path",
       "value": ".oxfmtrc.json"
+    },
+    {
+      "kind": "content",
+      "value": "ignorePatterns"
     }
   ],
   "confidence": "high"

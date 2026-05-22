@@ -1,0 +1,37 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:docs/drafts/2026-05-22-amp-hook-findings.md",
+  "layer": "L1",
+  "type": "file",
+  "path": "docs/drafts/2026-05-22-amp-hook-findings.md",
+  "language": "markdown",
+  "content_hash": "sha256:c06c6b49ae4665c4f5b5d895ff63014d9d1da9c757a63e326f3197b1e3fbd306",
+  "size_bytes": 7405,
+  "last_scanned_at": "2026-05-22T02:54:10.839Z",
+  "scan_status": "current",
+  "file_role": "doc",
+  "summary": "Investigation report on integrating ClankerLog with Amp agent hooks through the plugin API.",
+  "responsibilities": [
+    "Evaluate Amp integration capabilities vs existing hook architecture",
+    "Identify the 'agent.end' plugin event as the correct lifecycle trigger",
+    "Define requirements for a managed Amp plugin generator",
+    "Outline privacy guardrails for handling agent event data",
+    "Propose implementation steps mirroring Pi and OpenClaw integrations"
+  ],
+  "symbols": [],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "docs/drafts/2026-05-22-amp-hook-findings.md"
+    }
+  ],
+  "confidence": "high"
+}

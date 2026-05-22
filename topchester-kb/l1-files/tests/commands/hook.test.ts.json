@@ -5,18 +5,18 @@
   "type": "file",
   "path": "tests/commands/hook.test.ts",
   "language": "typescript",
-  "content_hash": "sha256:accdd1f50e2974e017fd1abb31a34b5d0792cc5d7a6e85ffd0e79cb1c45282d5",
-  "size_bytes": 23758,
-  "last_scanned_at": "2026-05-22T02:01:37.674Z",
+  "content_hash": "sha256:11c9bbe0836624b562a8d938de7b3f68a51448a1b6c8890c401bac1a2d31a23e",
+  "size_bytes": 30254,
+  "last_scanned_at": "2026-05-22T02:54:36.365Z",
   "scan_status": "current",
   "file_role": "test",
-  "summary": "Validates CLI hook handlers for various LLM agents including Codex, Claude, Cursor, Hermes, and OpenClaw.",
+  "summary": "Tests for CLI hook handlers that process IDE-driven events (Codex, Claude, Cursor, Hermes, Topchester, OpenClaw) into telemetry clanks.",
   "responsibilities": [
-    "Tests telemetry data collection logic for stop/post-LLM hooks.",
-    "Ensures CLI commands integrate correctly with the hook handler logic.",
-    "Verifies dry-run functionality across all supported agents.",
-    "Validates configuration scoping and workspace permission handling.",
-    "Mocks stdin/env and filesystem interactions for isolated execution."
+    "Verify hook handlers parse incoming stdin and environment variables correctly.",
+    "Ensure project-based filtering via global configuration is enforced.",
+    "Validate CLI command integration for each hook type.",
+    "Check dryness/noop behaviors and data scrubbing for sensitive contents.",
+    "Mock network interactions to confirm clank ingestion requests."
   ],
   "symbols": [
     {
@@ -44,6 +44,12 @@
       "exported": false
     },
     {
+      "id": "symbol:tests/commands/hook.test.ts#topchesterStopPayload",
+      "kind": "function",
+      "name": "topchesterStopPayload",
+      "exported": false
+    },
+    {
       "id": "symbol:tests/commands/hook.test.ts#openClawMessageSentPayload",
       "kind": "function",
       "name": "openClawMessageSentPayload",
@@ -66,9 +72,11 @@
   "module_ids": [],
   "feature_ids": [],
   "test_ids": [
-    "file:src/commands/hook.js"
+    "file:src/commands/hook.ts"
   ],
-  "declared_test_targets": [],
+  "declared_test_targets": [
+    "file:src/commands/hook.ts"
+  ],
   "likely_test_targets": [
     "file:src/commands/hook.ts"
   ],
@@ -77,6 +85,10 @@
     {
       "kind": "path",
       "value": "tests/commands/hook.test.ts"
+    },
+    {
+      "kind": "import",
+      "value": "src/commands/hook.js"
     }
   ],
   "confidence": "high"

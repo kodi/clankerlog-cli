@@ -5,16 +5,16 @@
   "type": "file",
   "path": "src/commands/hooks.ts",
   "language": "typescript",
-  "content_hash": "sha256:4047f5cd87c5073e18a5bb79af2460587710ae19736734035c69b69f059447ac",
-  "size_bytes": 1761,
-  "last_scanned_at": "2026-05-22T02:00:37.556Z",
+  "content_hash": "sha256:f5fbc1b6449c33f1f27e0e05a23ece0c05d2d829a231a372977a12326d96b5e1",
+  "size_bytes": 1884,
+  "last_scanned_at": "2026-05-22T02:54:27.956Z",
   "scan_status": "current",
   "file_role": "source",
-  "summary": "Registers CLI commands for managing coding-agent hooks across multiple platforms like Claude, Codex, and Cursor.",
+  "summary": "Registers CLI command groups for managing IDE and coding agent hooks.",
   "responsibilities": [
-    "Defines the 'hooks' command group structure for the CLI.",
-    "Binds agent-specific hook registration functions to command sub-groups.",
-    "Exposes consolidated handlers for hook installation, status inspection, and uninstallation."
+    "Defines the 'hooks' CLI command and its subcommands: install, status, and uninstall.",
+    "Coordinates the registration of vendor-specific hook command groups from dedicated modules.",
+    "Exports shared hook management handlers for external integration."
   ],
   "symbols": [
     {
@@ -22,7 +22,7 @@
       "kind": "function",
       "name": "registerHooksCommand",
       "exported": true,
-      "summary": "Registers the 'hooks' command and its subcommands (install, status, uninstall) to the provided Commander program."
+      "summary": "Registers the main 'hooks' command and initializes sub-command groups for various agents."
     },
     {
       "id": "symbol:src/commands/hooks.ts#handleHookStatus",
@@ -87,7 +87,8 @@
     "file:src/agent-hooks/hermes.ts",
     "file:src/agent-hooks/install-shared.ts",
     "file:src/agent-hooks/openclaw.ts",
-    "file:src/agent-hooks/pi.ts"
+    "file:src/agent-hooks/pi.ts",
+    "file:src/agent-hooks/topchester.ts"
   ],
   "exports": [
     "handleHookStatus",
@@ -113,6 +114,10 @@
     {
       "kind": "path",
       "value": "src/commands/hooks.ts"
+    },
+    {
+      "kind": "import",
+      "value": "../agent-hooks/claude.js"
     }
   ],
   "confidence": "high"

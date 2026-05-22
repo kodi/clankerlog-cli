@@ -5,55 +5,20 @@
   "type": "file",
   "path": "tests/commands/hooks.test.ts",
   "language": "typescript",
-  "content_hash": "sha256:0449acd9c1d81ad6417e726197b5728d2a38d8a7117b4581c16e073fff03e4d5",
-  "size_bytes": 28205,
-  "last_scanned_at": "2026-05-22T02:01:40.263Z",
+  "content_hash": "sha256:8c2926aec934d102d840a332618acb8cc1cf5211c0d110e4a6be6eb95b328fbc",
+  "size_bytes": 32711,
+  "last_scanned_at": "2026-05-22T02:54:38.863Z",
   "scan_status": "current",
   "file_role": "test",
-  "summary": "Integration tests for CLI commands and filesystem operations related to ClankerLog hook configuration management.",
+  "summary": "Integration tests for the hooks installation, uninstallation, and status CLI commands across various IDE/agent configuration formats.",
   "responsibilities": [
-    "Verify the logic for installing and uninstalling hooks across different IDE/agent providers.",
-    "Validate CLI command integration using Commander program mocks.",
-    "Test filesystem interactions including directory creation and config file updates.",
-    "Ensure idempotency and dry-run functionality for hook management operations."
+    "Verify correct modification of various hook configuration file formats (JSON, YAML, JSONC).",
+    "Test idempotency of hook installation and uninstallation logic.",
+    "Validate interaction between the ClankerLog CLI Command API and the filesystem.",
+    "Ensure non-ClankerLog hooks and user metadata are preserved during file updates.",
+    "Check error handling for malformed configuration files and invalid arguments."
   ],
-  "symbols": [
-    {
-      "id": "symbol:tests/commands/hooks.test.ts#readJson",
-      "kind": "function",
-      "name": "readJson",
-      "exported": false,
-      "summary": "Helper to read and parse JSON configuration files."
-    },
-    {
-      "id": "symbol:tests/commands/hooks.test.ts#readYaml",
-      "kind": "function",
-      "name": "readYaml",
-      "exported": false,
-      "summary": "Helper to read and parse YAML configuration files."
-    },
-    {
-      "id": "symbol:tests/commands/hooks.test.ts#makeTempDir",
-      "kind": "function",
-      "name": "makeTempDir",
-      "exported": false,
-      "summary": "Generates a unique temporary directory for test isolation."
-    },
-    {
-      "id": "symbol:tests/commands/hooks.test.ts#countClankerLogCommands",
-      "kind": "function",
-      "name": "countClankerLogCommands",
-      "exported": false,
-      "summary": "Counts active ClankerLog commands within a config object."
-    },
-    {
-      "id": "symbol:tests/commands/hooks.test.ts#captureStdout",
-      "kind": "function",
-      "name": "captureStdout",
-      "exported": false,
-      "summary": "Mocks standard output to intercept and assert CLI command traces."
-    }
-  ],
+  "symbols": [],
   "imports": [
     "file:src/cli.js",
     "file:src/hook-config.js"
@@ -61,10 +26,11 @@
   "exports": [],
   "module_ids": [],
   "feature_ids": [],
-  "test_ids": [],
+  "test_ids": [
+    "file:tests/commands/hooks.test.ts"
+  ],
   "declared_test_targets": [],
   "likely_test_targets": [
-    "file:src/hook-config.ts",
     "file:src/commands/hooks.ts"
   ],
   "tested_by": [],
@@ -72,6 +38,10 @@
     {
       "kind": "path",
       "value": "tests/commands/hooks.test.ts"
+    },
+    {
+      "kind": "import",
+      "value": "file:src/hook-config.js"
     }
   ],
   "confidence": "high"

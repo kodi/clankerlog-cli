@@ -5,44 +5,45 @@
   "type": "file",
   "path": "src/agent-hooks/install-shared.ts",
   "language": "typescript",
-  "content_hash": "sha256:255ed3cc2c649b24d23cb17c34630a65347b2abafa68b739d259a77944737df8",
-  "size_bytes": 872,
-  "last_scanned_at": "2026-05-22T02:00:14.138Z",
+  "content_hash": "sha256:567ff660f4a86a1b55961f76ec99b8825a3cc2332da91f3dd2aaecf5f886e81e",
+  "size_bytes": 934,
+  "last_scanned_at": "2026-05-22T02:54:19.618Z",
   "scan_status": "current",
   "file_role": "source",
-  "summary": "Shared utilities and type definitions for agent hook installation and management commands.",
+  "summary": "Defines shared interfaces and utility functions for agent hook installation and management subcommands.",
   "responsibilities": [
-    "Define command group structure for hook operations",
-    "Define configuration schemas for installation options",
-    "Provide helper functions for CLI output",
-    "Map agent identifiers to user-facing names"
+    "Standardize the structure of installation-related CLI command groups",
+    "Define schema for installation configuration options",
+    "Provide utility for logging to CLI standard output",
+    "Provide mapping from internal agent identifiers to display names"
   ],
   "symbols": [
     {
       "id": "symbol:src/agent-hooks/install-shared.ts#HooksCommandGroups",
       "kind": "interface",
       "name": "HooksCommandGroups",
-      "exported": true
+      "exported": true,
+      "summary": "Groups CLI commands for install, status, and uninstall actions"
     },
     {
       "id": "symbol:src/agent-hooks/install-shared.ts#InstallOptions",
       "kind": "interface",
       "name": "InstallOptions",
-      "exported": true
+      "exported": true,
+      "summary": "Configuration options for agent hook installation"
     },
     {
       "id": "symbol:src/agent-hooks/install-shared.ts#writeLine",
       "kind": "function",
       "name": "writeLine",
-      "exported": true,
-      "summary": "Writes a formatted line to the provided CLI runtime output."
+      "exported": true
     },
     {
       "id": "symbol:src/agent-hooks/install-shared.ts#agentName",
       "kind": "function",
       "name": "agentName",
       "exported": true,
-      "summary": "Converts internal agent constant identifies to display names."
+      "summary": "Maps agent IDs to user-facing display names"
     }
   ],
   "imports": [

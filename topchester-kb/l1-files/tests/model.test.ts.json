@@ -5,16 +5,16 @@
   "type": "file",
   "path": "tests/model.test.ts",
   "language": "typescript",
-  "content_hash": "sha256:cfe169a79cba992097a2ff4451984bc97ce7e5fec8cfe1780d80840dff760041",
-  "size_bytes": 2466,
-  "last_scanned_at": "2026-05-22T02:01:59.661Z",
+  "content_hash": "sha256:76bd789058a863e2072aa162b89fda10b10077b3293f14ad774db3ac232937a3",
+  "size_bytes": 2603,
+  "last_scanned_at": "2026-05-22T02:54:41.259Z",
   "scan_status": "current",
   "file_role": "test",
-  "summary": "Verifies AI model name normalization logic and its integration with payload parsing.",
+  "summary": "Tests for normalizing heterogeneous model identifier strings into a standardized format.",
   "responsibilities": [
-    "Test pattern matching and string normalization for AI model identifiers",
-    "Define expected normalization outcomes for specific OpenAI, Anthropic, Gemini, DeepSeek, and other provider models",
-    "Validate that model normalization is applied correctly during schema parsing"
+    "Verifies regex-based normalization for GPT, Claude, Gemini, DeepSeek, and other LLM model variations",
+    "Ensures pass-through behavior for unknown or non-conformant model strings",
+    "Validates model name normalization within the context of payload schema parsing"
   ],
   "symbols": [
     {
@@ -22,7 +22,7 @@
       "kind": "test",
       "name": "normalizeModelName",
       "exported": false,
-      "summary": "Verifies normalization of varied input formats into standard kebab-case naming conventions."
+      "summary": "Validates normalization logic across various AI provider naming conventions."
     }
   ],
   "imports": [
@@ -33,8 +33,7 @@
   "module_ids": [],
   "feature_ids": [],
   "test_ids": [
-    "file:src/model.ts",
-    "file:src/schemas.ts"
+    "file:tests/model.test.ts"
   ],
   "declared_test_targets": [
     "file:src/model.ts",

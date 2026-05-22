@@ -5,19 +5,34 @@
   "type": "file",
   "path": "package.json",
   "language": "json",
-  "content_hash": "sha256:afdb7d8e88753d32b5a8f8b457609c4ace476e1584337c81efe03cd95372e1a4",
+  "content_hash": "sha256:3325a345d79ee0aa02abc85e4aadef5ca21ae672ffcf8315301e9f24422c4506",
   "size_bytes": 1456,
-  "last_scanned_at": "2026-05-22T01:59:51.234Z",
+  "last_scanned_at": "2026-05-22T02:54:15.371Z",
   "scan_status": "current",
   "file_role": "config",
-  "summary": "Project configuration file defining the clankerlog CLI package, dependencies, and build scripts.",
+  "summary": "Defines the project metadata, dependencies, build scripts, and CLI entry point for the ClankerLog toolkit.",
   "responsibilities": [
-    "Defines the clankerlog CLI binary entry point mapping to ./bin/clankerlog.js",
-    "Configures project metadata, licensing, and package versions",
-    "Manages development and build pipelines via npm scripts including linting, testing, and production builds",
-    "Specifies runtime requirements and external dependencies for coding-agent activity logging"
+    "Configures the project build, linting, and testing environment",
+    "Defines the clankerlog CLI command entrypoint",
+    "Manages workspace dependencies and Node.js version requirements",
+    "Orchestrates package distribution and publishing workflows"
   ],
-  "symbols": [],
+  "symbols": [
+    {
+      "id": "symbol:package.json#bin",
+      "kind": "config",
+      "name": "bin",
+      "exported": false,
+      "summary": "Maps clankerlog command to ./bin/clankerlog.js"
+    },
+    {
+      "id": "symbol:package.json#scripts",
+      "kind": "config",
+      "name": "scripts",
+      "exported": false,
+      "summary": "Defines project lifecycle scripts including build, lint, and test commands"
+    }
+  ],
   "imports": [],
   "exports": [],
   "module_ids": [],
@@ -32,6 +47,10 @@
     {
       "kind": "path",
       "value": "package.json"
+    },
+    {
+      "kind": "content",
+      "value": "name: clankerlog"
     }
   ],
   "confidence": "high"
