@@ -7,6 +7,10 @@ import {
   handleOpenClawMessageSentHook,
   registerOpenClawHookCommand,
 } from "../agent-hooks/openclaw.js";
+import {
+  handleTopchesterStopHook,
+  registerTopchesterHookCommand,
+} from "../agent-hooks/topchester.js";
 
 export {
   handleClaudeStopHook,
@@ -14,6 +18,7 @@ export {
   handleCursorStopHook,
   handleHermesStopHook,
   handleOpenClawMessageSentHook,
+  handleTopchesterStopHook,
 };
 
 export function registerHookCommand(program: Command): void {
@@ -24,4 +29,5 @@ export function registerHookCommand(program: Command): void {
   registerCursorHookCommand(hook);
   registerHermesHookCommand(hook);
   registerOpenClawHookCommand(hook);
+  registerTopchesterHookCommand(hook);
 }

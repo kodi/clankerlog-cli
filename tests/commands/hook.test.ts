@@ -10,6 +10,7 @@ import {
   handleCursorStopHook,
   handleHermesStopHook,
   handleOpenClawMessageSentHook,
+  handleTopchesterStopHook,
 } from "../../src/commands/hook.js";
 import { saveGlobalConfig } from "../../src/config.js";
 import { createMemoryRuntime } from "../helpers.js";
@@ -473,6 +474,123 @@ describe("hermes stop hook", () => {
   });
 });
 
+describe("topchester stop hook", () => {
+  it("sends one quiet clank using workspace and model from Topchester stdin", async () => {
+    const root = await makeTempDir();
+    await writeFile(path.join(root, "package.json"), "{}");
+    const projectPath = await realpath(root);
+    const configPath = path.join(root, "global", "config.json");
+    const fetchMock = vi.fn<typeof fetch>(
+      async () => new Response(JSON.stringify({ id: "clank_hook", ok: true }), { status: 202 }),
+    );
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [{ displayName: "Topchester Hook Project", path: projectPath }],
+      apiKey: "clk_live_hook_secret",
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    const runtime = createMemoryRuntime({
+      configPath,
+      cwd: await makeTempDir(),
+      stdin: JSON.stringify(topchesterStopPayload({ workspaceRoot: projectPath })),
+    });
+
+    await handleTopchesterStopHook(runtime);
+
+    expect(runtime.stdoutText()).toBe("");
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    const body = JSON.parse(String(request.body));
+    expect(body).toMatchObject({
+      agent: "topchester",
+      model: "openrouter/anthropic/claude-sonnet-4.5",
+      project: { display_name: "Topchester Hook Project" },
+      type: "clank",
+    });
+    expect(JSON.stringify(body)).not.toContain("do not collect me");
+  });
+
+  it("wires the hook topchester stop CLI command through Commander", async () => {
+    const root = await makeTempDir();
+    await writeFile(path.join(root, "package.json"), "{}");
+    const projectPath = await realpath(root);
+    const configHome = path.join(root, "xdg-config");
+    const configPath = path.join(configHome, "clankerlog", "config.json");
+    const fetchMock = vi.fn<typeof fetch>(
+      async () => new Response(JSON.stringify({ id: "clank_hook", ok: true }), { status: 202 }),
+    );
+    globalThis.fetch = fetchMock as typeof fetch;
+    vi.stubEnv("XDG_CONFIG_HOME", configHome);
+    Object.defineProperty(process, "stdin", {
+      configurable: true,
+      value: Readable.from([JSON.stringify(topchesterStopPayload({ workspaceRoot: projectPath }))]),
+    });
+
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [{ displayName: "Topchester Hook Project", path: projectPath }],
+      apiKey: "clk_live_hook_secret",
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    const program = buildProgram();
+    program.exitOverride();
+    await program.parseAsync(["node", "clankerlog", "hook", "topchester", "stop"]);
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
+  it("ignores failed Topchester turns", async () => {
+    const root = await makeTempDir();
+    const fetchMock = vi.fn();
+    globalThis.fetch = fetchMock as typeof fetch;
+    const runtime = createMemoryRuntime({
+      configPath: path.join(root, "global", "config.json"),
+      cwd: root,
+      stdin: JSON.stringify({
+        ...topchesterStopPayload({ workspaceRoot: root }),
+        status: "failed",
+      }),
+    });
+
+    await handleTopchesterStopHook(runtime);
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(runtime.stdoutText()).toBe("");
+    expect(runtime.stderrText()).toBe("");
+  });
+
+  it("supports dry-run without stdin by using the current workspace", async () => {
+    const root = await makeTempDir();
+    await writeFile(path.join(root, "package.json"), "{}");
+    const projectPath = await realpath(root);
+    const configPath = path.join(root, "global", "config.json");
+    const fetchMock = vi.fn();
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [{ displayName: "Topchester Hook Project", path: projectPath }],
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    const runtime = createMemoryRuntime({
+      configPath,
+      cwd: projectPath,
+      env: {
+        CLANKERLOG_MODEL: "openrouter/anthropic/claude-sonnet-4.5",
+      },
+    });
+
+    await handleTopchesterStopHook(runtime, { dryRun: true });
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(runtime.stdoutText()).toContain('"agent": "topchester"');
+    expect(runtime.stdoutText()).toContain('"model": "openrouter/anthropic/claude-sonnet-4.5"');
+    expect(runtime.stdoutText()).toContain('"display_name": "Topchester Hook Project"');
+  });
+});
+
 describe("openclaw message:sent hook", () => {
   it("sends one quiet clank using explicit workspace metadata", async () => {
     const root = await makeTempDir();
@@ -644,6 +762,27 @@ function hermesPostLlmPayload(options: { cwd: string; model: string }) {
     session_id: "session_123",
     tool_input: null,
     tool_name: null,
+  };
+}
+
+function topchesterStopPayload(options: { workspaceRoot: string }) {
+  return {
+    cwd: options.workspaceRoot,
+    event: "Stop",
+    finalMessage: "do not collect me",
+    hook_event_name: "Stop",
+    model: {
+      modelId: "anthropic/claude-sonnet-4.5",
+      providerId: "openrouter",
+      ref: "openrouter/anthropic/claude-sonnet-4.5",
+    },
+    model_id: "anthropic/claude-sonnet-4.5",
+    model_ref: "openrouter/anthropic/claude-sonnet-4.5",
+    session_id: "session_123",
+    source: "topchester",
+    status: "completed",
+    taskCompleteAlias: "TaskComplete",
+    workspaceRoot: options.workspaceRoot,
   };
 }
 

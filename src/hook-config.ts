@@ -6,7 +6,7 @@ import path from "node:path";
 import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import { CliError } from "./errors.js";
 
-export type HookAgent = "codex" | "claude" | "cursor" | "hermes";
+export type HookAgent = "codex" | "claude" | "cursor" | "hermes" | "topchester";
 
 export interface HookAgentDefinition {
   readonly agent: HookAgent;
@@ -81,6 +81,13 @@ export const HOOK_AGENT_DEFINITIONS: Record<HookAgent, HookAgentDefinition> = {
     defaultTimeoutSeconds: 10,
     statusMessage: "Sending ClankerLog clank",
   },
+  topchester: {
+    agent: "topchester",
+    configPath: (homeDirectory: string) =>
+      path.join(homeDirectory, ".config", "topchester", "config.jsonc"),
+    defaultTimeoutSeconds: 10,
+    statusMessage: "Sending ClankerLog clank",
+  },
 };
 
 export function planInstallHook(
@@ -106,7 +113,7 @@ export function planInstallHook(
   const nextConfig = cloneHookConfig(source);
   const hooks = ensureObjectProperty(nextConfig, "hooks");
 
-  if (agent === "cursor" || agent === "hermes") {
+  if (isDirectStopAgent(agent)) {
     const stop = ensureDirectStopHooks(hooks, directStopKey(agent));
     stop.push(buildHookObject(agent, command));
 
@@ -302,6 +309,10 @@ export function buildHookCommand(agent: HookAgent, options: InstallHookOptions =
     return "clankerlog hook hermes stop";
   }
 
+  if (agent === "topchester") {
+    return "clankerlog hook topchester stop";
+  }
+
   const model = options.model?.trim();
   if (!model) {
     throw new CliError(
@@ -349,19 +360,23 @@ export function validateHookConfig(config: unknown): HookConfigObject {
       throw new CliError("Hook config `hooks.Stop` must be an array.");
     }
 
-    for (const [groupIndex, group] of stop.entries()) {
-      if (!isPlainObject(group)) {
-        throw new CliError(`Hook config \`hooks.Stop[${groupIndex}]\` must be an object.`);
+    for (const [entryIndex, entry] of stop.entries()) {
+      if (!isPlainObject(entry)) {
+        throw new CliError(`Hook config \`hooks.Stop[${entryIndex}]\` must be an object.`);
       }
 
-      if (!Array.isArray(group.hooks)) {
-        throw new CliError(`Hook config \`hooks.Stop[${groupIndex}].hooks\` must be an array.`);
+      if (typeof entry.command === "string") {
+        continue;
       }
 
-      for (const [hookIndex, hook] of group.hooks.entries()) {
+      if (!Array.isArray(entry.hooks)) {
+        throw new CliError(`Hook config \`hooks.Stop[${entryIndex}].hooks\` must be an array.`);
+      }
+
+      for (const [hookIndex, hook] of entry.hooks.entries()) {
         if (!isPlainObject(hook)) {
           throw new CliError(
-            `Hook config \`hooks.Stop[${groupIndex}].hooks[${hookIndex}]\` must be an object.`,
+            `Hook config \`hooks.Stop[${entryIndex}].hooks[${hookIndex}]\` must be an object.`,
           );
         }
       }
@@ -399,6 +414,13 @@ function buildHookObject(agent: HookAgent, command: string): HookConfigObject {
     return {
       command,
       timeout: HOOK_AGENT_DEFINITIONS.hermes.defaultTimeoutSeconds,
+    };
+  }
+
+  if (agent === "topchester") {
+    return {
+      command,
+      timeoutMs: HOOK_AGENT_DEFINITIONS.topchester.defaultTimeoutSeconds * 1000,
     };
   }
 
@@ -463,7 +485,7 @@ function findClankerLogHooks(config: HookConfigObject, agent: HookAgent): StopHo
 
   const locations: StopHookLocation[] = [];
 
-  if ((agent === "cursor" || agent === "hermes") && Array.isArray(hooks[directStopKey(agent)])) {
+  if (isDirectStopAgent(agent) && Array.isArray(hooks[directStopKey(agent)])) {
     for (const [hookIndex, hook] of (hooks[directStopKey(agent)] as HookConfigObject[]).entries()) {
       if (isPlainObject(hook) && isClankerLogHook(hook, agent)) {
         locations.push({
@@ -508,13 +530,12 @@ function isClankerLogHook(hook: HookConfigObject, agent: HookAgent): boolean {
 }
 
 function isExpectedClankerLogHook(hook: HookConfigObject, agent: HookAgent): boolean {
-  if (agent !== "cursor" && agent !== "hermes" && hook.type !== "command") {
+  if (!isDirectStopAgent(agent) && hook.type !== "command") {
     return false;
   }
 
   if (
-    agent !== "cursor" &&
-    agent !== "hermes" &&
+    !isDirectStopAgent(agent) &&
     hook.statusMessage !== HOOK_AGENT_DEFINITIONS[agent].statusMessage
   ) {
     return false;
@@ -538,6 +559,10 @@ function isExpectedClankerLogHook(hook: HookConfigObject, agent: HookAgent): boo
 
   if (agent === "hermes") {
     return command === buildHookCommand("hermes");
+  }
+
+  if (agent === "topchester") {
+    return command === buildHookCommand("topchester");
   }
 
   return /^CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+) clankerlog hook claude stop$/.test(command);
@@ -574,6 +599,12 @@ function isLegacyClankerLogHook(hook: HookConfigObject, agent: HookAgent): boole
     );
   }
 
+  if (agent === "topchester") {
+    return /^CLANKERLOG_AGENT=topchester(?: CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+))? (?:\/Users\/kodi\/\.local\/bin\/clankerlog-dev|clankerlog) hook topchester stop$/.test(
+      command,
+    );
+  }
+
   return false;
 }
 
@@ -593,12 +624,28 @@ function shellQuote(value: string): string {
   return `'${value.replaceAll("'", "'\\''")}'`;
 }
 
-function directStopKey(agent: HookAgent): "stop" | "post_llm_call" {
-  return agent === "hermes" ? "post_llm_call" : "stop";
+function directStopKey(agent: HookAgent): "stop" | "post_llm_call" | "Stop" {
+  if (agent === "hermes") {
+    return "post_llm_call";
+  }
+
+  if (agent === "topchester") {
+    return "Stop";
+  }
+
+  return "stop";
 }
 
 function parseHookConfigContent(raw: string, agent: HookAgent): unknown {
-  return agent === "hermes" ? parseYaml(raw) : JSON.parse(raw);
+  if (agent === "hermes") {
+    return parseYaml(raw);
+  }
+
+  if (agent === "topchester") {
+    return JSON.parse(stripJsonc(raw));
+  }
+
+  return JSON.parse(raw);
 }
 
 function serializeHookConfigContent(config: HookConfigObject, agent: HookAgent): string {
@@ -611,6 +658,76 @@ function serializeHookConfigContent(config: HookConfigObject, agent: HookAgent):
 
 function configFormat(agent: HookAgent): "JSON" | "YAML" {
   return agent === "hermes" ? "YAML" : "JSON";
+}
+
+function isDirectStopAgent(agent: HookAgent): boolean {
+  return agent === "cursor" || agent === "hermes" || agent === "topchester";
+}
+
+function stripJsonc(raw: string): string {
+  let result = "";
+  let inString = false;
+  let quote: '"' | "'" | undefined;
+  let escaped = false;
+  let inLineComment = false;
+  let inBlockComment = false;
+
+  for (let index = 0; index < raw.length; index += 1) {
+    const char = raw[index] as string;
+    const next = raw[index + 1];
+
+    if (inLineComment) {
+      if (char === "\n" || char === "\r") {
+        inLineComment = false;
+        result += char;
+      }
+      continue;
+    }
+
+    if (inBlockComment) {
+      if (char === "*" && next === "/") {
+        inBlockComment = false;
+        index += 1;
+      }
+      continue;
+    }
+
+    if (inString) {
+      result += char;
+      if (escaped) {
+        escaped = false;
+      } else if (char === "\\") {
+        escaped = true;
+      } else if (char === quote) {
+        inString = false;
+        quote = undefined;
+      }
+      continue;
+    }
+
+    if ((char === '"' || char === "'") && !inString) {
+      inString = true;
+      quote = char;
+      result += char;
+      continue;
+    }
+
+    if (char === "/" && next === "/") {
+      inLineComment = true;
+      index += 1;
+      continue;
+    }
+
+    if (char === "/" && next === "*") {
+      inBlockComment = true;
+      index += 1;
+      continue;
+    }
+
+    result += char;
+  }
+
+  return result.replaceAll(/,\s*([}\]])/g, "$1");
 }
 
 async function fileExists(filePath: string): Promise<boolean> {

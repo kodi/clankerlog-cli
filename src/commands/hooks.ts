@@ -21,6 +21,7 @@ import {
   handleUninstallPiHook,
   registerPiHooksCommands,
 } from "../agent-hooks/pi.js";
+import { registerTopchesterHooksCommands } from "../agent-hooks/topchester.js";
 
 export {
   handleHookStatus,
@@ -46,6 +47,7 @@ export function registerHooksCommand(program: Command): void {
   registerClaudeHooksCommands(groups);
   registerCursorHooksCommands(groups);
   registerHermesHooksCommands(groups);
+  registerTopchesterHooksCommands(groups);
   registerPiHooksCommands(groups);
   registerOpenClawHooksCommands(groups);
 }

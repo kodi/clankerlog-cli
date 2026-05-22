@@ -120,6 +120,14 @@ Install the Hermes shell hook:
 clankerlog hooks install hermes
 ```
 
+### Topchester
+
+Install the Topchester Stop hook:
+
+```bash
+clankerlog hooks install topchester
+```
+
 ### OpenClaw
 
 Install the global OpenClaw `message:sent` hook:
@@ -151,8 +159,8 @@ run `/reload` after installing.
 
 ### Managing Hooks
 
-Supported agent names are `codex`, `claude`, `cursor`, `hermes`, `openclaw`,
-and `pi`.
+Supported agent names are `codex`, `claude`, `cursor`, `hermes`,
+`topchester`, `openclaw`, and `pi`.
 
 Preview an install without writing files:
 

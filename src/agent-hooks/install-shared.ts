@@ -33,5 +33,9 @@ export function agentName(agent: HookAgent): string {
     return "Hermes";
   }
 
+  if (agent === "topchester") {
+    return "Topchester";
+  }
+
   return "Codex";
 }

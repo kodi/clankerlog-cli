@@ -102,6 +102,23 @@ describe("hook config transforms", () => {
     });
   });
 
+  it("creates a Topchester Stop hook that reads the model from hook stdin", () => {
+    const plan = planInstallHook({}, "topchester");
+
+    expect(plan.changed).toBe(true);
+    expect(plan.command).toBe("clankerlog hook topchester stop");
+    expect(plan.config).toEqual({
+      hooks: {
+        Stop: [
+          {
+            command: "clankerlog hook topchester stop",
+            timeoutMs: 10000,
+          },
+        ],
+      },
+    });
+  });
+
   it("can pin a Cursor model through environment when requested", () => {
     expect(buildHookCommand("cursor", { model: "gpt-5.5" })).toBe(
       "CLANKERLOG_MODEL='gpt-5.5' clankerlog hook cursor stop",
@@ -309,6 +326,32 @@ describe("hook config transforms", () => {
     });
   });
 
+  it("removes only ClankerLog Topchester hooks and preserves neighboring hooks", () => {
+    const installed = planInstallHook(
+      {
+        hooks: {
+          Stop: [{ command: "echo existing", timeoutMs: 1000 }],
+        },
+        model: {
+          provider: "openrouter",
+        },
+      },
+      "topchester",
+    );
+
+    const plan = planUninstallHook(installed.config, "topchester");
+
+    expect(plan.changed).toBe(true);
+    expect(plan.config).toEqual({
+      hooks: {
+        Stop: [{ command: "echo existing", timeoutMs: 1000 }],
+      },
+      model: {
+        provider: "openrouter",
+      },
+    });
+  });
+
   it("reports status without mutating config", () => {
     const config = planInstallHook({}, "claude", { model: "claude-opus-4.5" }).config;
 
@@ -353,6 +396,9 @@ describe("hook config filesystem helpers", () => {
     );
     expect(resolveHookConfigPath("hermes", { homeDirectory: home })).toBe(
       path.join(home, ".hermes", "config.yaml"),
+    );
+    expect(resolveHookConfigPath("topchester", { homeDirectory: home })).toBe(
+      path.join(home, ".config", "topchester", "config.jsonc"),
     );
   });
 
@@ -423,6 +469,40 @@ describe("hook config filesystem helpers", () => {
           {
             command: "clankerlog hook hermes stop",
             timeout: 10,
+          },
+        ],
+      },
+    });
+  });
+
+  it("installs a Topchester JSONC hook file and preserves unrelated config", async () => {
+    const root = await makeTempDir();
+    const configPath = path.join(root, ".config", "topchester", "config.jsonc");
+    await mkdir(path.dirname(configPath), { recursive: true });
+    await writeFile(
+      configPath,
+      [
+        "{",
+        "  // personal Topchester settings",
+        '  "hooks": {',
+        '    "SessionStart": [{ "command": "echo existing" }],',
+        "  },",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    const plan = await installHookConfig("topchester", { configPath });
+
+    expect(plan.changed).toBe(true);
+    expect(plan.command).toBe("clankerlog hook topchester stop");
+    expect(await readJson(configPath)).toEqual({
+      hooks: {
+        SessionStart: [{ command: "echo existing" }],
+        Stop: [
+          {
+            command: "clankerlog hook topchester stop",
+            timeoutMs: 10000,
           },
         ],
       },
@@ -639,6 +719,38 @@ describe("hooks install command", () => {
           {
             command: "clankerlog hook hermes stop",
             timeout: 10,
+          },
+        ],
+      },
+    });
+  });
+
+  it("wires Topchester install through Commander", async () => {
+    const root = await makeTempDir();
+    const configPath = path.join(root, ".config", "topchester", "config.jsonc");
+    const stdout = captureStdout();
+    const program = buildProgram();
+    program.exitOverride();
+
+    await program.parseAsync([
+      "node",
+      "clankerlog",
+      "hooks",
+      "install",
+      "topchester",
+      "--hook-config",
+      configPath,
+    ]);
+
+    expect(stdout.text()).toContain(`Target: ${configPath}`);
+    expect(stdout.text()).toContain("Command: clankerlog hook topchester stop");
+    expect(stdout.text()).toContain("Action: installed");
+    expect(await readJson(configPath)).toEqual({
+      hooks: {
+        Stop: [
+          {
+            command: "clankerlog hook topchester stop",
+            timeoutMs: 10000,
           },
         ],
       },
@@ -940,6 +1052,58 @@ describe("hooks status and uninstall commands", () => {
       },
     });
     expect(installed).toMatchObject({ hooks: { post_llm_call: expect.any(Array) } });
+  });
+
+  it("reports and uninstalls Topchester hooks through Commander", async () => {
+    const root = await makeTempDir();
+    const configPath = path.join(root, ".config", "topchester", "config.jsonc");
+    await mkdir(path.dirname(configPath), { recursive: true });
+    await writeFile(
+      configPath,
+      `${JSON.stringify(
+        {
+          hooks: {
+            Stop: [
+              { command: "echo existing", timeoutMs: 1000 },
+              { command: "clankerlog hook topchester stop", timeoutMs: 10000 },
+            ],
+          },
+        },
+        null,
+        2,
+      )}\n`,
+    );
+    const stdout = captureStdout();
+    const program = buildProgram();
+    program.exitOverride();
+
+    await program.parseAsync([
+      "node",
+      "clankerlog",
+      "hooks",
+      "status",
+      "topchester",
+      "--hook-config",
+      configPath,
+    ]);
+    await program.parseAsync([
+      "node",
+      "clankerlog",
+      "hooks",
+      "uninstall",
+      "topchester",
+      "--hook-config",
+      configPath,
+    ]);
+
+    expect(stdout.text()).toContain("Status: ClankerLog Topchester Stop hook is installed.");
+    expect(stdout.text()).toContain("Command matches expected: yes");
+    expect(stdout.text()).toContain("Action: removed");
+    expect(await readJson(configPath)).toEqual({
+      hooks: {
+        Stop: [{ command: "echo existing", timeoutMs: 1000 }],
+      },
+    });
   });
 });
 

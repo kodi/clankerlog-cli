@@ -1,8 +1,9 @@
 # ClankerLog Integrations
 
-This document records the working Codex, Claude Code, Cursor, Hermes, and
-OpenClaw hook integrations. Treat it as both a runbook for local testing and
-the manual fallback for the `clankerlog hooks` helper commands.
+This document records the working Codex, Claude Code, Cursor, Hermes,
+Topchester, and OpenClaw hook integrations. Treat it as both a runbook for
+local testing and the manual fallback for the `clankerlog hooks` helper
+commands.
 
 ## Codex Stop Hook
 
@@ -189,14 +190,17 @@ clankerlog hooks install codex
 clankerlog hooks install claude --model claude-sonnet-4.5
 clankerlog hooks install cursor
 clankerlog hooks install hermes
+clankerlog hooks install topchester
 clankerlog hooks install pi
 clankerlog hooks install openclaw
 clankerlog hooks status codex
 clankerlog hooks status hermes
+clankerlog hooks status topchester
 clankerlog hooks status pi
 clankerlog hooks status openclaw
 clankerlog hooks uninstall codex
 clankerlog hooks uninstall hermes
+clankerlog hooks uninstall topchester
 clankerlog hooks uninstall pi
 clankerlog hooks uninstall openclaw
 ```
@@ -215,7 +219,8 @@ clankerlog hooks uninstall openclaw --dry-run
 The helpers:
 
 - Create missing `~/.codex/hooks.json`, `~/.claude/settings.json`,
-  `~/.cursor/hooks.json`, or `~/.hermes/config.yaml` files.
+  `~/.cursor/hooks.json`, `~/.hermes/config.yaml`, or
+  `~/.config/topchester/config.jsonc` files.
 - Create the managed Pi extension file at
   `~/.pi/agent/extensions/clankerlog.ts`.
 - Create the managed OpenClaw hook directory at
@@ -621,4 +626,91 @@ Add `--dry-run` to print the resolved clank payload without sending it:
 ```bash
 printf '%s\n' '{"hook_event_name":"post_llm_call","tool_name":null,"tool_input":null,"session_id":"local-test-session","cwd":"/Users/kodi/data/personal/clankerlog-cli","extra":{"model":"nous/hermes-4","platform":"cli","user_message":"ignore me","assistant_response":"ignore me","conversation_history":["ignore me"]}}' \
   | /Users/kodi/.local/bin/clankerlog-dev hook hermes stop --dry-run
+```
+
+## Topchester Stop Hook
+
+Topchester can run a command hook when a turn finishes. The useful integration
+point for ClankerLog is the canonical `Stop` event because Topchester sends a
+small JSON payload on stdin with workspace, status, and model metadata.
+
+The local path is:
+
+```txt
+Topchester Stop hook -> clankerlog-dev hook topchester stop -> local ingestion endpoint -> local D1
+```
+
+For local development, the hook command uses the repo shim:
+
+```bash
+/Users/kodi/.local/bin/clankerlog-dev hook topchester stop
+```
+
+User-facing Topchester setup should use the helper:
+
+```bash
+clankerlog hooks install topchester
+```
+
+Topchester defines user hooks in:
+
+```txt
+~/.config/topchester/config.jsonc
+```
+
+Equivalent hook config:
+
+```jsonc
+{
+  "hooks": {
+    "Stop": [
+      {
+        "command": "clankerlog hook topchester stop",
+        "timeoutMs": 10000,
+      },
+    ],
+  },
+}
+```
+
+Topchester sends the Stop hook input as JSON on stdin. The current CLI command
+validates the fields we need and allows future extra fields:
+
+```json
+{
+  "hook_event_name": "Stop",
+  "event": "Stop",
+  "cwd": "/Users/kodi/data/personal/clankerlog-cli",
+  "workspaceRoot": "/Users/kodi/data/personal/clankerlog-cli",
+  "source": "topchester",
+  "session_id": "local-test-session",
+  "model_id": "anthropic/claude-sonnet-4.5",
+  "model_ref": "openrouter/anthropic/claude-sonnet-4.5",
+  "model": {
+    "modelId": "anthropic/claude-sonnet-4.5",
+    "ref": "openrouter/anthropic/claude-sonnet-4.5"
+  },
+  "taskCompleteAlias": "TaskComplete",
+  "finalMessage": "ignored by ClankerLog",
+  "status": "completed"
+}
+```
+
+ClankerLog uses:
+
+- `workspaceRoot` or `cwd` as the project/workspace to resolve the allow-list
+  entry.
+- `model_ref`, then `model_id`, then `model.ref`, then `model.modelId` as the
+  model name in the clank payload.
+- `topchester` as the default agent name.
+
+ClankerLog intentionally does not read `finalMessage`. The hook is a trigger
+plus minimal metadata source, not a transcript collector. Failed Topchester
+turns are ignored.
+
+Add `--dry-run` to print the resolved clank payload without sending it:
+
+```bash
+printf '%s\n' '{"hook_event_name":"Stop","event":"Stop","cwd":"/Users/kodi/data/personal/clankerlog-cli","workspaceRoot":"/Users/kodi/data/personal/clankerlog-cli","source":"topchester","session_id":"local-test-session","model_id":"anthropic/claude-sonnet-4.5","model_ref":"openrouter/anthropic/claude-sonnet-4.5","taskCompleteAlias":"TaskComplete","finalMessage":"ignore me","status":"completed"}' \
+  | /Users/kodi/.local/bin/clankerlog-dev hook topchester stop --dry-run
 ```
