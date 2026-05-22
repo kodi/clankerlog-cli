@@ -700,8 +700,11 @@ ClankerLog uses:
 
 - `workspaceRoot` or `cwd` as the project/workspace to resolve the allow-list
   entry.
-- `model_ref`, then `model_id`, then `model.ref`, then `model.modelId` as the
-  model name in the clank payload.
+- `model_id`, then `model.modelId`, then `model_ref`, then `model.ref` as the
+  model name source. Known provider-prefixed model ids such as
+  `google/gemini-3.1-flash-lite` and
+  `openrouter/google/gemini-3.1-flash-lite` normalize to
+  `gemini-3.1-flash-lite` before sending.
 - `topchester` as the default agent name.
 
 ClankerLog intentionally does not read `finalMessage`. The hook is a trigger

@@ -33,6 +33,7 @@ const canonicalModelNames = [
   "claude-3-sonnet",
   "claude-3-haiku",
   "gemini-3.1-pro",
+  "gemini-3.1-flash-lite",
   "gemini-3-pro",
   "gemini-2.5-pro",
   "gemini-2.5-flash",
@@ -104,9 +105,11 @@ export function normalizeModelName(value: string): string {
 }
 
 function modelKey(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(providerPrefixPattern, "")
-    .replace(/[^a-z0-9]+/gu, "");
+  let normalized = value.trim().toLowerCase();
+
+  while (providerPrefixPattern.test(normalized)) {
+    normalized = normalized.replace(providerPrefixPattern, "");
+  }
+
+  return normalized.replace(/[^a-z0-9]+/gu, "");
 }

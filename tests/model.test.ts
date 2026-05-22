@@ -28,6 +28,8 @@ describe("normalizeModelName", () => {
     ["haiku3.5", "claude-3.5-haiku"],
     ["gemini-3-1-pro", "gemini-3.1-pro"],
     ["gemini pro 3.1", "gemini-3.1-pro"],
+    ["google/gemini-3.1-flash-lite", "gemini-3.1-flash-lite"],
+    ["openrouter/google/gemini-3.1-flash-lite", "gemini-3.1-flash-lite"],
     ["gemini 2.5 flash lite", "gemini-2.5-flash-lite"],
     ["deepseek r1", "deepseek-r1"],
     ["deepseek-v3-2", "deepseek-v3.2"],

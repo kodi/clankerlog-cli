@@ -77,7 +77,7 @@ export async function handleTopchesterStopHook(
 }
 
 function topchesterModel(input: TopchesterStopInput): string | undefined {
-  return input.model_ref ?? input.model_id ?? input.model?.ref ?? input.model?.modelId;
+  return input.model_id ?? input.model?.modelId ?? input.model_ref ?? input.model?.ref;
 }
 
 type TopchesterStopInput = z.infer<typeof topchesterStopInputSchema>;

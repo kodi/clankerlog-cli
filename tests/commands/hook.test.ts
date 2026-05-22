@@ -505,7 +505,7 @@ describe("topchester stop hook", () => {
     const body = JSON.parse(String(request.body));
     expect(body).toMatchObject({
       agent: "topchester",
-      model: "openrouter/anthropic/claude-sonnet-4.5",
+      model: "claude-sonnet-4.5",
       project: { display_name: "Topchester Hook Project" },
       type: "clank",
     });
@@ -561,6 +561,42 @@ describe("topchester stop hook", () => {
     expect(runtime.stderrText()).toBe("");
   });
 
+  it("normalizes nested OpenRouter provider prefixes from Topchester model metadata", async () => {
+    const root = await makeTempDir();
+    await writeFile(path.join(root, "package.json"), "{}");
+    const projectPath = await realpath(root);
+    const configPath = path.join(root, "global", "config.json");
+    const fetchMock = vi.fn<typeof fetch>(
+      async () => new Response(JSON.stringify({ id: "clank_hook", ok: true }), { status: 202 }),
+    );
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [{ displayName: "Topchester Hook Project", path: projectPath }],
+      apiKey: "clk_live_hook_secret",
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    const runtime = createMemoryRuntime({
+      configPath,
+      cwd: await makeTempDir(),
+      stdin: JSON.stringify(
+        topchesterStopPayload({
+          modelId: "google/gemini-3.1-flash-lite",
+          modelRef: "openrouter/google/gemini-3.1-flash-lite",
+          workspaceRoot: projectPath,
+        }),
+      ),
+    });
+
+    await handleTopchesterStopHook(runtime);
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    const body = JSON.parse(String(request.body));
+    expect(body.model).toBe("gemini-3.1-flash-lite");
+  });
+
   it("supports dry-run without stdin by using the current workspace", async () => {
     const root = await makeTempDir();
     await writeFile(path.join(root, "package.json"), "{}");
@@ -586,7 +622,7 @@ describe("topchester stop hook", () => {
 
     expect(fetchMock).not.toHaveBeenCalled();
     expect(runtime.stdoutText()).toContain('"agent": "topchester"');
-    expect(runtime.stdoutText()).toContain('"model": "openrouter/anthropic/claude-sonnet-4.5"');
+    expect(runtime.stdoutText()).toContain('"model": "claude-sonnet-4.5"');
     expect(runtime.stdoutText()).toContain('"display_name": "Topchester Hook Project"');
   });
 });
@@ -765,19 +801,26 @@ function hermesPostLlmPayload(options: { cwd: string; model: string }) {
   };
 }
 
-function topchesterStopPayload(options: { workspaceRoot: string }) {
+function topchesterStopPayload(options: {
+  workspaceRoot: string;
+  modelId?: string;
+  modelRef?: string;
+}) {
+  const modelId = options.modelId ?? "anthropic/claude-sonnet-4.5";
+  const modelRef = options.modelRef ?? "openrouter/anthropic/claude-sonnet-4.5";
+
   return {
     cwd: options.workspaceRoot,
     event: "Stop",
     finalMessage: "do not collect me",
     hook_event_name: "Stop",
     model: {
-      modelId: "anthropic/claude-sonnet-4.5",
+      modelId,
       providerId: "openrouter",
-      ref: "openrouter/anthropic/claude-sonnet-4.5",
+      ref: modelRef,
     },
-    model_id: "anthropic/claude-sonnet-4.5",
-    model_ref: "openrouter/anthropic/claude-sonnet-4.5",
+    model_id: modelId,
+    model_ref: modelRef,
     session_id: "session_123",
     source: "topchester",
     status: "completed",
