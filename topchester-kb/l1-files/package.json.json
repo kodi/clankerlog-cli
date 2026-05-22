@@ -1,0 +1,38 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:package.json",
+  "layer": "L1",
+  "type": "file",
+  "path": "package.json",
+  "language": "json",
+  "content_hash": "sha256:afdb7d8e88753d32b5a8f8b457609c4ace476e1584337c81efe03cd95372e1a4",
+  "size_bytes": 1456,
+  "last_scanned_at": "2026-05-22T01:59:51.234Z",
+  "scan_status": "current",
+  "file_role": "config",
+  "summary": "Project configuration file defining the clankerlog CLI package, dependencies, and build scripts.",
+  "responsibilities": [
+    "Defines the clankerlog CLI binary entry point mapping to ./bin/clankerlog.js",
+    "Configures project metadata, licensing, and package versions",
+    "Manages development and build pipelines via npm scripts including linting, testing, and production builds",
+    "Specifies runtime requirements and external dependencies for coding-agent activity logging"
+  ],
+  "symbols": [],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/cli.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "package.json"
+    }
+  ],
+  "confidence": "high"
+}

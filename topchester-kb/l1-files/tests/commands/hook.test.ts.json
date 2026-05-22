@@ -1,0 +1,83 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/commands/hook.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/commands/hook.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:accdd1f50e2974e017fd1abb31a34b5d0792cc5d7a6e85ffd0e79cb1c45282d5",
+  "size_bytes": 23758,
+  "last_scanned_at": "2026-05-22T02:01:37.674Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Validates CLI hook handlers for various LLM agents including Codex, Claude, Cursor, Hermes, and OpenClaw.",
+  "responsibilities": [
+    "Tests telemetry data collection logic for stop/post-LLM hooks.",
+    "Ensures CLI commands integrate correctly with the hook handler logic.",
+    "Verifies dry-run functionality across all supported agents.",
+    "Validates configuration scoping and workspace permission handling.",
+    "Mocks stdin/env and filesystem interactions for isolated execution."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:tests/commands/hook.test.ts#codexStopPayload",
+      "kind": "function",
+      "name": "codexStopPayload",
+      "exported": false
+    },
+    {
+      "id": "symbol:tests/commands/hook.test.ts#claudeStopPayload",
+      "kind": "function",
+      "name": "claudeStopPayload",
+      "exported": false
+    },
+    {
+      "id": "symbol:tests/commands/hook.test.ts#cursorStopPayload",
+      "kind": "function",
+      "name": "cursorStopPayload",
+      "exported": false
+    },
+    {
+      "id": "symbol:tests/commands/hook.test.ts#hermesPostLlmPayload",
+      "kind": "function",
+      "name": "hermesPostLlmPayload",
+      "exported": false
+    },
+    {
+      "id": "symbol:tests/commands/hook.test.ts#openClawMessageSentPayload",
+      "kind": "function",
+      "name": "openClawMessageSentPayload",
+      "exported": false
+    },
+    {
+      "id": "symbol:tests/commands/hook.test.ts#makeTempDir",
+      "kind": "function",
+      "name": "makeTempDir",
+      "exported": false
+    }
+  ],
+  "imports": [
+    "file:src/cli.js",
+    "file:src/commands/hook.js",
+    "file:src/config.js",
+    "file:tests/helpers.js"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [
+    "file:src/commands/hook.js"
+  ],
+  "declared_test_targets": [],
+  "likely_test_targets": [
+    "file:src/commands/hook.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/commands/hook.test.ts"
+    }
+  ],
+  "confidence": "high"
+}

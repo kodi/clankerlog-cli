@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/output.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/output.ts",
+  "language": "typescript",
+  "content_hash": "sha256:ff4c1bed31f47795fb12c19c4cc5def7846c4d1bf51b0632deef30e0d734ba81",
+  "size_bytes": 280,
+  "last_scanned_at": "2026-05-22T02:01:06.282Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Provides utility functions for writing formatted messages and errors to CLI output streams.",
+  "responsibilities": [
+    "Writes newline-terminated strings to the standard output stream.",
+    "Writes newline-terminated strings to the standard error stream."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/output.ts#writeLine",
+      "kind": "function",
+      "name": "writeLine",
+      "exported": true,
+      "summary": "Writes a line to stdout using the provided CLI runtime."
+    },
+    {
+      "id": "symbol:src/output.ts#writeErrorLine",
+      "kind": "function",
+      "name": "writeErrorLine",
+      "exported": true,
+      "summary": "Writes an error message to stderr using the provided CLI runtime."
+    }
+  ],
+  "imports": [
+    "file:src/runtime.ts"
+  ],
+  "exports": [
+    "writeLine",
+    "writeErrorLine"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/output.ts"
+    },
+    {
+      "kind": "import",
+      "value": "./runtime.js"
+    }
+  ],
+  "confidence": "high"
+}

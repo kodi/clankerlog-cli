@@ -1,0 +1,105 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/ingest.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/ingest.ts",
+  "language": "typescript",
+  "content_hash": "sha256:ba6b3ec2a3b99de372bc5f06577431b13b53a1304893c20ae5b7658763aba6a9",
+  "size_bytes": 4295,
+  "last_scanned_at": "2026-05-22T02:00:59.157Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Handles authenticated communication with the ClankerLog API via HTTP GET and POST requests.",
+  "responsibilities": [
+    "Verifies API credentials by calling the authentication check endpoint.",
+    "Sends payload data to the ingestion API endpoint.",
+    "Normalizes API endpoint URLs for authentication checks.",
+    "Maps low-level fetch errors into human-readable error messages for authentication and ingestion."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/ingest.ts#CheckAuthOptions",
+      "kind": "interface",
+      "name": "CheckAuthOptions",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/ingest.ts#SendClankOptions",
+      "kind": "interface",
+      "name": "SendClankOptions",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/ingest.ts#CheckAuthResult",
+      "kind": "type",
+      "name": "CheckAuthResult",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/ingest.ts#SendClankResult",
+      "kind": "type",
+      "name": "SendClankResult",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/ingest.ts#checkAuth",
+      "kind": "function",
+      "name": "checkAuth",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/ingest.ts#sendClank",
+      "kind": "function",
+      "name": "sendClank",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/ingest.ts#authCheckEndpointFromIngestEndpoint",
+      "kind": "function",
+      "name": "authCheckEndpointFromIngestEndpoint",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/ingest.ts#formatAuthCheckError",
+      "kind": "function",
+      "name": "formatAuthCheckError",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/ingest.ts#formatIngestError",
+      "kind": "function",
+      "name": "formatIngestError",
+      "exported": true
+    }
+  ],
+  "imports": [
+    "file:src/schemas.ts"
+  ],
+  "exports": [
+    "CheckAuthOptions",
+    "SendClankOptions",
+    "CheckAuthResult",
+    "SendClankResult",
+    "checkAuth",
+    "sendClank",
+    "authCheckEndpointFromIngestEndpoint",
+    "formatAuthCheckError",
+    "formatIngestError"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/ingest.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/ingest.ts"
+    }
+  ],
+  "confidence": "high"
+}

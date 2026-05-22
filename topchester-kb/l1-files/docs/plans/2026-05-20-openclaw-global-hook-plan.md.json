@@ -1,0 +1,36 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:docs/plans/2026-05-20-openclaw-global-hook-plan.md",
+  "layer": "L1",
+  "type": "file",
+  "path": "docs/plans/2026-05-20-openclaw-global-hook-plan.md",
+  "language": "markdown",
+  "content_hash": "sha256:97e6606a78b3ee5581e4d6e002f596d6e56f4b8f6e285b56f3690b91b6334275",
+  "size_bytes": 15688,
+  "last_scanned_at": "2026-05-22T01:59:47.648Z",
+  "scan_status": "current",
+  "file_role": "doc",
+  "summary": "Technical design document outlining the implementation plan for integrating ClankerLog as a global managed hook for OpenClaw.",
+  "responsibilities": [
+    "Define technical requirements for global managed OpenClaw hooks.",
+    "Outline the privacy-preserving event listener architecture for message:sent events.",
+    "Specify the CLI command surface and interface updates for hook lifecycle management.",
+    "Document constraints, cross-slice dependencies, and safety boundaries for hook implementation."
+  ],
+  "symbols": [],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "docs/plans/2026-05-20-openclaw-global-hook-plan.md"
+    }
+  ],
+  "confidence": "high"
+}

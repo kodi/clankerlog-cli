@@ -1,0 +1,44 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/path-display.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/path-display.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:ef5150716a13f31fd5753f6b79feb8fcaa0c8e0c407890ccd0e9eed974b40ca2",
+  "size_bytes": 638,
+  "last_scanned_at": "2026-05-22T02:02:01.442Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Unit tests for the path display formatting logic, specifically verifying home directory path shortening.",
+  "responsibilities": [
+    "Test path shortening logic for files located within the user home directory",
+    "Ensure absolute paths outside the home directory remain unmodified"
+  ],
+  "symbols": [],
+  "imports": [
+    "file:src/path-display.js"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [
+    "file:src/path-display.js"
+  ],
+  "declared_test_targets": [],
+  "likely_test_targets": [
+    "file:src/path-display.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/path-display.test.ts"
+    },
+    {
+      "kind": "import",
+      "value": "from \"../src/path-display.js\""
+    }
+  ],
+  "confidence": "high"
+}

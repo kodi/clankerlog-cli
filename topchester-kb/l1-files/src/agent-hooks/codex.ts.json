@@ -1,0 +1,73 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/agent-hooks/codex.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/agent-hooks/codex.ts",
+  "language": "typescript",
+  "content_hash": "sha256:2a636a3d1aeadd18035aafd664d4f347a1fa2b1f0be5d695c5443c191406329b",
+  "size_bytes": 2503,
+  "last_scanned_at": "2026-05-22T02:00:03.362Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Implements CLI command integrations and event processing for Codex agent hooks.",
+  "responsibilities": [
+    "Registers CLI commands for Codex integration under the hooks group.",
+    "Validates incoming Codex 'Stop' event payloads via Zod schema.",
+    "Handles the execution logic for the Codex Stop hook by parsing input and sending telemetry pings.",
+    "Integrates with configuration management hooks to facilitate agent installation and status checks."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/agent-hooks/codex.ts#codexStopInputSchema",
+      "kind": "schema",
+      "name": "codexStopInputSchema",
+      "exported": false,
+      "summary": "Validation schema for the Codex Stop hook JSON input."
+    },
+    {
+      "id": "symbol:src/agent-hooks/codex.ts#registerCodexHookCommand",
+      "kind": "function",
+      "name": "registerCodexHookCommand",
+      "exported": true,
+      "summary": "Registers the 'codex' command namespace and 'stop' subcommand to the CLI."
+    },
+    {
+      "id": "symbol:src/agent-hooks/codex.ts#registerCodexHooksCommands",
+      "kind": "function",
+      "name": "registerCodexHooksCommands",
+      "exported": true,
+      "summary": "Registers Codex agent lifecycle commands via configuration agent hooks."
+    },
+    {
+      "id": "symbol:src/agent-hooks/codex.ts#handleCodexStopHook",
+      "kind": "function",
+      "name": "handleCodexStopHook",
+      "exported": true,
+      "summary": "Processes the Codex stop event by parsing input and dispatching a hook ping."
+    }
+  ],
+  "imports": [
+    "file:src/runtime.js",
+    "file:src/agent-hooks/config-agent-hooks.js",
+    "file:src/agent-hooks/runtime-shared.js"
+  ],
+  "exports": [
+    "registerCodexHookCommand",
+    "registerCodexHooksCommands",
+    "handleCodexStopHook"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/agent-hooks/codex.ts"
+    }
+  ],
+  "confidence": "high"
+}

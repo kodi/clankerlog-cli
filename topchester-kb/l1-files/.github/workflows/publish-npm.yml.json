@@ -1,0 +1,48 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:.github/workflows/publish-npm.yml",
+  "layer": "L1",
+  "type": "file",
+  "path": ".github/workflows/publish-npm.yml",
+  "language": "yaml",
+  "content_hash": "sha256:0889d1f3d71d55c05713dd8b1ba90edfca0329bcf5ea393d6e1a74197a9f058d",
+  "size_bytes": 2020,
+  "last_scanned_at": "2026-05-22T01:59:29.187Z",
+  "scan_status": "current",
+  "file_role": "unknown",
+  "summary": "Automates the versioning, building, and publishing process for the npm package via manual workflow trigger.",
+  "responsibilities": [
+    "Increments project version using npm/pnpm commands based on user input",
+    "Performs package validation and builds the source",
+    "Publishes the package to the public npm registry with provenance",
+    "Synchronizes Git commits and tags back to the main branch"
+  ],
+  "symbols": [
+    {
+      "id": "symbol:.github/workflows/publish-npm.yml#publish-npm",
+      "kind": "config",
+      "name": "publish-npm",
+      "exported": false,
+      "summary": "GitHub Actions workflow for manual NPM release execution"
+    }
+  ],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": ".github/workflows/publish-npm.yml"
+    },
+    {
+      "kind": "content",
+      "value": "name: Publish npm package"
+    }
+  ],
+  "confidence": "high"
+}

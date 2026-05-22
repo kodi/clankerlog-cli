@@ -1,0 +1,34 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:LICENSE",
+  "layer": "L1",
+  "type": "file",
+  "path": "LICENSE",
+  "language": "text",
+  "content_hash": "sha256:5eb08781fea9a5e81996dff2c20be7b9edd3a1feab4fb36f9c536117b673c3d4",
+  "size_bytes": 1068,
+  "last_scanned_at": "2026-05-22T01:59:49.190Z",
+  "scan_status": "current",
+  "file_role": "unknown",
+  "summary": "Describes the MIT open source license terms for the usage and distribution of the project software.",
+  "responsibilities": [
+    "Defines legal permissions for software usage and modification",
+    "Establishes copyright ownership by ClankerLog"
+  ],
+  "symbols": [],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "LICENSE"
+    }
+  ],
+  "confidence": "high"
+}

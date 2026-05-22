@@ -1,0 +1,73 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/commands/init.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/commands/init.ts",
+  "language": "typescript",
+  "content_hash": "sha256:5277db5c59bcc9f2b448b14ded4aef787d9642d9d97493ee5b0bafaf67f149dd",
+  "size_bytes": 2309,
+  "last_scanned_at": "2026-05-22T02:00:42.645Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Implements the CLI 'init' command to configure project-specific ClankerLog settings and global project registry entries.",
+  "responsibilities": [
+    "Registers the 'init' command with the main commander program.",
+    "Orchestrates the interactive CLI flow for prompt-based configuration.",
+    "Persists project metadata to both local project configuration and global registry files.",
+    "Resolves project paths and manages stack tag parsing."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/commands/init.ts#InitOptions",
+      "kind": "interface",
+      "name": "InitOptions",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/init.ts#registerInitCommand",
+      "kind": "function",
+      "name": "registerInitCommand",
+      "exported": true,
+      "summary": "Configures the commander command definition and action handler."
+    },
+    {
+      "id": "symbol:src/commands/init.ts#handleInit",
+      "kind": "function",
+      "name": "handleInit",
+      "exported": true,
+      "summary": "Executes the core initialization logic and persistence operations."
+    }
+  ],
+  "imports": [
+    "file:src/config.ts",
+    "file:src/output.ts",
+    "file:src/project.ts",
+    "file:src/runtime.ts",
+    "file:src/stack.ts"
+  ],
+  "exports": [
+    "InitOptions",
+    "registerInitCommand",
+    "handleInit"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/commands/init.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/commands/init.ts"
+    },
+    {
+      "kind": "symbol",
+      "value": "registerInitCommand"
+    }
+  ],
+  "confidence": "high"
+}

@@ -1,0 +1,67 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/stack.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/stack.ts",
+  "language": "typescript",
+  "content_hash": "sha256:cc48a7d78284433a6c590c98128108e1197fe2cf4e9ccb07aa8b8c23cc844800",
+  "size_bytes": 1246,
+  "last_scanned_at": "2026-05-22T02:01:26.368Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Provides utility functions to parse, validate, and auto-detect technology stacks based on project file presence.",
+  "responsibilities": [
+    "Normalize and validate stack identifier strings against a Zod schema",
+    "Identify programming languages or package managers by scanning directory contents for specific manifest files",
+    "Ensure unique entries in stack lists after detection and parsing"
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/stack.ts#parseStackValues",
+      "kind": "function",
+      "name": "parseStackValues",
+      "exported": true,
+      "summary": "Splits, trims, and validates a raw input array of stack strings."
+    },
+    {
+      "id": "symbol:src/stack.ts#detectStackFromFilenames",
+      "kind": "function",
+      "name": "detectStackFromFilenames",
+      "exported": true,
+      "summary": "Scans the project directory for configuration files to heuristically determine the technology stack."
+    },
+    {
+      "id": "symbol:src/stack.ts#uniqueStack",
+      "kind": "function",
+      "name": "uniqueStack",
+      "exported": true,
+      "summary": "Removes duplicate entries and validates the stack array."
+    }
+  ],
+  "imports": [
+    "file:src/schemas.ts"
+  ],
+  "exports": [
+    "parseStackValues",
+    "detectStackFromFilenames",
+    "uniqueStack"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/stack.ts"
+    },
+    {
+      "kind": "import",
+      "value": "./schemas.js"
+    }
+  ],
+  "confidence": "high"
+}

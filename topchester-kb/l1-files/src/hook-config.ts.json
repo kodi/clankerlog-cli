@@ -1,0 +1,116 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/hook-config.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/hook-config.ts",
+  "language": "typescript",
+  "content_hash": "sha256:670edac2d25bf9d938ebd8d26cdf0a59dfdb3a971ee41309aebf02d7dcccdf22",
+  "size_bytes": 17344,
+  "last_scanned_at": "2026-05-22T02:00:56.777Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Manages configuration for external development tool hooks, specifically orchestrating installation and removal of clankerlog stop commands in editor-specific configuration files.",
+  "responsibilities": [
+    "Read, validate, and write JSON/YAML configuration files for various hook agents.",
+    "Generate and plan modifications for hooks in different file formats (grouped vs direct).",
+    "Determine the installation status of specific clankerlog hooks.",
+    "Handle atomic file system updates to ensure configuration integrity."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/hook-config.ts#HookAgent",
+      "kind": "type",
+      "name": "HookAgent",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/hook-config.ts#HOOK_AGENT_DEFINITIONS",
+      "kind": "const",
+      "name": "HOOK_AGENT_DEFINITIONS",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/hook-config.ts#planInstallHook",
+      "kind": "function",
+      "name": "planInstallHook",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/hook-config.ts#installHookConfig",
+      "kind": "function",
+      "name": "installHookConfig",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/hook-config.ts#planUninstallHook",
+      "kind": "function",
+      "name": "planUninstallHook",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/hook-config.ts#uninstallHookConfig",
+      "kind": "function",
+      "name": "uninstallHookConfig",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/hook-config.ts#getHookStatus",
+      "kind": "function",
+      "name": "getHookStatus",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/hook-config.ts#loadHookConfigFile",
+      "kind": "function",
+      "name": "loadHookConfigFile",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/hook-config.ts#writeHookConfigFileAtomic",
+      "kind": "function",
+      "name": "writeHookConfigFileAtomic",
+      "exported": true
+    }
+  ],
+  "imports": [
+    "file:src/errors.ts"
+  ],
+  "exports": [
+    "HookAgent",
+    "HookAgentDefinition",
+    "InstallHookOptions",
+    "HookConfigFileOptions",
+    "HookTransformPlan",
+    "HookConfigFilePlan",
+    "HookStatus",
+    "HookConfigObject",
+    "HOOK_AGENT_DEFINITIONS",
+    "planInstallHook",
+    "installHookConfig",
+    "planUninstallHook",
+    "uninstallHookConfig",
+    "getHookStatus",
+    "getHookConfigStatus",
+    "resolveHookConfigPath",
+    "loadHookConfigFile",
+    "writeHookConfigFileAtomic",
+    "buildHookCommand",
+    "validateHookConfig"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/commands/hooks.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/hook-config.ts"
+    }
+  ],
+  "confidence": "high"
+}

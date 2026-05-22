@@ -1,0 +1,82 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/project.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/project.ts",
+  "language": "typescript",
+  "content_hash": "sha256:2b23ba969724d5b8bc56a2e52661c24589f9293282fb3eac3756911f273bcaf3",
+  "size_bytes": 1018,
+  "last_scanned_at": "2026-05-22T02:01:13.097Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Provides utility functions for resolving filesystem paths and managing allowed project configurations.",
+  "responsibilities": [
+    "Normalize and resolve project file paths",
+    "Identify valid projects within a global configuration",
+    "Update or insert project entries in the configuration object",
+    "Generate default display names for project directories"
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/project.ts#resolveProjectPath",
+      "kind": "function",
+      "name": "resolveProjectPath",
+      "exported": true,
+      "summary": "Resolves the absolute path of the given CWD."
+    },
+    {
+      "id": "symbol:src/project.ts#findAllowedProject",
+      "kind": "function",
+      "name": "findAllowedProject",
+      "exported": true,
+      "summary": "Retrieves an AllowedProject object matching the path from the global config."
+    },
+    {
+      "id": "symbol:src/project.ts#isProjectAllowed",
+      "kind": "function",
+      "name": "isProjectAllowed",
+      "exported": true,
+      "summary": "Checks if a project path exists in the allowed projects list."
+    },
+    {
+      "id": "symbol:src/project.ts#defaultDisplayName",
+      "kind": "function",
+      "name": "defaultDisplayName",
+      "exported": true,
+      "summary": "Returns the basename of a path for display purposes."
+    },
+    {
+      "id": "symbol:src/project.ts#upsertAllowedProject",
+      "kind": "function",
+      "name": "upsertAllowedProject",
+      "exported": true,
+      "summary": "Adds or replaces a project entry within the global config."
+    }
+  ],
+  "imports": [
+    "file:src/schemas.ts"
+  ],
+  "exports": [
+    "resolveProjectPath",
+    "findAllowedProject",
+    "isProjectAllowed",
+    "defaultDisplayName",
+    "upsertAllowedProject"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/project.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/project.ts"
+    }
+  ],
+  "confidence": "high"
+}

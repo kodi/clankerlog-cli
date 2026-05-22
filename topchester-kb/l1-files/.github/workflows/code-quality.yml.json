@@ -1,0 +1,43 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:.github/workflows/code-quality.yml",
+  "layer": "L1",
+  "type": "file",
+  "path": ".github/workflows/code-quality.yml",
+  "language": "yaml",
+  "content_hash": "sha256:6a735834581185f43b962e30a5254a1228c8eb96fd849b99d341a8dcad62c4d8",
+  "size_bytes": 510,
+  "last_scanned_at": "2026-05-22T01:59:27.359Z",
+  "scan_status": "current",
+  "file_role": "unknown",
+  "summary": "Automates linting, formatting, and type-checking via a GitHub Actions workflow.",
+  "responsibilities": [
+    "Installs project dependencies using pnpm on Ubuntu runners.",
+    "Triggers the project-defined 'check' command for continuous integration.",
+    "Ensures environment parity by enforcing Node.js version 24."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:.github/workflows/code-quality.yml#code-quality",
+      "kind": "config",
+      "name": "code-quality",
+      "exported": false,
+      "summary": "GitHub Actions job definition for automation"
+    }
+  ],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": ".github/workflows/code-quality.yml"
+    }
+  ],
+  "confidence": "high"
+}

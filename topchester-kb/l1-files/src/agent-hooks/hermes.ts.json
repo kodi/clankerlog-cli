@@ -1,0 +1,80 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/agent-hooks/hermes.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/agent-hooks/hermes.ts",
+  "language": "typescript",
+  "content_hash": "sha256:14ba427a51c09ab1150d3280ae33e36727517c811c9522fd8cff0600e0209cbe",
+  "size_bytes": 2836,
+  "last_scanned_at": "2026-05-22T02:00:12.044Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Implements CLI command handling and payload processing for Hermes agent shell hooks.",
+  "responsibilities": [
+    "Registers CLI commands for Hermes hook management including installation and uninstallation.",
+    "Parses and validates JSON payloads received from Hermes shell hooks via stdin.",
+    "Filters stop events based on session status (interrupted or incomplete sessions).",
+    "Dispatches hook telemetry data using the session runtime environment."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/agent-hooks/hermes.ts#hermesStopInputSchema",
+      "kind": "const",
+      "name": "hermesStopInputSchema",
+      "exported": false,
+      "summary": "Zod schema for validating the structure of Hermes stop hook payloads."
+    },
+    {
+      "id": "symbol:src/agent-hooks/hermes.ts#registerHermesHookCommand",
+      "kind": "function",
+      "name": "registerHermesHookCommand",
+      "exported": true,
+      "summary": "Attaches 'hermes' command group and 'stop' action to the primary CLI interface."
+    },
+    {
+      "id": "symbol:src/agent-hooks/hermes.ts#registerHermesHooksCommands",
+      "kind": "function",
+      "name": "registerHermesHooksCommands",
+      "exported": true,
+      "summary": "Registers Hermes-specific agent hook utility commands (install/remove) to the registry."
+    },
+    {
+      "id": "symbol:src/agent-hooks/hermes.ts#handleHermesStopHook",
+      "kind": "function",
+      "name": "handleHermesStopHook",
+      "exported": true,
+      "summary": "Orchestrates the lifecycle of a stop hook payload, from parsing to telemetry transmission."
+    },
+    {
+      "id": "symbol:src/agent-hooks/hermes.ts#HermesStopInput",
+      "kind": "type",
+      "name": "HermesStopInput",
+      "exported": false,
+      "summary": "Inferred type from hermesStopInputSchema."
+    }
+  ],
+  "imports": [
+    "file:../runtime.js",
+    "file:./config-agent-hooks.js",
+    "file:./runtime-shared.js"
+  ],
+  "exports": [
+    "registerHermesHookCommand",
+    "registerHermesHooksCommands",
+    "handleHermesStopHook"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/agent-hooks/hermes.ts"
+    }
+  ],
+  "confidence": "high"
+}

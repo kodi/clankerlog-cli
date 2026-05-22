@@ -1,0 +1,92 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/agent-hooks/openclaw.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/agent-hooks/openclaw.ts",
+  "language": "typescript",
+  "content_hash": "sha256:84ff7f2986f55392a46ad05905448d40a95b92c95ba2da89c94489c69a304070",
+  "size_bytes": 6221,
+  "last_scanned_at": "2026-05-22T02:00:16.898Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Registers CLI commands and provides handler functions for managing OpenClaw hook integrations.",
+  "responsibilities": [
+    "Registers 'message-sent' hook command for processing OpenClaw events",
+    "Provides management commands (install, uninstall, status) for global OpenClaw hooks",
+    "Parses and validates OpenClaw hook JSON payloads from standard input",
+    "Coordinates with OpenClaw runtime to send ping signals upon receiving events"
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/agent-hooks/openclaw.ts#registerOpenClawHookCommand",
+      "kind": "function",
+      "name": "registerOpenClawHookCommand",
+      "exported": true,
+      "summary": "Registers the 'openclaw' command suite to the commander instance."
+    },
+    {
+      "id": "symbol:src/agent-hooks/openclaw.ts#registerOpenClawHooksCommands",
+      "kind": "function",
+      "name": "registerOpenClawHooksCommands",
+      "exported": true,
+      "summary": "Registers subcommands for installation, uninstallation, and status inspection of OpenClaw hooks."
+    },
+    {
+      "id": "symbol:src/agent-hooks/openclaw.ts#handleOpenClawMessageSentHook",
+      "kind": "function",
+      "name": "handleOpenClawMessageSentHook",
+      "exported": true,
+      "summary": "Processes the incoming message:sent hook payload and triggers a ping."
+    },
+    {
+      "id": "symbol:src/agent-hooks/openclaw.ts#handleInstallOpenClawHook",
+      "kind": "function",
+      "name": "handleInstallOpenClawHook",
+      "exported": true,
+      "summary": "Installs the OpenClaw hook files and reports status to the user."
+    },
+    {
+      "id": "symbol:src/agent-hooks/openclaw.ts#handleOpenClawHookStatus",
+      "kind": "function",
+      "name": "handleOpenClawHookStatus",
+      "exported": true,
+      "summary": "Inspects and displays the current installation status of OpenClaw hooks."
+    },
+    {
+      "id": "symbol:src/agent-hooks/openclaw.ts#handleUninstallOpenClawHook",
+      "kind": "function",
+      "name": "handleUninstallOpenClawHook",
+      "exported": true,
+      "summary": "Removes the configured OpenClaw hook files."
+    }
+  ],
+  "imports": [
+    "file:src/openclaw-hook.ts",
+    "file:src/path-display.ts",
+    "file:src/runtime.ts",
+    "file:src/agent-hooks/install-shared.ts",
+    "file:src/agent-hooks/runtime-shared.ts"
+  ],
+  "exports": [
+    "registerOpenClawHookCommand",
+    "registerOpenClawHooksCommands",
+    "handleOpenClawMessageSentHook",
+    "handleInstallOpenClawHook",
+    "handleOpenClawHookStatus",
+    "handleUninstallOpenClawHook"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/agent-hooks/openclaw.ts"
+    }
+  ],
+  "confidence": "high"
+}

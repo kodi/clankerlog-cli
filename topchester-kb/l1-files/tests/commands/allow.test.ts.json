@@ -1,0 +1,44 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/commands/allow.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/commands/allow.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:857b7a5d50f52507577165f2512900a9aeb1f40fe20f5b09421667fb42d16a96",
+  "size_bytes": 2207,
+  "last_scanned_at": "2026-05-22T02:01:30.148Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Tests the handleAllow command functionality for registering allowed projects in the global configuration.",
+  "responsibilities": [
+    "Verifies that projects can be allowed with an explicit name.",
+    "Ensures the command detects and uses project configuration names if available.",
+    "Tests idempotency when attempting to add an already allowed project.",
+    "Validates CLI runtime output and global config persistence."
+  ],
+  "symbols": [],
+  "imports": [
+    "file:src/commands/allow.js",
+    "file:src/config.js",
+    "file:tests/helpers.js"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [
+    "file:src/commands/allow.js"
+  ],
+  "declared_test_targets": [],
+  "likely_test_targets": [
+    "file:src/commands/allow.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/commands/allow.test.ts"
+    }
+  ],
+  "confidence": "high"
+}

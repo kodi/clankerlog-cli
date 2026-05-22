@@ -1,0 +1,66 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/commands/init.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/commands/init.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:ae2bacf7c20a0b6274b6bcab6d0f95676ffab926002544a778a18807b857b405",
+  "size_bytes": 1377,
+  "last_scanned_at": "2026-05-22T02:01:42.572Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Integration test for the init command ensuring project configuration is persisted correctly.",
+  "responsibilities": [
+    "Verifies successful registration of a new project via handleInit",
+    "Validates creation of .clankerlog.json file with correct project data",
+    "Ensures global config is updated with the new project path"
+  ],
+  "symbols": [
+    {
+      "id": "symbol:tests/commands/init.test.ts#readJson",
+      "kind": "function",
+      "name": "readJson",
+      "exported": false,
+      "summary": "Helper to read and parse JSON files for test assertions"
+    },
+    {
+      "id": "symbol:tests/commands/init.test.ts#makeTempDir",
+      "kind": "function",
+      "name": "makeTempDir",
+      "exported": false,
+      "summary": "Creates a temporary filesystem directory for test isolation"
+    }
+  ],
+  "imports": [
+    "file:src/commands/init.ts",
+    "file:src/config.ts",
+    "file:tests/helpers.ts"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [
+    "file:src/commands/init.ts"
+  ],
+  "declared_test_targets": [
+    "file:src/commands/init.ts",
+    "file:src/config.ts",
+    "file:tests/helpers.ts"
+  ],
+  "likely_test_targets": [
+    "file:src/commands/init.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/commands/init.test.ts"
+    },
+    {
+      "kind": "symbol",
+      "value": "handleInit"
+    }
+  ],
+  "confidence": "high"
+}

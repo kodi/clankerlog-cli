@@ -1,0 +1,83 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/agent-hooks/config-agent-hooks.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/agent-hooks/config-agent-hooks.ts",
+  "language": "typescript",
+  "content_hash": "sha256:5de210d1979606ef016a587c3ac5fe9fcb6df8cd52ae7dac3c244c481fe059e8",
+  "size_bytes": 5405,
+  "last_scanned_at": "2026-05-22T02:00:06.124Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Registers CLI commands and provides handler functions for managing agent-specific lifecycle hooks.",
+  "responsibilities": [
+    "Registers 'install', 'status', and 'uninstall' subcommands for agent hooks",
+    "Handles configuration file updates for agent stop hooks",
+    "Provides logic for dry-run operations and validation of agent hook settings",
+    "Maps CLI options to internal hook configuration formats"
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/agent-hooks/config-agent-hooks.ts#HooksCommandGroups",
+      "kind": "type",
+      "name": "HooksCommandGroups",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/agent-hooks/config-agent-hooks.ts#registerConfigAgentHooksCommands",
+      "kind": "function",
+      "name": "registerConfigAgentHooksCommands",
+      "exported": true,
+      "summary": "Registers command handlers onto existing CLI command groups."
+    },
+    {
+      "id": "symbol:src/agent-hooks/config-agent-hooks.ts#handleInstallHook",
+      "kind": "function",
+      "name": "handleInstallHook",
+      "exported": true,
+      "summary": "Orchestrates the installation of agent stop hooks."
+    },
+    {
+      "id": "symbol:src/agent-hooks/config-agent-hooks.ts#handleHookStatus",
+      "kind": "function",
+      "name": "handleHookStatus",
+      "exported": true,
+      "summary": "Reports the current installation status of an agent hook."
+    },
+    {
+      "id": "symbol:src/agent-hooks/config-agent-hooks.ts#handleUninstallHook",
+      "kind": "function",
+      "name": "handleUninstallHook",
+      "exported": true,
+      "summary": "Orchestrates the removal of agent stop hooks."
+    }
+  ],
+  "imports": [
+    "file:src/errors.ts",
+    "file:src/hook-config.ts",
+    "file:src/path-display.ts",
+    "file:src/runtime.ts",
+    "file:src/agent-hooks/install-shared.ts"
+  ],
+  "exports": [
+    "HooksCommandGroups",
+    "registerConfigAgentHooksCommands",
+    "handleInstallHook",
+    "handleHookStatus",
+    "handleUninstallHook"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/agent-hooks/config-agent-hooks.ts"
+    }
+  ],
+  "confidence": "high"
+}

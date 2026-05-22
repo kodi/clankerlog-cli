@@ -1,0 +1,87 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/cli.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/cli.ts",
+  "language": "typescript",
+  "content_hash": "sha256:c51d526aabb4b66e0be57c38bc31ba1b82790c8f83ecd091e3a8bb15d870ed62",
+  "size_bytes": 2341,
+  "last_scanned_at": "2026-05-22T02:00:24.539Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Acts as the entry point for the 'clankerlog' CLI tool, configuring command routing and global error handling.",
+  "responsibilities": [
+    "Defines and initializes the 'clankerlog' Commander program structure.",
+    "Registers core CLI commands including login, init, and hook management.",
+    "Provides a version check utility for the application.",
+    "Handles global CLI error logging and process exit status management.",
+    "Determines if the current module is being executed as the primary script entry point."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/cli.ts#getCliVersion",
+      "kind": "function",
+      "name": "getCliVersion",
+      "exported": true,
+      "summary": "Returns the version of clankerlog from package.json."
+    },
+    {
+      "id": "symbol:src/cli.ts#buildProgram",
+      "kind": "function",
+      "name": "buildProgram",
+      "exported": true,
+      "summary": "Configures and returns the Commander program with all registered commands."
+    },
+    {
+      "id": "symbol:src/cli.ts#main",
+      "kind": "function",
+      "name": "main",
+      "exported": true,
+      "summary": "Parses the CLI arguments and executes the program."
+    },
+    {
+      "id": "symbol:src/cli.ts#isCliEntrypoint",
+      "kind": "function",
+      "name": "isCliEntrypoint",
+      "exported": true,
+      "summary": "Checks if the current module is initiated from the process command line."
+    }
+  ],
+  "imports": [
+    "file:src/commands/allow.ts",
+    "file:src/commands/doctor.ts",
+    "file:src/commands/hook.ts",
+    "file:src/commands/hooks.ts",
+    "file:src/commands/init.ts",
+    "file:src/commands/login.ts",
+    "file:src/commands/ping.ts",
+    "file:src/errors.ts"
+  ],
+  "exports": [
+    "getCliVersion",
+    "buildProgram",
+    "main",
+    "isCliEntrypoint"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/cli.test.ts",
+    "file:tests/commands/pi-hooks.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/cli.ts"
+    },
+    {
+      "kind": "import",
+      "value": "commander"
+    }
+  ],
+  "confidence": "high"
+}

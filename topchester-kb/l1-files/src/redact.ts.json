@@ -1,0 +1,47 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/redact.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/redact.ts",
+  "language": "typescript",
+  "content_hash": "sha256:1086a5796b8350195cbd935c3d5b3e1f16d8459d01ea193af82b13fe10320cd5",
+  "size_bytes": 236,
+  "last_scanned_at": "2026-05-22T02:01:16.330Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Provides utility functions to safely mask sensitive API key strings for logging or display purposes.",
+  "responsibilities": [
+    "Handle empty or undefined API key values",
+    "Truncate API keys to valid display lengths",
+    "Append redaction suffixes to partial API key strings"
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/redact.ts#redactApiKey",
+      "kind": "function",
+      "name": "redactApiKey",
+      "exported": true,
+      "summary": "Returns a masked version of the provided API key or a default 'not configured' string."
+    }
+  ],
+  "imports": [],
+  "exports": [
+    "redactApiKey"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/redact.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/redact.ts"
+    }
+  ],
+  "confidence": "high"
+}

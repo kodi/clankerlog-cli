@@ -1,0 +1,99 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/pi-hook.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/pi-hook.ts",
+  "language": "typescript",
+  "content_hash": "sha256:00fb088124bf760c56229cc2d10548784db13db942dfb5d6d107f868b863f271",
+  "size_bytes": 5089,
+  "last_scanned_at": "2026-05-22T02:01:10.899Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Manages the installation and removal of the ClankerLog Pi coding agent extension.",
+  "responsibilities": [
+    "Generates the source code for the Pi coding agent extension hook.",
+    "Installs the generated extension file into the user's local configuration directory.",
+    "Verifies whether the installed extension matches the current expected code marker.",
+    "Provides cleanup logic to remove existing extensions upon validation."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/pi-hook.ts#PiHookOptions",
+      "kind": "interface",
+      "name": "PiHookOptions",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/pi-hook.ts#PiHookPlan",
+      "kind": "interface",
+      "name": "PiHookPlan",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/pi-hook.ts#PiHookStatus",
+      "kind": "interface",
+      "name": "PiHookStatus",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/pi-hook.ts#installPiHook",
+      "kind": "function",
+      "name": "installPiHook",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/pi-hook.ts#uninstallPiHook",
+      "kind": "function",
+      "name": "uninstallPiHook",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/pi-hook.ts#getPiHookStatus",
+      "kind": "function",
+      "name": "getPiHookStatus",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/pi-hook.ts#resolvePiExtensionPath",
+      "kind": "function",
+      "name": "resolvePiExtensionPath",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/pi-hook.ts#buildPiExtension",
+      "kind": "function",
+      "name": "buildPiExtension",
+      "exported": true,
+      "summary": "Returns the static TypeScript content of the Pi extension being installed."
+    }
+  ],
+  "imports": [
+    "file:src/errors.ts"
+  ],
+  "exports": [
+    "PiHookOptions",
+    "PiHookPlan",
+    "PiHookStatus",
+    "installPiHook",
+    "uninstallPiHook",
+    "getPiHookStatus",
+    "resolvePiExtensionPath",
+    "buildPiExtension"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/commands/pi-hooks.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/pi-hook.ts"
+    }
+  ],
+  "confidence": "high"
+}

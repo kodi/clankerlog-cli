@@ -1,0 +1,47 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/project.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/project.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:619dfaf587d72212f18f329e8084bcb2951640ec7f3a675a926f786919f95f93",
+  "size_bytes": 1793,
+  "last_scanned_at": "2026-05-22T02:02:03.716Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Verifies project allow-list logic and path resolution utilities.",
+  "responsibilities": [
+    "Test path normalization using realpath",
+    "Validate project permission checks against global configuration",
+    "Ensure project lookup and upsert operations function correctly",
+    "Verify default display name derivation logic"
+  ],
+  "symbols": [],
+  "imports": [
+    "file:src/project.js",
+    "file:src/schemas.js"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [
+    "file:src/project.js"
+  ],
+  "declared_test_targets": [],
+  "likely_test_targets": [
+    "file:src/project.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/project.test.ts"
+    },
+    {
+      "kind": "import",
+      "value": "../src/project.js"
+    }
+  ],
+  "confidence": "high"
+}

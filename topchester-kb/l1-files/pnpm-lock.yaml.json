@@ -1,0 +1,36 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:pnpm-lock.yaml",
+  "layer": "L1",
+  "type": "file",
+  "path": "pnpm-lock.yaml",
+  "language": "yaml",
+  "content_hash": "sha256:40d42dade3a37885dd6a87c129ea3b48e8cfe0ba34e474edc8636a34372c858b",
+  "size_bytes": 62413,
+  "last_scanned_at": "2026-05-22T01:59:53.619Z",
+  "scan_status": "current",
+  "file_role": "config",
+  "summary": "Records the exact versions and dependency graph for all packages used in the project to ensure reproducible builds.",
+  "responsibilities": [
+    "Defines the locked dependency tree for the workspace.",
+    "Maps resolutions to integrity hashes for security verification.",
+    "Tracks development-only tools like vitest, tsdown, and oxlint.",
+    "Declares platform-specific binaries for native node modules."
+  ],
+  "symbols": [],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "pnpm-lock.yaml"
+    }
+  ],
+  "confidence": "high"
+}

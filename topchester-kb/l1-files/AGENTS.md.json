@@ -1,0 +1,35 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:AGENTS.md",
+  "layer": "L1",
+  "type": "file",
+  "path": "AGENTS.md",
+  "language": "markdown",
+  "content_hash": "sha256:6b38f2b58354970cf371157b7da4fd42ec069fd72b9a6fb67920bbff9d24e2aa",
+  "size_bytes": 295,
+  "last_scanned_at": "2026-05-22T01:59:35.697Z",
+  "scan_status": "current",
+  "file_role": "doc",
+  "summary": "This document outlines local development configurations and the relationship between this repository and the core clankerlog project.",
+  "responsibilities": [
+    "Provides instructions for local development shim aliases",
+    "Establishes the link between the development binary and TypeScript source",
+    "Defines the expected relative path for the clankerlog backend repository"
+  ],
+  "symbols": [],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "AGENTS.md"
+    }
+  ],
+  "confidence": "high"
+}

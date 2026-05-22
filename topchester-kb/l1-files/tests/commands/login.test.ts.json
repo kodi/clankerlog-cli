@@ -1,0 +1,56 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/commands/login.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/commands/login.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:ea83d0e4cd439557ca2ef5d54f2cc6691acd44f9385340b18efa2ddf8c91fb96",
+  "size_bytes": 1035,
+  "last_scanned_at": "2026-05-22T02:01:44.511Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Tests for the login command ensuring secure API key storage and output redaction.",
+  "responsibilities": [
+    "Verify that the login command correctly saves API keys to the global configuration file.",
+    "Ensure that sensitive API key strings are redacted from the standard output during the login process."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:tests/commands/login.test.ts#makeTempDir",
+      "kind": "function",
+      "name": "makeTempDir",
+      "exported": false,
+      "summary": "Creates a unique temporary directory for isolated test execution."
+    }
+  ],
+  "imports": [
+    "file:src/commands/login.ts",
+    "file:src/config.ts",
+    "file:tests/helpers.ts"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [
+    "file:src/commands/login.ts",
+    "file:src/config.ts",
+    "file:tests/helpers.ts"
+  ],
+  "likely_test_targets": [
+    "file:src/commands/login.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/commands/login.test.ts"
+    },
+    {
+      "kind": "import",
+      "value": "handleLogin"
+    }
+  ],
+  "confidence": "high"
+}

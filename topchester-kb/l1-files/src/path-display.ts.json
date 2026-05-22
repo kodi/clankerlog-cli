@@ -1,0 +1,51 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/path-display.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/path-display.ts",
+  "language": "typescript",
+  "content_hash": "sha256:d5e7ac6aaba2060f43a2a4ac1066f7bd4026d9b1e1585ac8025de7b8a1de9ade",
+  "size_bytes": 463,
+  "last_scanned_at": "2026-05-22T02:01:08.069Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Provides utility functions for abbreviating absolute file paths by replacing the user's home directory with a tilde.",
+  "responsibilities": [
+    "Replaces the system home directory path prefix with ~",
+    "Normalizes path separators to forward slashes for display purposes",
+    "Handles non-absolute and cross-device paths by returning them unchanged"
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/path-display.ts#formatHomePath",
+      "kind": "function",
+      "name": "formatHomePath",
+      "exported": true,
+      "summary": "Converts an absolute file path into a tilde-prefixed format if it resides within the home directory."
+    }
+  ],
+  "imports": [],
+  "exports": [
+    "formatHomePath"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/path-display.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/path-display.ts"
+    },
+    {
+      "kind": "function",
+      "value": "formatHomePath"
+    }
+  ],
+  "confidence": "high"
+}

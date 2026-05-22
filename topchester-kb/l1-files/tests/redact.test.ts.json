@@ -1,0 +1,46 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/redact.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/redact.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:cbfffd8d89a0153ed9d26612e33909ed2289e42984491500546e20bd5eb68e3f",
+  "size_bytes": 386,
+  "last_scanned_at": "2026-05-22T02:02:05.432Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Verifies the behavior of the API key redaction utility for configured and missing keys.",
+  "responsibilities": [
+    "Validates that undefined API keys are marked as not configured.",
+    "Ensures valid API key patterns are correctly redacted."
+  ],
+  "symbols": [],
+  "imports": [
+    "file:src/redact.ts"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [
+    "file:src/redact.ts"
+  ],
+  "declared_test_targets": [
+    "file:src/redact.ts"
+  ],
+  "likely_test_targets": [
+    "file:src/redact.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/redact.test.ts"
+    },
+    {
+      "kind": "import",
+      "value": "redactApiKey"
+    }
+  ],
+  "confidence": "high"
+}

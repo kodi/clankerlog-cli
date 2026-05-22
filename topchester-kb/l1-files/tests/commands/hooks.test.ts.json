@@ -1,0 +1,78 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/commands/hooks.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/commands/hooks.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:0449acd9c1d81ad6417e726197b5728d2a38d8a7117b4581c16e073fff03e4d5",
+  "size_bytes": 28205,
+  "last_scanned_at": "2026-05-22T02:01:40.263Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Integration tests for CLI commands and filesystem operations related to ClankerLog hook configuration management.",
+  "responsibilities": [
+    "Verify the logic for installing and uninstalling hooks across different IDE/agent providers.",
+    "Validate CLI command integration using Commander program mocks.",
+    "Test filesystem interactions including directory creation and config file updates.",
+    "Ensure idempotency and dry-run functionality for hook management operations."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:tests/commands/hooks.test.ts#readJson",
+      "kind": "function",
+      "name": "readJson",
+      "exported": false,
+      "summary": "Helper to read and parse JSON configuration files."
+    },
+    {
+      "id": "symbol:tests/commands/hooks.test.ts#readYaml",
+      "kind": "function",
+      "name": "readYaml",
+      "exported": false,
+      "summary": "Helper to read and parse YAML configuration files."
+    },
+    {
+      "id": "symbol:tests/commands/hooks.test.ts#makeTempDir",
+      "kind": "function",
+      "name": "makeTempDir",
+      "exported": false,
+      "summary": "Generates a unique temporary directory for test isolation."
+    },
+    {
+      "id": "symbol:tests/commands/hooks.test.ts#countClankerLogCommands",
+      "kind": "function",
+      "name": "countClankerLogCommands",
+      "exported": false,
+      "summary": "Counts active ClankerLog commands within a config object."
+    },
+    {
+      "id": "symbol:tests/commands/hooks.test.ts#captureStdout",
+      "kind": "function",
+      "name": "captureStdout",
+      "exported": false,
+      "summary": "Mocks standard output to intercept and assert CLI command traces."
+    }
+  ],
+  "imports": [
+    "file:src/cli.js",
+    "file:src/hook-config.js"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [
+    "file:src/hook-config.ts",
+    "file:src/commands/hooks.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/commands/hooks.test.ts"
+    }
+  ],
+  "confidence": "high"
+}

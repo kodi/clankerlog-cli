@@ -1,0 +1,54 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/schemas.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/schemas.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:455e14de5af8b3a5d95f40fb5bde8cc9cb7d9864731c56797dbc07c8b1b3ef13",
+  "size_bytes": 1551,
+  "last_scanned_at": "2026-05-22T02:02:07.645Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Validates Zod schema parsing logic for project configuration, ingestion responses, and clank payloads.",
+  "responsibilities": [
+    "Verify successful parsing of valid global and project configurations.",
+    "Ensure strict validation rules for timestamp formats in clank payloads.",
+    "Validate expected behavior for ingestion success response schemas.",
+    "Assert that incorrect data structures throw validation errors as expected."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:tests/schemas.test.ts#schemas",
+      "kind": "test",
+      "name": "schemas",
+      "exported": false,
+      "summary": "Main test suite for data validation schemas."
+    }
+  ],
+  "imports": [
+    "file:src/schemas.js"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [
+    "file:src/schemas.js"
+  ],
+  "declared_test_targets": [],
+  "likely_test_targets": [
+    "file:src/schemas.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/schemas.test.ts"
+    },
+    {
+      "kind": "import",
+      "value": "file:src/schemas.js"
+    }
+  ],
+  "confidence": "high"
+}

@@ -1,0 +1,53 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/commands/ping.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/commands/ping.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:3f93b4704c43071ac8d881917af294e2751eb06b6dd56f55a93ef00ebe348577",
+  "size_bytes": 4757,
+  "last_scanned_at": "2026-05-22T02:01:51.043Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Tests for the ping command, validating configuration precedence, credential masking, and request transmission logic.",
+  "responsibilities": [
+    "Verify project authorization checks and error handling for ping command.",
+    "Ensure sensitive API keys are redacted in console output during dry runs.",
+    "Validate hierarchical resolution of Ping configurations (Flags > Env > Config File).",
+    "Mock API interaction to confirm correct POST payload transmission and response parsing."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:tests/commands/ping.test.ts#ping command",
+      "kind": "test",
+      "name": "ping command",
+      "exported": false
+    }
+  ],
+  "imports": [
+    "file:src/commands/ping.js",
+    "file:src/config.js",
+    "file:tests/helpers.js"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [
+    "file:src/commands/ping.ts"
+  ],
+  "declared_test_targets": [
+    "file:src/commands/ping.ts"
+  ],
+  "likely_test_targets": [
+    "file:src/commands/ping.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/commands/ping.test.ts"
+    }
+  ],
+  "confidence": "high"
+}

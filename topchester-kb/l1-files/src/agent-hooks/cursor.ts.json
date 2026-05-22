@@ -1,0 +1,73 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/agent-hooks/cursor.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/agent-hooks/cursor.ts",
+  "language": "typescript",
+  "content_hash": "sha256:12f66492e21550ccb38de2d383cd7c5a65823e82552fd9608e7aa5e57d651607",
+  "size_bytes": 2593,
+  "last_scanned_at": "2026-05-22T02:00:09.034Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Implements CLI command hooks for Cursor integration, specifically handling stop events and managing agent hook configuration.",
+  "responsibilities": [
+    "Define CLI commands for Cursor integration lifecycle management.",
+    "Validate input schema for Cursor stop hook payloads.",
+    "Process Cursor stop hook payloads via stdin and initiate pings to the instrumentation backend.",
+    "Integrate core command groups for configuring agent-specific hooks."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/agent-hooks/cursor.ts#cursorStopInputSchema",
+      "kind": "schema",
+      "name": "cursorStopInputSchema",
+      "exported": false,
+      "summary": "Zod schema for validating the stdin JSON payload of a Cursor stop hook."
+    },
+    {
+      "id": "symbol:src/agent-hooks/cursor.ts#registerCursorHookCommand",
+      "kind": "function",
+      "name": "registerCursorHookCommand",
+      "exported": true,
+      "summary": "Registers the 'cursor' sub-commands into the main CLI tool."
+    },
+    {
+      "id": "symbol:src/agent-hooks/cursor.ts#registerCursorHooksCommands",
+      "kind": "function",
+      "name": "registerCursorHooksCommands",
+      "exported": true,
+      "summary": "Registers configuration-related commands for the Cursor agent hook."
+    },
+    {
+      "id": "symbol:src/agent-hooks/cursor.ts#handleCursorStopHook",
+      "kind": "function",
+      "name": "handleCursorStopHook",
+      "exported": true,
+      "summary": "Parses and executes the logic for the Cursor 'stop' hook event."
+    }
+  ],
+  "imports": [
+    "file:src/runtime.ts",
+    "file:src/agent-hooks/config-agent-hooks.ts",
+    "file:src/agent-hooks/runtime-shared.ts"
+  ],
+  "exports": [
+    "registerCursorHookCommand",
+    "registerCursorHooksCommands",
+    "handleCursorStopHook"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/agent-hooks/cursor.ts"
+    }
+  ],
+  "confidence": "high"
+}

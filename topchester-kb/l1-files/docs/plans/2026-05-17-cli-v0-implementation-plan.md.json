@@ -1,0 +1,37 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:docs/plans/2026-05-17-cli-v0-implementation-plan.md",
+  "layer": "L1",
+  "type": "file",
+  "path": "docs/plans/2026-05-17-cli-v0-implementation-plan.md",
+  "language": "markdown",
+  "content_hash": "sha256:47d4c75ad206bbfea9375c15ddcdf0e803369817f209a9dc4e64209805cb50c7",
+  "size_bytes": 14067,
+  "last_scanned_at": "2026-05-22T01:59:43.657Z",
+  "scan_status": "current",
+  "file_role": "doc",
+  "summary": "This document outlines the phased implementation plan for the ClankerLog CLI version 0, covering command structure, privacy rules, and testing strategies.",
+  "responsibilities": [
+    "Define module-level scope for the V0 CLI release",
+    "Establish the precedence rules for CLI configuration and environment variables",
+    "Specify the dependency stack including commander, fetch-safe, and zod",
+    "Describe the project folder structure and module boundaries for the CLI",
+    "Outline privacy requirements including redaction and deny-by-default allow-list patterns"
+  ],
+  "symbols": [],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "docs/plans/2026-05-17-cli-v0-implementation-plan.md"
+    }
+  ],
+  "confidence": "high"
+}

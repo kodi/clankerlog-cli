@@ -1,0 +1,35 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:.gitignore",
+  "layer": "L1",
+  "type": "file",
+  "path": ".gitignore",
+  "language": "ignore",
+  "content_hash": "sha256:72df286a8c22d822da802daf4b4aad5fe222c40b425676c1062e7cdd2e5883e5",
+  "size_bytes": 64,
+  "last_scanned_at": "2026-05-22T01:59:30.853Z",
+  "scan_status": "current",
+  "file_role": "config",
+  "summary": "Defines files and directories to be excluded from Git version control tracking.",
+  "responsibilities": [
+    "Prevent build artifacts and environment-specific caches from being committed.",
+    "Exclude dependency directories like node_modules and pnpm store.",
+    "Ignore log files and OS-specific metadata."
+  ],
+  "symbols": [],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": ".gitignore"
+    }
+  ],
+  "confidence": "high"
+}

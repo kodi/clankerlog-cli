@@ -1,0 +1,37 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:README.md",
+  "layer": "L1",
+  "type": "file",
+  "path": "README.md",
+  "language": "markdown",
+  "content_hash": "sha256:f0bec2464376455de470f549ca563bbbf210ea42e4da01264144baba3ced782f",
+  "size_bytes": 5793,
+  "last_scanned_at": "2026-05-22T01:59:58.553Z",
+  "scan_status": "current",
+  "file_role": "doc",
+  "summary": "The primary user documentation for the ClankerLog CLI, covering installation, project initialization, agent hook integration, and privacy guarantees.",
+  "responsibilities": [
+    "Serve as the central hub for CLI usage instructions.",
+    "Document the project allow-list workflow for sending activity telemetry.",
+    "Provide instructions for integrating ClankerLog with various coding agents (Codex, Claude, Cursor, etc.).",
+    "Explain privacy design, specifying which data types are excluded from telemetry.",
+    "Outline the internal development environment setup and required tooling."
+  ],
+  "symbols": [],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "README.md"
+    }
+  ],
+  "confidence": "high"
+}

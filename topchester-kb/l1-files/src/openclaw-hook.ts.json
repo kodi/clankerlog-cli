@@ -1,0 +1,104 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/openclaw-hook.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/openclaw-hook.ts",
+  "language": "typescript",
+  "content_hash": "sha256:de0513117a6f6df07cc950a402b702fb33925cab3a60175ddc7880d0ec7b3698",
+  "size_bytes": 12048,
+  "last_scanned_at": "2026-05-22T02:01:04.612Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Manages the installation, uninstallation, and status verification of an OpenClaw event hook for ClankerLog.",
+  "responsibilities": [
+    "Generate hook configuration (HOOK.md) and TypeScript handler code for OpenClaw integration.",
+    "Install and remove hook files in the local OpenClaw hook directory.",
+    "Validate current hook installation status by comparing existing files against expected markers.",
+    "Interface with the OpenClaw CLI to detect hook registration status.",
+    "Extract session metadata (workspace, model) from OpenClaw session records when triggered."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/openclaw-hook.ts#OpenClawHookOptions",
+      "kind": "interface",
+      "name": "OpenClawHookOptions",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/openclaw-hook.ts#OpenClawHookPlan",
+      "kind": "interface",
+      "name": "OpenClawHookPlan",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/openclaw-hook.ts#OpenClawHookStatus",
+      "kind": "interface",
+      "name": "OpenClawHookStatus",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/openclaw-hook.ts#installOpenClawHook",
+      "kind": "function",
+      "name": "installOpenClawHook",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/openclaw-hook.ts#uninstallOpenClawHook",
+      "kind": "function",
+      "name": "uninstallOpenClawHook",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/openclaw-hook.ts#getOpenClawHookStatus",
+      "kind": "function",
+      "name": "getOpenClawHookStatus",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/openclaw-hook.ts#resolveOpenClawHookDir",
+      "kind": "function",
+      "name": "resolveOpenClawHookDir",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/openclaw-hook.ts#buildOpenClawHookMd",
+      "kind": "function",
+      "name": "buildOpenClawHookMd",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/openclaw-hook.ts#buildOpenClawHandler",
+      "kind": "function",
+      "name": "buildOpenClawHandler",
+      "exported": true
+    }
+  ],
+  "imports": [
+    "file:src/errors.ts"
+  ],
+  "exports": [
+    "OpenClawHookOptions",
+    "OpenClawHookPlan",
+    "OpenClawHookStatus",
+    "installOpenClawHook",
+    "uninstallOpenClawHook",
+    "getOpenClawHookStatus",
+    "resolveOpenClawHookDir",
+    "buildOpenClawHookMd",
+    "buildOpenClawHandler"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/openclaw-hook.ts"
+    }
+  ],
+  "confidence": "high"
+}

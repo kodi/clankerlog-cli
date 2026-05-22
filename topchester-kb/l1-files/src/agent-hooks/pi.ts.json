@@ -1,0 +1,72 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/agent-hooks/pi.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/agent-hooks/pi.ts",
+  "language": "typescript",
+  "content_hash": "sha256:cfe30a3f2d75c79badc1ed69011087ab53dddd56d6dc0c5410327259e366af55",
+  "size_bytes": 3881,
+  "last_scanned_at": "2026-05-22T02:00:19.020Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Registers and manages CLI commands for installing, inspecting, and uninstalling the Pi agent extension.",
+  "responsibilities": [
+    "Registers 'pi' subcommands for the CLI's install, status, and uninstall command groups.",
+    "Coordinates interaction between CLI runtime and the pi-hook logic layer.",
+    "Formats and displays execution status and output messages to the user.",
+    "Handles dry-run logic for Pi extension management operations."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/agent-hooks/pi.ts#registerPiHooksCommands",
+      "kind": "function",
+      "name": "registerPiHooksCommands",
+      "exported": true,
+      "summary": "Registers the pi hook management commands into the provided command groups."
+    },
+    {
+      "id": "symbol:src/agent-hooks/pi.ts#handleInstallPiHook",
+      "kind": "function",
+      "name": "handleInstallPiHook",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/agent-hooks/pi.ts#handlePiHookStatus",
+      "kind": "function",
+      "name": "handlePiHookStatus",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/agent-hooks/pi.ts#handleUninstallPiHook",
+      "kind": "function",
+      "name": "handleUninstallPiHook",
+      "exported": true
+    }
+  ],
+  "imports": [
+    "file:src/path-display.ts",
+    "file:src/pi-hook.ts",
+    "file:src/runtime.ts",
+    "file:src/agent-hooks/install-shared.ts"
+  ],
+  "exports": [
+    "registerPiHooksCommands",
+    "handleInstallPiHook",
+    "handlePiHookStatus",
+    "handleUninstallPiHook"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/agent-hooks/pi.ts"
+    }
+  ],
+  "confidence": "high"
+}

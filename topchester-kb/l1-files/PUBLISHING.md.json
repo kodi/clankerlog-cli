@@ -1,0 +1,35 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:PUBLISHING.md",
+  "layer": "L1",
+  "type": "file",
+  "path": "PUBLISHING.md",
+  "language": "markdown",
+  "content_hash": "sha256:1983f2ed9fb3edcfc72d8bc1500e05ae8da9011da383d531573cc7801e374948",
+  "size_bytes": 1313,
+  "last_scanned_at": "2026-05-22T01:59:56.793Z",
+  "scan_status": "current",
+  "file_role": "doc",
+  "summary": "Documents the manual release workflow and lifecycle script requirements for publishing the project package.",
+  "responsibilities": [
+    "Outlines step-by-step procedures for versioning and publishing to the npm registry.",
+    "Specifies package lifecycle script triggers like prepack, prepublishOnly, and postbuild.",
+    "Defines build artifact management policies, specifically regarding the exclusion of the bin/ directory from git."
+  ],
+  "symbols": [],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "PUBLISHING.md"
+    }
+  ],
+  "confidence": "high"
+}

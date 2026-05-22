@@ -1,0 +1,161 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/schemas.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/schemas.ts",
+  "language": "typescript",
+  "content_hash": "sha256:9ef24af13cf9536f5310520aba277fd486476ad3a722c61b3b79aadd85bf1412",
+  "size_bytes": 2713,
+  "last_scanned_at": "2026-05-22T02:01:24.023Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Defines Zod schemas and TypeScript types for validating project configurations, ingestion payloads, and API responses.",
+  "responsibilities": [
+    "Validate global and project-specific configuration structures.",
+    "Validate and transform outgoing telemetry (clank) payloads.",
+    "Enforce naming and format conventions for stack tags and project display names.",
+    "Define response schemas for ingestion and authentication endpoints."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/schemas.ts#defaultIngestEndpoint",
+      "kind": "const",
+      "name": "defaultIngestEndpoint",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/schemas.ts#stackTagSchema",
+      "kind": "schema",
+      "name": "stackTagSchema",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/schemas.ts#stackSchema",
+      "kind": "schema",
+      "name": "stackSchema",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/schemas.ts#displayNameSchema",
+      "kind": "schema",
+      "name": "displayNameSchema",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/schemas.ts#allowedProjectSchema",
+      "kind": "schema",
+      "name": "allowedProjectSchema",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/schemas.ts#globalConfigSchema",
+      "kind": "schema",
+      "name": "globalConfigSchema",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/schemas.ts#projectConfigSchema",
+      "kind": "schema",
+      "name": "projectConfigSchema",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/schemas.ts#clankPayloadSchema",
+      "kind": "schema",
+      "name": "clankPayloadSchema",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/schemas.ts#ingestionSuccessSchema",
+      "kind": "schema",
+      "name": "ingestionSuccessSchema",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/schemas.ts#authCheckSuccessSchema",
+      "kind": "schema",
+      "name": "authCheckSuccessSchema",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/schemas.ts#AllowedProject",
+      "kind": "type",
+      "name": "AllowedProject",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/schemas.ts#AuthCheckSuccess",
+      "kind": "type",
+      "name": "AuthCheckSuccess",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/schemas.ts#ClankPayload",
+      "kind": "type",
+      "name": "ClankPayload",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/schemas.ts#GlobalConfig",
+      "kind": "type",
+      "name": "GlobalConfig",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/schemas.ts#IngestionSuccess",
+      "kind": "type",
+      "name": "IngestionSuccess",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/schemas.ts#ProjectConfig",
+      "kind": "type",
+      "name": "ProjectConfig",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/schemas.ts#isIsoDateTimeWithOffsetValue",
+      "kind": "function",
+      "name": "isIsoDateTimeWithOffsetValue",
+      "exported": false
+    }
+  ],
+  "imports": [
+    "file:src/model.ts"
+  ],
+  "exports": [
+    "defaultIngestEndpoint",
+    "stackTagSchema",
+    "stackSchema",
+    "displayNameSchema",
+    "allowedProjectSchema",
+    "globalConfigSchema",
+    "projectConfigSchema",
+    "clankPayloadSchema",
+    "ingestionSuccessSchema",
+    "authCheckSuccessSchema",
+    "AllowedProject",
+    "AuthCheckSuccess",
+    "ClankPayload",
+    "GlobalConfig",
+    "IngestionSuccess",
+    "ProjectConfig"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/model.test.ts",
+    "file:tests/schemas.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/schemas.ts"
+    }
+  ],
+  "confidence": "high"
+}

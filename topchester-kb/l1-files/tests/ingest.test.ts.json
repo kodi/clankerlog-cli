@@ -1,0 +1,48 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/ingest.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/ingest.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:ebf2993b7d663ff0ba4cd9329778361dc9a1e1f3abc10cf68908f889041a174f",
+  "size_bytes": 5435,
+  "last_scanned_at": "2026-05-22T02:01:57.173Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Unit tests for ingestion API interaction logic, covering payload transmission, authentication checks, and URL derivation.",
+  "responsibilities": [
+    "Verify successful transmission and error state handling for clank data ingestion.",
+    "Validate the authentication check flow and API client response parsing.",
+    "Ensure correct derivation of auth check endpoints derived from standard ingestion URL patterns.",
+    "Test resilience against network failures and non-JSON API responses."
+  ],
+  "symbols": [],
+  "imports": [
+    "file:src/ingest.js",
+    "file:src/schemas.js"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [
+    "file:src/ingest.js",
+    "file:src/schemas.js"
+  ],
+  "declared_test_targets": [],
+  "likely_test_targets": [
+    "file:src/ingest.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/ingest.test.ts"
+    },
+    {
+      "kind": "import",
+      "value": "../src/ingest.js"
+    }
+  ],
+  "confidence": "high"
+}

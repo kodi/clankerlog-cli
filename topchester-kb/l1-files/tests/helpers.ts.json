@@ -1,0 +1,65 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/helpers.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/helpers.ts",
+  "language": "typescript",
+  "content_hash": "sha256:b8fe6febe42cef77f78ea32739cf8eaaee0dfd3d54e0c31bf136168958daca6b",
+  "size_bytes": 1073,
+  "last_scanned_at": "2026-05-22T02:01:54.943Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Provides factory functions and interface extensions for creating a mock CLI runtime in test suites.",
+  "responsibilities": [
+    "Define MemoryRuntime interface extending CliRuntime with output capturing methods.",
+    "Implement createMemoryRuntime to generate a mock runtime with in-memory streams.",
+    "Provide a CaptureStream class for buffering and retrieving stream output during unit tests."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:tests/helpers.ts#MemoryRuntime",
+      "kind": "interface",
+      "name": "MemoryRuntime",
+      "exported": true,
+      "summary": "Runtime structure providing access to captured stdout and stderr contents."
+    },
+    {
+      "id": "symbol:tests/helpers.ts#createMemoryRuntime",
+      "kind": "function",
+      "name": "createMemoryRuntime",
+      "exported": true,
+      "summary": "Factory function to initialize a testable runtime instance."
+    }
+  ],
+  "imports": [
+    "file:src/runtime.ts"
+  ],
+  "exports": [
+    "MemoryRuntime",
+    "createMemoryRuntime"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [
+    "file:src/runtime.ts"
+  ],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/commands/doctor.test.ts",
+    "file:tests/commands/init.test.ts",
+    "file:tests/commands/login.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/helpers.ts"
+    },
+    {
+      "kind": "code",
+      "value": "interface MemoryRuntime extends CliRuntime"
+    }
+  ],
+  "confidence": "high"
+}

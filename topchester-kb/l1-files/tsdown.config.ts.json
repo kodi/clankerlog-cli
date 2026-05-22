@@ -1,0 +1,39 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tsdown.config.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tsdown.config.ts",
+  "language": "typescript",
+  "content_hash": "sha256:a26ee28cab3cc893f918659da6c1d9902241e17bbdb84943213e170b1ccaecb8",
+  "size_bytes": 291,
+  "last_scanned_at": "2026-05-22T02:02:11.523Z",
+  "scan_status": "current",
+  "file_role": "config",
+  "summary": "Configures the tsdown build process to transpile the CLI source code into ESM for Node.js.",
+  "responsibilities": [
+    "Defines build output directory and target platform settings",
+    "Maps entry point src/cli.ts to the clankerlog binary",
+    "Enforces strict warning adherence during the build process"
+  ],
+  "symbols": [],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tsdown.config.ts"
+    },
+    {
+      "kind": "import",
+      "value": "tsdown"
+    }
+  ],
+  "confidence": "high"
+}

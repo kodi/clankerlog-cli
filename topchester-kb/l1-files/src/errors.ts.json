@@ -1,0 +1,56 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/errors.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/errors.ts",
+  "language": "typescript",
+  "content_hash": "sha256:76828e7c254b3a784ef8d21b2e7c88759dac71e52cb41a810a95bda31f98e9e5",
+  "size_bytes": 346,
+  "last_scanned_at": "2026-05-22T02:00:54.180Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Defines custom error handling logic and formatting utilities for CLI operations.",
+  "responsibilities": [
+    "Provides a custom CliError class to manage specific exit codes for process termination.",
+    "Implements a formatting utility to standardize CLI error message output."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/errors.ts#CliError",
+      "kind": "class",
+      "name": "CliError",
+      "exported": true,
+      "summary": "Extends standard Error to include a configurable exit code."
+    },
+    {
+      "id": "symbol:src/errors.ts#formatCliError",
+      "kind": "function",
+      "name": "formatCliError",
+      "exported": true,
+      "summary": "Converts arbitrary error inputs into a string for CLI display."
+    }
+  ],
+  "imports": [],
+  "exports": [
+    "CliError",
+    "formatCliError"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/errors.ts"
+    },
+    {
+      "kind": "symbol",
+      "value": "CliError"
+    }
+  ],
+  "confidence": "high"
+}

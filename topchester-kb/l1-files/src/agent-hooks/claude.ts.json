@@ -1,0 +1,77 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/agent-hooks/claude.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/agent-hooks/claude.ts",
+  "language": "typescript",
+  "content_hash": "sha256:456739392adb9c83474a91769bcaa0fe6340c145a1d9a574756c89683955a1d5",
+  "size_bytes": 2495,
+  "last_scanned_at": "2026-05-22T02:00:00.785Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Implements CLI command integrations for Claude Code hooks, specifically handling the 'stop' event via stdin payloads.",
+  "responsibilities": [
+    "Registers the 'claude' CLI command structure for hook management.",
+    "Parses and validates Claude Code 'Stop' event payloads from standard input.",
+    "Coordinates ping signals for Claude-related hook lifecycle events.",
+    "Integrates with configuration management hooks to support agent-specific install/uninstall operations."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/agent-hooks/claude.ts#claudeStopInputSchema",
+      "kind": "schema",
+      "name": "claudeStopInputSchema",
+      "exported": false,
+      "summary": "Zod schema for validating the incoming 'Stop' hook payload from Claude Code."
+    },
+    {
+      "id": "symbol:src/agent-hooks/claude.ts#registerClaudeHookCommand",
+      "kind": "function",
+      "name": "registerClaudeHookCommand",
+      "exported": true,
+      "summary": "Mounts the Claude hook subcommands onto an existing CLI command."
+    },
+    {
+      "id": "symbol:src/agent-hooks/claude.ts#registerClaudeHooksCommands",
+      "kind": "function",
+      "name": "registerClaudeHooksCommands",
+      "exported": true,
+      "summary": "Registers configuration hook command groups for the Claude agent."
+    },
+    {
+      "id": "symbol:src/agent-hooks/claude.ts#handleClaudeStopHook",
+      "kind": "function",
+      "name": "handleClaudeStopHook",
+      "exported": true,
+      "summary": "Logic loop for processing the Stop hook input and sending a notification ping."
+    }
+  ],
+  "imports": [
+    "file:../runtime.js",
+    "file:./config-agent-hooks.js",
+    "file:./runtime-shared.js"
+  ],
+  "exports": [
+    "registerClaudeHookCommand",
+    "registerClaudeHooksCommands",
+    "handleClaudeStopHook"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/agent-hooks/claude.ts"
+    },
+    {
+      "kind": "import",
+      "value": "registerConfigAgentHooksCommands"
+    }
+  ],
+  "confidence": "high"
+}

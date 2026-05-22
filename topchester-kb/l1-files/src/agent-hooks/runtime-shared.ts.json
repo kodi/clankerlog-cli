@@ -1,0 +1,66 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/agent-hooks/runtime-shared.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/agent-hooks/runtime-shared.ts",
+  "language": "typescript",
+  "content_hash": "sha256:e8f193ba78ff2c5f3b83e011d57aa7bbb57eb3c11ee39eac39828b8a80e456d5",
+  "size_bytes": 3700,
+  "last_scanned_at": "2026-05-22T02:00:21.356Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Shared utilities for handling CLI hook input ingestion, validation, and ping orchestration.",
+  "responsibilities": [
+    "Provide reusable logic for parsing and validating JSON-formatted hook inputs from stdin.",
+    "Orchestrate agent heartbeat signals (pings) within a defined runtime environment.",
+    "Implement dry-run support for hook executions by allowing stdin fallbacks and silent output redirection.",
+    "Manage CLI runtime context adjustments including CWD and stdout suppression."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/agent-hooks/runtime-shared.ts#HookRuntimeOptions",
+      "kind": "interface",
+      "name": "HookRuntimeOptions",
+      "exported": true,
+      "summary": "Configuration options for hook execution lifecycle, emphasizing dry-run capabilities."
+    },
+    {
+      "id": "symbol:src/agent-hooks/runtime-shared.ts#parseJsonHookInput",
+      "kind": "function",
+      "name": "parseJsonHookInput",
+      "exported": true,
+      "summary": "Reads stdin, validates JSON against a Zod schema, and manages fallback scenarios."
+    },
+    {
+      "id": "symbol:src/agent-hooks/runtime-shared.ts#sendHookPing",
+      "kind": "function",
+      "name": "sendHookPing",
+      "exported": true,
+      "summary": "Sends a ping command to the agent using the provided hook runtime parameters."
+    }
+  ],
+  "imports": [
+    "file:src/errors.ts",
+    "file:src/commands/ping.ts",
+    "file:src/runtime.ts"
+  ],
+  "exports": [
+    "HookRuntimeOptions",
+    "parseJsonHookInput",
+    "sendHookPing"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/agent-hooks/runtime-shared.ts"
+    }
+  ],
+  "confidence": "high"
+}

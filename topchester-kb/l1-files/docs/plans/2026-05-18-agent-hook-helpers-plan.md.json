@@ -1,0 +1,36 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:docs/plans/2026-05-18-agent-hook-helpers-plan.md",
+  "layer": "L1",
+  "type": "file",
+  "path": "docs/plans/2026-05-18-agent-hook-helpers-plan.md",
+  "language": "markdown",
+  "content_hash": "sha256:a4260718b7f57ba7ef8164735177b61fc5596739b3473d1ab81cbbacaa59d68e",
+  "size_bytes": 15689,
+  "last_scanned_at": "2026-05-22T01:59:45.613Z",
+  "scan_status": "current",
+  "file_role": "doc",
+  "summary": "This document outlines the design and implementation plan for ClankerLog hook management helpers to automate agent configuration safely.",
+  "responsibilities": [
+    "Define requirements for installing, status checking, and uninstalling agent Stop hooks.",
+    "Detail cross-slice development phases for implementing pure config transforms, filesystem safety, and CLI commands.",
+    "Establish preservation rules for existing configurations and third-party hooks.",
+    "Outline testing strategies for idempotent installs, dry-run simulations, and atomic JSON writes."
+  ],
+  "symbols": [],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "docs/plans/2026-05-18-agent-hook-helpers-plan.md"
+    }
+  ],
+  "confidence": "high"
+}

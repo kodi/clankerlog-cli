@@ -1,0 +1,68 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/commands/login.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/commands/login.ts",
+  "language": "typescript",
+  "content_hash": "sha256:dabdf9bd43b739a641f4ebfbe3b9dc54c2033d8226745a2248ddda4436ee52a9",
+  "size_bytes": 1534,
+  "last_scanned_at": "2026-05-22T02:00:44.685Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Implements the CLI login command to store and manage ClankerLog API keys in the global configuration.",
+  "responsibilities": [
+    "Registers the login command with the Commander program instance.",
+    "Prompts the user for an API key if not provided via command-line options.",
+    "Persists the API key to the user's global configuration file.",
+    "Provides feedback to the user upon successful API key configuration."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/commands/login.ts#LoginOptions",
+      "kind": "interface",
+      "name": "LoginOptions",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/login.ts#registerLoginCommand",
+      "kind": "function",
+      "name": "registerLoginCommand",
+      "exported": true,
+      "summary": "Registers the login CLI subcommand with the provided Commander program."
+    },
+    {
+      "id": "symbol:src/commands/login.ts#handleLogin",
+      "kind": "function",
+      "name": "handleLogin",
+      "exported": true,
+      "summary": "Orchestrates the retrieval and saving of the user's API key."
+    }
+  ],
+  "imports": [
+    "file:src/config.ts",
+    "file:src/output.ts",
+    "file:src/redact.ts",
+    "file:src/runtime.ts"
+  ],
+  "exports": [
+    "LoginOptions",
+    "registerLoginCommand",
+    "handleLogin"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/commands/login.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/commands/login.ts"
+    }
+  ],
+  "confidence": "high"
+}

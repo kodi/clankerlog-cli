@@ -1,0 +1,50 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:.mise.toml",
+  "layer": "L1",
+  "type": "file",
+  "path": ".mise.toml",
+  "language": "toml",
+  "content_hash": "sha256:27884dbec829630e772431bf3cdc8959b00111c1817d0f0d3c8cdbeb8ea03f93",
+  "size_bytes": 643,
+  "last_scanned_at": "2026-05-22T01:59:32.600Z",
+  "scan_status": "current",
+  "file_role": "config",
+  "summary": "Defines project-specific development environment tools and task automation using the mise configuration format.",
+  "responsibilities": [
+    "Specifies node and pnpm versions for the development environment",
+    "Maps project CLI tasks to corresponding pnpm scripts",
+    "Defines a local-ci task workflow aggregating build, typecheck, format, lint, and test steps"
+  ],
+  "symbols": [
+    {
+      "id": "symbol:.mise.toml#tools",
+      "kind": "config",
+      "name": "tools",
+      "exported": false,
+      "summary": "Runtime and package manager version specifications"
+    },
+    {
+      "id": "symbol:.mise.toml#tasks",
+      "kind": "config",
+      "name": "tasks",
+      "exported": false,
+      "summary": "Project build, test, and quality control commands"
+    }
+  ],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": ".mise.toml"
+    }
+  ],
+  "confidence": "high"
+}

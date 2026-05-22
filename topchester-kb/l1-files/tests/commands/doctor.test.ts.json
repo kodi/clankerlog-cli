@@ -1,0 +1,67 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/commands/doctor.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/commands/doctor.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:18d9157ae83333a27428ba809174be883a66d314fa48aac0a5af72462ac39e95",
+  "size_bytes": 4167,
+  "last_scanned_at": "2026-05-22T02:01:34.687Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Tests for the doctor command, ensuring environment diagnostics and secret masking function correctly.",
+  "responsibilities": [
+    "Verify the doctor command reports configuration status correctly.",
+    "Ensure sensitive information like API keys are redacted from command output.",
+    "Validate behavior when API connections fail or global configuration files are malformed.",
+    "Assert proper formatting of diagnostic output, including color codes."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:tests/commands/doctor.test.ts#makeTempDir",
+      "kind": "function",
+      "name": "makeTempDir",
+      "exported": false,
+      "summary": "Helper to create a temporary directory for file system tests."
+    },
+    {
+      "id": "symbol:tests/commands/doctor.test.ts#stripAnsi",
+      "kind": "function",
+      "name": "stripAnsi",
+      "exported": false,
+      "summary": "Helper to remove ANSI color codes from terminal output strings."
+    }
+  ],
+  "imports": [
+    "file:src/commands/doctor.ts",
+    "file:src/config.ts",
+    "file:tests/helpers.ts"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [
+    "file:tests/commands/doctor.test.ts"
+  ],
+  "declared_test_targets": [
+    "file:src/commands/doctor.ts",
+    "file:src/config.ts",
+    "file:tests/helpers.ts"
+  ],
+  "likely_test_targets": [
+    "file:src/commands/doctor.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/commands/doctor.test.ts"
+    },
+    {
+      "kind": "import",
+      "value": "import { handleDoctor } from \"../../src/commands/doctor.js\";"
+    }
+  ],
+  "confidence": "high"
+}

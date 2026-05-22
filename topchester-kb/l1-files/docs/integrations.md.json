@@ -1,0 +1,37 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:docs/integrations.md",
+  "layer": "L1",
+  "type": "file",
+  "path": "docs/integrations.md",
+  "language": "markdown",
+  "content_hash": "sha256:3266be3a3d9efdf9f8871b335cd557aaa01643f3f4a3629effc17f9ccf538ab1",
+  "size_bytes": 17803,
+  "last_scanned_at": "2026-05-22T01:59:41.248Z",
+  "scan_status": "current",
+  "file_role": "doc",
+  "summary": "Technical documentation for integrating ClankerLog with various AI agents including Codex, Claude Code, Cursor, Hermes, and OpenClaw.",
+  "responsibilities": [
+    "Serve as the primary runbook for validating local agent integrations",
+    "Specify standardized hook configurations for command-based AI integrations",
+    "Document the JSON schema expectations for stdin hook payloads per agent",
+    "Define expected behavior for hook helper CLI commands and manual fallback configurations",
+    "Detail privacy constraints regarding intentionally ignored hook metadata"
+  ],
+  "symbols": [],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "docs/integrations.md"
+    }
+  ],
+  "confidence": "high"
+}

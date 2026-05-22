@@ -1,0 +1,37 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:docs/CLI_ARCHITECTURE.md",
+  "layer": "L1",
+  "type": "file",
+  "path": "docs/CLI_ARCHITECTURE.md",
+  "language": "markdown",
+  "content_hash": "sha256:3db55193e901bbb8772b03809845c070889a73f32fa0cfad919427a410a25c72",
+  "size_bytes": 11711,
+  "last_scanned_at": "2026-05-22T01:59:37.823Z",
+  "scan_status": "current",
+  "file_role": "doc",
+  "summary": "Architectural specification and design documentation for the ClankerLog CLI tool.",
+  "responsibilities": [
+    "Defines the ingestion API contract and validation rules for clank events.",
+    "Outlines CLI requirements, including privacy gates, project allow-listing, and command specifications.",
+    "Details configuration file schemas for both global (~/.config/clankerlog/config.json) and local (.clankerlog.json) settings.",
+    "Specifies core CLI commands including login, init, allow, ping, and doctor.",
+    "Provides guidance for implementing hook integrations for coding agents like Codex."
+  ],
+  "symbols": [],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "docs/CLI_ARCHITECTURE.md"
+    }
+  ],
+  "confidence": "high"
+}

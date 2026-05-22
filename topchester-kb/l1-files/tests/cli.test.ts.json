@@ -1,0 +1,50 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/cli.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/cli.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:4b7bc7535c98467f0287d182883c4e3a1c5eb6fc55106439ae2f4c8d2a6df1cd",
+  "size_bytes": 1285,
+  "last_scanned_at": "2026-05-22T02:01:28.222Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Validates CLI program configuration and entrypoint detection logic.",
+  "responsibilities": [
+    "Verifies Commander version matches package.json",
+    "Tests CLI entrypoint identification for npm-style symlinked binaries"
+  ],
+  "symbols": [
+    {
+      "id": "symbol:tests/cli.test.ts#pathToFileUrl",
+      "kind": "function",
+      "name": "pathToFileUrl",
+      "exported": false,
+      "summary": "Helper to convert file system paths to URL strings."
+    }
+  ],
+  "imports": [
+    "file:package.json",
+    "file:src/cli.ts"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [
+    "file:src/cli.ts",
+    "file:package.json"
+  ],
+  "likely_test_targets": [
+    "file:src/cli.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/cli.test.ts"
+    }
+  ],
+  "confidence": "high"
+}

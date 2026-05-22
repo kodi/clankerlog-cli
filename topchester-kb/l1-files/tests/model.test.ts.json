@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/model.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/model.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:cfe169a79cba992097a2ff4451984bc97ce7e5fec8cfe1780d80840dff760041",
+  "size_bytes": 2466,
+  "last_scanned_at": "2026-05-22T02:01:59.661Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Verifies AI model name normalization logic and its integration with payload parsing.",
+  "responsibilities": [
+    "Test pattern matching and string normalization for AI model identifiers",
+    "Define expected normalization outcomes for specific OpenAI, Anthropic, Gemini, DeepSeek, and other provider models",
+    "Validate that model normalization is applied correctly during schema parsing"
+  ],
+  "symbols": [
+    {
+      "id": "symbol:tests/model.test.ts#normalizeModelName",
+      "kind": "test",
+      "name": "normalizeModelName",
+      "exported": false,
+      "summary": "Verifies normalization of varied input formats into standard kebab-case naming conventions."
+    }
+  ],
+  "imports": [
+    "file:src/model.ts",
+    "file:src/schemas.ts"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [
+    "file:src/model.ts",
+    "file:src/schemas.ts"
+  ],
+  "declared_test_targets": [
+    "file:src/model.ts",
+    "file:src/schemas.ts"
+  ],
+  "likely_test_targets": [
+    "file:src/model.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/model.test.ts"
+    },
+    {
+      "kind": "import",
+      "value": "normalizeModelName"
+    }
+  ],
+  "confidence": "high"
+}

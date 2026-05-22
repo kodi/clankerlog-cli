@@ -1,0 +1,57 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/commands/openclaw-hooks.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/commands/openclaw-hooks.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:c4b2176dd0be031b9d21ee9cedf25cf3399294382ad1d0cc4be3db47eae31a78",
+  "size_bytes": 7012,
+  "last_scanned_at": "2026-05-22T02:01:46.700Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Integration tests for ClankerLog's OpenClaw hook lifecycle management and CLI command integration.",
+  "responsibilities": [
+    "Verify the installation, uninstallation, and status reporting of OpenClaw hook files.",
+    "Ensure safety guards prevent removal of non-managed or dirty hook directories.",
+    "Test Commander integration for hook subcommands.",
+    "Validate dry-run functionality for hook installation and uninstallation."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:tests/commands/openclaw-hooks.test.ts#makeTempDir",
+      "kind": "function",
+      "name": "makeTempDir",
+      "exported": false,
+      "summary": "Creates a temporary filesystem directory for hook isolation."
+    },
+    {
+      "id": "symbol:tests/commands/openclaw-hooks.test.ts#captureStdout",
+      "kind": "function",
+      "name": "captureStdout",
+      "exported": false,
+      "summary": "Mocks process.stdout to allow assertion on CLI output."
+    }
+  ],
+  "imports": [
+    "file:src/cli.js",
+    "file:src/openclaw-hook.js"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [
+    "file:src/openclaw-hook.js",
+    "file:src/cli.js"
+  ],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/commands/openclaw-hooks.test.ts"
+    }
+  ],
+  "confidence": "high"
+}

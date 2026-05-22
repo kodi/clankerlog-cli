@@ -1,0 +1,54 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/runtime.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/runtime.ts",
+  "language": "typescript",
+  "content_hash": "sha256:de583bc7f9d092d82282b62fce0df0fc99da683e96196abfc35a9e929776a322",
+  "size_bytes": 671,
+  "last_scanned_at": "2026-05-22T02:01:18.763Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Defines the CLI runtime environment interface and factory for resolving workspace execution context.",
+  "responsibilities": [
+    "Define the CliRuntime interface for standard I/O and environment access.",
+    "Resolve the target working directory based on command-line glob patterns or current process state."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/runtime.ts#CliRuntime",
+      "kind": "interface",
+      "name": "CliRuntime",
+      "exported": true,
+      "summary": "Represents the execution context including standard streams and working directory."
+    },
+    {
+      "id": "symbol:src/runtime.ts#createRuntime",
+      "kind": "function",
+      "name": "createRuntime",
+      "exported": true,
+      "summary": "Initializes a runtime instance derived from the provided commander command options."
+    }
+  ],
+  "imports": [],
+  "exports": [
+    "CliRuntime",
+    "createRuntime"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/helpers.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/runtime.ts"
+    }
+  ],
+  "confidence": "high"
+}

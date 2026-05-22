@@ -1,0 +1,92 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/commands/hook.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/commands/hook.ts",
+  "language": "typescript",
+  "content_hash": "sha256:ba6b0702b6c083041af731956d92b676db08de8731e270c1313d41d78d7d5b65",
+  "size_bytes": 991,
+  "last_scanned_at": "2026-05-22T02:00:31.962Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Registers the parent 'hook' CLI command and aggregates sub-command registration and handlers for various coding agents.",
+  "responsibilities": [
+    "Defines the top-level 'hook' command for the CLI",
+    "Registers agent-specific sub-commands for Claude, Codex, Cursor, Hermes, and OpenClaw",
+    "Exports event handlers for agent lifecycle hooks"
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/commands/hook.ts#registerHookCommand",
+      "kind": "function",
+      "name": "registerHookCommand",
+      "exported": true,
+      "summary": "Creates the 'hook' command and sub-commands for all supported agents on the provided CLI program."
+    },
+    {
+      "id": "symbol:src/commands/hook.ts#handleClaudeStopHook",
+      "kind": "function",
+      "name": "handleClaudeStopHook",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/hook.ts#handleCodexStopHook",
+      "kind": "function",
+      "name": "handleCodexStopHook",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/hook.ts#handleCursorStopHook",
+      "kind": "function",
+      "name": "handleCursorStopHook",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/hook.ts#handleHermesStopHook",
+      "kind": "function",
+      "name": "handleHermesStopHook",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/hook.ts#handleOpenClawMessageSentHook",
+      "kind": "function",
+      "name": "handleOpenClawMessageSentHook",
+      "exported": true
+    }
+  ],
+  "imports": [
+    "file:src/agent-hooks/claude.ts",
+    "file:src/agent-hooks/codex.ts",
+    "file:src/agent-hooks/cursor.ts",
+    "file:src/agent-hooks/hermes.ts",
+    "file:src/agent-hooks/openclaw.ts"
+  ],
+  "exports": [
+    "handleClaudeStopHook",
+    "handleCodexStopHook",
+    "handleCursorStopHook",
+    "handleHermesStopHook",
+    "handleOpenClawMessageSentHook",
+    "registerHookCommand"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/commands/hook.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/commands/hook.ts"
+    },
+    {
+      "kind": "import",
+      "value": "src/agent-hooks/"
+    }
+  ],
+  "confidence": "high"
+}

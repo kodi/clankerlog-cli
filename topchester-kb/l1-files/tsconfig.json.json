@@ -1,0 +1,39 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tsconfig.json",
+  "layer": "L1",
+  "type": "file",
+  "path": "tsconfig.json",
+  "language": "json",
+  "content_hash": "sha256:a71b74c4becd04b83da1eb101374a69732c4c4a3e792db8943cfbabebcb7f0be",
+  "size_bytes": 546,
+  "last_scanned_at": "2026-05-22T02:02:09.622Z",
+  "scan_status": "current",
+  "file_role": "config",
+  "summary": "Configures the TypeScript compiler for a modern Node.js environment using strict rules and ESM module resolution.",
+  "responsibilities": [
+    "Defines strict typing boundaries including exact optional properties and unchecked indexed access.",
+    "Enforces ECMAScript 2023 language features and NodeNext module output.",
+    "Sets scope for source and test files compilation."
+  ],
+  "symbols": [],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tsconfig.json"
+    },
+    {
+      "kind": "file_content",
+      "value": "compilerOptions"
+    }
+  ],
+  "confidence": "high"
+}

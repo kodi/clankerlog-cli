@@ -1,0 +1,69 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/commands/allow.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/commands/allow.ts",
+  "language": "typescript",
+  "content_hash": "sha256:bb32c3c28c388204800872b10c0a638dfbf7c0e4af08a42aecf4464e91157d42",
+  "size_bytes": 1677,
+  "last_scanned_at": "2026-05-22T02:00:26.940Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Implements the CLI command to authorize or register a project for sending clanks.",
+  "responsibilities": [
+    "Registers the 'allow' command in the CLI program.",
+    "Persists project authorization status to the global configuration.",
+    "Derives project display names using project configuration or default naming logic.",
+    "Prevents duplicate authorization by verifying existing project entries in the global config."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/commands/allow.ts#AllowOptions",
+      "kind": "interface",
+      "name": "AllowOptions",
+      "exported": true,
+      "summary": "Defines CLI options for the allow command."
+    },
+    {
+      "id": "symbol:src/commands/allow.ts#registerAllowCommand",
+      "kind": "function",
+      "name": "registerAllowCommand",
+      "exported": true,
+      "summary": "Registers the allow command and its options with the commander program."
+    },
+    {
+      "id": "symbol:src/commands/allow.ts#handleAllow",
+      "kind": "function",
+      "name": "handleAllow",
+      "exported": true,
+      "summary": "Executes the core logic for enabling a project via global config update."
+    }
+  ],
+  "imports": [
+    "file:src/config.ts",
+    "file:src/output.ts",
+    "file:src/project.ts",
+    "file:src/runtime.ts"
+  ],
+  "exports": [
+    "AllowOptions",
+    "registerAllowCommand",
+    "handleAllow"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/commands/allow.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/commands/allow.ts"
+    }
+  ],
+  "confidence": "high"
+}

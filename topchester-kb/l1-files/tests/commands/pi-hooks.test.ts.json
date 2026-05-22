@@ -1,0 +1,67 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/commands/pi-hooks.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/commands/pi-hooks.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:2d72ba9f2b3cee4455408317b4fc55e35997ad84af172bfcb823c9e39a28dbc3",
+  "size_bytes": 5981,
+  "last_scanned_at": "2026-05-22T02:01:48.991Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Tests for the Pi extension management lifecycle including installation, status reporting, uninstallation, and CLI command integration.",
+  "responsibilities": [
+    "Verify idempotency and correctness of Pi hook installation and uninstallation logic.",
+    "Validate dry-run functionality for hook operations to prevent filesystem side effects.",
+    "Ensure safety checks prevent removal of non-managed extension files.",
+    "Test end-to-end CLI command routing via Commander for hook subcommands."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:tests/commands/pi-hooks.test.ts#makeTempDir",
+      "kind": "function",
+      "name": "makeTempDir",
+      "exported": false,
+      "summary": "Helper to create a temporary directory for isolation during hook tests."
+    },
+    {
+      "id": "symbol:tests/commands/pi-hooks.test.ts#captureStdout",
+      "kind": "function",
+      "name": "captureStdout",
+      "exported": false,
+      "summary": "Utility to mock and inspect stdout for CLI command verification."
+    }
+  ],
+  "imports": [
+    "file:src/cli.ts",
+    "file:src/pi-hook.ts"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [
+    "file:src/pi-hook.ts",
+    "file:src/cli.ts"
+  ],
+  "declared_test_targets": [
+    "file:src/pi-hook.ts",
+    "file:src/cli.ts"
+  ],
+  "likely_test_targets": [
+    "file:src/pi-hook.ts",
+    "file:src/cli.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/commands/pi-hooks.test.ts"
+    },
+    {
+      "kind": "import",
+      "value": "src/pi-hook.js"
+    }
+  ],
+  "confidence": "high"
+}

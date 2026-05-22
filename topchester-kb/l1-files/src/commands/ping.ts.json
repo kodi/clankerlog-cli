@@ -1,0 +1,85 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/commands/ping.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/commands/ping.ts",
+  "language": "typescript",
+  "content_hash": "sha256:6be9c852bd1861e0c7c3f1c4dd869e142163c11936da1ee577c59be3d469c592",
+  "size_bytes": 5001,
+  "last_scanned_at": "2026-05-22T02:00:47.119Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Implements the CLI 'ping' command for manually sending diagnostic telemetry payloads to the ingestion service.",
+  "responsibilities": [
+    "Register the ping command with CLI argument definitions.",
+    "Resolve project-specific and global configurations for payload generation.",
+    "Handle dry-run output and final transmission of telemetry payloads.",
+    "Detect and merge stack tags from flags, environment variables, and project files."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/commands/ping.ts#PingOptions",
+      "kind": "interface",
+      "name": "PingOptions",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/ping.ts#ResolvedPing",
+      "kind": "interface",
+      "name": "ResolvedPing",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/ping.ts#registerPingCommand",
+      "kind": "function",
+      "name": "registerPingCommand",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/ping.ts#handlePing",
+      "kind": "function",
+      "name": "handlePing",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/ping.ts#resolvePing",
+      "kind": "function",
+      "name": "resolvePing",
+      "exported": true
+    }
+  ],
+  "imports": [
+    "file:src/config.ts",
+    "file:src/errors.ts",
+    "file:src/ingest.ts",
+    "file:src/output.ts",
+    "file:src/project.ts",
+    "file:src/redact.ts",
+    "file:src/runtime.ts",
+    "file:src/schemas.ts",
+    "file:src/stack.ts"
+  ],
+  "exports": [
+    "PingOptions",
+    "ResolvedPing",
+    "registerPingCommand",
+    "handlePing",
+    "resolvePing"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/commands/ping.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/commands/ping.ts"
+    }
+  ],
+  "confidence": "high"
+}

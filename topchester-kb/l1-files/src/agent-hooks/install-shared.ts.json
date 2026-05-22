@@ -1,0 +1,71 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/agent-hooks/install-shared.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/agent-hooks/install-shared.ts",
+  "language": "typescript",
+  "content_hash": "sha256:255ed3cc2c649b24d23cb17c34630a65347b2abafa68b739d259a77944737df8",
+  "size_bytes": 872,
+  "last_scanned_at": "2026-05-22T02:00:14.138Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Shared utilities and type definitions for agent hook installation and management commands.",
+  "responsibilities": [
+    "Define command group structure for hook operations",
+    "Define configuration schemas for installation options",
+    "Provide helper functions for CLI output",
+    "Map agent identifiers to user-facing names"
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/agent-hooks/install-shared.ts#HooksCommandGroups",
+      "kind": "interface",
+      "name": "HooksCommandGroups",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/agent-hooks/install-shared.ts#InstallOptions",
+      "kind": "interface",
+      "name": "InstallOptions",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/agent-hooks/install-shared.ts#writeLine",
+      "kind": "function",
+      "name": "writeLine",
+      "exported": true,
+      "summary": "Writes a formatted line to the provided CLI runtime output."
+    },
+    {
+      "id": "symbol:src/agent-hooks/install-shared.ts#agentName",
+      "kind": "function",
+      "name": "agentName",
+      "exported": true,
+      "summary": "Converts internal agent constant identifies to display names."
+    }
+  ],
+  "imports": [
+    "file:src/hook-config.ts",
+    "file:src/runtime.ts"
+  ],
+  "exports": [
+    "HooksCommandGroups",
+    "InstallOptions",
+    "writeLine",
+    "agentName"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/agent-hooks/install-shared.ts"
+    }
+  ],
+  "confidence": "high"
+}

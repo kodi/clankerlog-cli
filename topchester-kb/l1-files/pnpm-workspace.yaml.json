@@ -1,0 +1,33 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:pnpm-workspace.yaml",
+  "layer": "L1",
+  "type": "file",
+  "path": "pnpm-workspace.yaml",
+  "language": "yaml",
+  "content_hash": "sha256:a8dbaf09fa36dd9d340ed79ee1b110240dd5dea0f269582f26a1136a2e745bbd",
+  "size_bytes": 30,
+  "last_scanned_at": "2026-05-22T01:59:55.132Z",
+  "scan_status": "current",
+  "file_role": "unknown",
+  "summary": "Defines configuration settings for the pnpm monorepo workspace environment.",
+  "responsibilities": [
+    "Disable esbuild behavior for local package builds."
+  ],
+  "symbols": [],
+  "imports": [],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "pnpm-workspace.yaml"
+    }
+  ],
+  "confidence": "high"
+}

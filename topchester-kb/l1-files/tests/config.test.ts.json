@@ -1,0 +1,55 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/config.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/config.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:01b90ab7a204ae7e67525bc28e9fe43088ba07f9d134a218c848e2f3bcfec6ea",
+  "size_bytes": 2651,
+  "last_scanned_at": "2026-05-22T02:01:52.844Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Verifies global and project-level configuration loading, storage, and validation logic.",
+  "responsibilities": [
+    "Tests file I/O operations for reading and writing configuration files.",
+    "Validates schema enforcement and error handling for malformed or invalid JSON configs.",
+    "Verifies XDG-compliant configuration path resolution in isolated environments."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:tests/config.test.ts#makeTempDir",
+      "kind": "function",
+      "name": "makeTempDir",
+      "exported": false,
+      "summary": "Utility to create an isolated directory for temporary config test files."
+    }
+  ],
+  "imports": [
+    "file:src/config.ts"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [
+    "file:src/config.ts"
+  ],
+  "declared_test_targets": [
+    "file:src/config.ts"
+  ],
+  "likely_test_targets": [
+    "file:src/config.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/config.test.ts"
+    },
+    {
+      "kind": "import",
+      "value": "../src/config.js"
+    }
+  ],
+  "confidence": "high"
+}

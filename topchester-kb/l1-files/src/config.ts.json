@@ -1,0 +1,110 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/config.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/config.ts",
+  "language": "typescript",
+  "content_hash": "sha256:3884e88eab2abfd1021cc68edec8160711e03806191e1602395d0bf77d337163",
+  "size_bytes": 3803,
+  "last_scanned_at": "2026-05-22T02:00:50.348Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Handles loading, saving, and path resolution for global and project-specific JSON configuration files.",
+  "responsibilities": [
+    "Load and validate JSON configuration files using Zod schemas.",
+    "Resolve file paths for global defaults using XDG standards and local project configuration files.",
+    "Persist serialized configuration to the filesystem with restricted file permissions.",
+    "Standardize error reporting for filesystem and schema validation failures via ConfigError."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/config.ts#ConfigError",
+      "kind": "class",
+      "name": "ConfigError",
+      "exported": true,
+      "summary": "Custom error class for configuration-related operations."
+    },
+    {
+      "id": "symbol:src/config.ts#ConfigPathsOptions",
+      "kind": "interface",
+      "name": "ConfigPathsOptions",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/config.ts#createDefaultGlobalConfig",
+      "kind": "function",
+      "name": "createDefaultGlobalConfig",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/config.ts#resolveGlobalConfigPath",
+      "kind": "function",
+      "name": "resolveGlobalConfigPath",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/config.ts#loadGlobalConfig",
+      "kind": "function",
+      "name": "loadGlobalConfig",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/config.ts#saveGlobalConfig",
+      "kind": "function",
+      "name": "saveGlobalConfig",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/config.ts#resolveProjectConfigPath",
+      "kind": "function",
+      "name": "resolveProjectConfigPath",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/config.ts#loadProjectConfig",
+      "kind": "function",
+      "name": "loadProjectConfig",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/config.ts#saveProjectConfig",
+      "kind": "function",
+      "name": "saveProjectConfig",
+      "exported": true
+    }
+  ],
+  "imports": [],
+  "exports": [
+    "ConfigError",
+    "createDefaultGlobalConfig",
+    "resolveGlobalConfigPath",
+    "loadGlobalConfig",
+    "saveGlobalConfig",
+    "resolveProjectConfigPath",
+    "loadProjectConfig",
+    "saveProjectConfig"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/commands/doctor.test.ts",
+    "file:tests/commands/init.test.ts",
+    "file:tests/commands/login.test.ts",
+    "file:tests/config.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/config.ts"
+    },
+    {
+      "kind": "import",
+      "value": "./schemas.js"
+    }
+  ],
+  "confidence": "high"
+}
