@@ -146,6 +146,17 @@ automatically, run:
 openclaw hooks enable clankerlog
 ```
 
+### Opencode
+
+Install the global Opencode `session.idle` plugin:
+
+```bash
+clankerlog hooks install opencode
+```
+
+This writes `~/.config/opencode/plugins/clankerlog.ts`. Restart Opencode after
+installing so it loads the plugin.
+
 ### Pi
 
 Install the Pi `agent_end` extension:
@@ -160,7 +171,7 @@ run `/reload` after installing.
 ### Managing Hooks
 
 Supported agent names are `codex`, `claude`, `cursor`, `hermes`,
-`topchester`, `openclaw`, and `pi`.
+`topchester`, `opencode`, `openclaw`, and `pi`.
 
 Preview an install without writing files:
 

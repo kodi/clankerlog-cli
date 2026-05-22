@@ -14,6 +14,7 @@ export interface InstallOptions {
   readonly hookConfig?: string | undefined;
   readonly hookDir?: string | undefined;
   readonly model?: string | undefined;
+  readonly pluginPath?: string | undefined;
 }
 
 export function writeLine(runtime: CliRuntime, line: string): void {

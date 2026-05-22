@@ -16,6 +16,12 @@ import {
   registerOpenClawHooksCommands,
 } from "../agent-hooks/openclaw.js";
 import {
+  handleInstallOpencodeHook,
+  handleOpencodeHookStatus,
+  handleUninstallOpencodeHook,
+  registerOpencodeHooksCommands,
+} from "../agent-hooks/opencode.js";
+import {
   handleInstallPiHook,
   handlePiHookStatus,
   handleUninstallPiHook,
@@ -27,11 +33,14 @@ export {
   handleHookStatus,
   handleInstallHook,
   handleInstallOpenClawHook,
+  handleInstallOpencodeHook,
   handleInstallPiHook,
   handleOpenClawHookStatus,
+  handleOpencodeHookStatus,
   handlePiHookStatus,
   handleUninstallHook,
   handleUninstallOpenClawHook,
+  handleUninstallOpencodeHook,
   handleUninstallPiHook,
 };
 
@@ -48,6 +57,7 @@ export function registerHooksCommand(program: Command): void {
   registerCursorHooksCommands(groups);
   registerHermesHooksCommands(groups);
   registerTopchesterHooksCommands(groups);
+  registerOpencodeHooksCommands(groups);
   registerPiHooksCommands(groups);
   registerOpenClawHooksCommands(groups);
 }
