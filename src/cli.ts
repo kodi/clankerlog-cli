@@ -11,6 +11,7 @@ import { registerHooksCommand } from "./commands/hooks.js";
 import { registerInitCommand } from "./commands/init.js";
 import { registerLoginCommand } from "./commands/login.js";
 import { registerPingCommand } from "./commands/ping.js";
+import { registerUpdateCommand } from "./commands/update.js";
 import { formatCliError } from "./errors.js";
 
 const require = createRequire(import.meta.url);
@@ -46,6 +47,7 @@ export function buildProgram(): Command {
   registerDoctorCommand(program);
   registerHookCommand(program);
   registerHooksCommand(program);
+  registerUpdateCommand(program);
 
   return program;
 }
