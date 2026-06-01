@@ -1,0 +1,59 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/commands/opencode-hooks.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/commands/opencode-hooks.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:41a26ba276ea1026751529c0b5b6e3199e31276be7074e65db734b3b6a471b36",
+  "size_bytes": 6198,
+  "last_scanned_at": "2026-05-31T21:45:07.254Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Tests for the Opencode plugin lifecycle management, including installation, uninstallation, status reporting, and CLI command integration.",
+  "responsibilities": [
+    "Verify the installation and verification of the ClankerLog Opencode plugin.",
+    "Ensure uninstallation is safe by preventing removal of manual or non-managed plugins.",
+    "Test CLI command wiring for Opencode hooks via Commander.",
+    "Validate dry-run functionality for install and uninstall workflows.",
+    "Mock process output to verify CLI feedback loops."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:tests/commands/opencode-hooks.test.ts#makeTempDir",
+      "kind": "function",
+      "name": "makeTempDir",
+      "exported": false,
+      "summary": "Creates a unique temporary directory for filesystem test isolation."
+    },
+    {
+      "id": "symbol:tests/commands/opencode-hooks.test.ts#captureStdout",
+      "kind": "function",
+      "name": "captureStdout",
+      "exported": false,
+      "summary": "Intercepts process.stdout to assert CLI output messages."
+    }
+  ],
+  "imports": [
+    "file:src/cli.js",
+    "file:src/opencode-hook.js"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [
+    "file:tests/commands/opencode-hooks.test.ts"
+  ],
+  "declared_test_targets": [],
+  "likely_test_targets": [
+    "file:src/opencode-hook.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/commands/opencode-hooks.test.ts"
+    }
+  ],
+  "confidence": "high"
+}

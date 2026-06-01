@@ -1,4 +1,5 @@
 const providerPrefixPattern = /^[a-z0-9][a-z0-9._-]*\//u;
+const effortSuffixPattern = /\s*\((?:low|medium|high|xtrahigh)\)$/iu;
 
 const canonicalModelNames = [
   "gpt-5.5",
@@ -98,10 +99,14 @@ for (const [alias, modelName] of manualAliases) {
 }
 
 export function normalizeModelName(value: string): string {
-  const trimmed = value.trim();
+  const trimmed = stripEffortSuffix(value.trim());
   const normalized = knownModelNames.get(modelKey(trimmed));
 
   return normalized ?? trimmed;
+}
+
+function stripEffortSuffix(value: string): string {
+  return value.replace(effortSuffixPattern, "");
 }
 
 function modelKey(value: string): string {

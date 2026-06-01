@@ -5,18 +5,17 @@
   "type": "file",
   "path": "src/cli.ts",
   "language": "typescript",
-  "content_hash": "sha256:c51d526aabb4b66e0be57c38bc31ba1b82790c8f83ecd091e3a8bb15d870ed62",
-  "size_bytes": 2341,
-  "last_scanned_at": "2026-05-22T02:00:24.539Z",
+  "content_hash": "sha256:64b1611011bd2e147e950695e65d9f52fe7d4d1aca24de9f7a3cdc73cdcb3fc2",
+  "size_bytes": 2437,
+  "last_scanned_at": "2026-05-31T21:44:55.197Z",
   "scan_status": "current",
   "file_role": "source",
-  "summary": "Acts as the entry point for the 'clankerlog' CLI tool, configuring command routing and global error handling.",
+  "summary": "The main entry point for the clankerlog CLI that configures the commander-based command structure.",
   "responsibilities": [
-    "Defines and initializes the 'clankerlog' Commander program structure.",
-    "Registers core CLI commands including login, init, and hook management.",
-    "Provides a version check utility for the application.",
-    "Handles global CLI error logging and process exit status management.",
-    "Determines if the current module is being executed as the primary script entry point."
+    "Registers CLI commands and provides application entry point",
+    "Configures global CLI options and error logging",
+    "Exposes helper functions to determine if the file is the primary module running",
+    "Version management for the CLI package"
   ],
   "symbols": [
     {
@@ -24,28 +23,28 @@
       "kind": "function",
       "name": "getCliVersion",
       "exported": true,
-      "summary": "Returns the version of clankerlog from package.json."
+      "summary": "Retrieves the version string from package.json"
     },
     {
       "id": "symbol:src/cli.ts#buildProgram",
       "kind": "function",
       "name": "buildProgram",
       "exported": true,
-      "summary": "Configures and returns the Commander program with all registered commands."
+      "summary": "Constructs and configures the commander Command instance"
     },
     {
       "id": "symbol:src/cli.ts#main",
       "kind": "function",
       "name": "main",
       "exported": true,
-      "summary": "Parses the CLI arguments and executes the program."
+      "summary": "Parses input arguments and executes the CLI program"
     },
     {
       "id": "symbol:src/cli.ts#isCliEntrypoint",
       "kind": "function",
       "name": "isCliEntrypoint",
       "exported": true,
-      "summary": "Checks if the current module is initiated from the process command line."
+      "summary": "Checks if the current module is the main execution target"
     }
   ],
   "imports": [
@@ -56,6 +55,7 @@
     "file:src/commands/init.ts",
     "file:src/commands/login.ts",
     "file:src/commands/ping.ts",
+    "file:src/commands/update.ts",
     "file:src/errors.ts"
   ],
   "exports": [

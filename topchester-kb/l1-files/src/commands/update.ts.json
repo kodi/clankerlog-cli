@@ -1,0 +1,108 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/commands/update.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/commands/update.ts",
+  "language": "typescript",
+  "content_hash": "sha256:10ba1f2c0aeb8dd439c4ecffb582ff8ab0f458625bb8d45d7fa4acdc8a53481b",
+  "size_bytes": 8343,
+  "last_scanned_at": "2026-05-31T21:45:01.687Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Implements the 'update' command for the CLI to check for new versions on NPM and perform self-updates via package managers.",
+  "responsibilities": [
+    "Registers the 'update' subcommand with the CLI program.",
+    "Checks registry for the latest package version and compares against current version.",
+    "Detects the active package manager from environment variables.",
+    "Executes global install commands using spawned system processes.",
+    "Provides a dry-run mode for verifying update operations."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/commands/update.ts#PackageManager",
+      "kind": "type",
+      "name": "PackageManager",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/update.ts#UpdateOptions",
+      "kind": "interface",
+      "name": "UpdateOptions",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/update.ts#UpdateDependencies",
+      "kind": "interface",
+      "name": "UpdateDependencies",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/update.ts#registerUpdateCommand",
+      "kind": "function",
+      "name": "registerUpdateCommand",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/update.ts#handleUpdate",
+      "kind": "function",
+      "name": "handleUpdate",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/update.ts#fetchLatestVersion",
+      "kind": "function",
+      "name": "fetchLatestVersion",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/update.ts#getUpdateStatus",
+      "kind": "function",
+      "name": "getUpdateStatus",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/update.ts#detectPackageManager",
+      "kind": "function",
+      "name": "detectPackageManager",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/update.ts#getUpdateCommand",
+      "kind": "function",
+      "name": "getUpdateCommand",
+      "exported": true
+    }
+  ],
+  "imports": [
+    "file:src/errors.ts",
+    "file:src/output.ts",
+    "file:src/runtime.ts"
+  ],
+  "exports": [
+    "PackageManager",
+    "UpdateOptions",
+    "UpdateDependencies",
+    "registerUpdateCommand",
+    "handleUpdate",
+    "fetchLatestVersion",
+    "getUpdateStatus",
+    "detectPackageManager",
+    "getUpdateCommand"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/commands/update.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/commands/update.ts"
+    }
+  ],
+  "confidence": "high"
+}

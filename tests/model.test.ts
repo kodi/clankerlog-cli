@@ -9,6 +9,11 @@ describe("normalizeModelName", () => {
     ["gpt5.5", "gpt-5.5"],
     ["GPT 5 5", "gpt-5.5"],
     ["openai/gpt-5-5", "gpt-5.5"],
+    ["gpt-5.5(low)", "gpt-5.5"],
+    ["gpt-5.5(medium)", "gpt-5.5"],
+    ["gpt-5.5(high)", "gpt-5.5"],
+    ["gpt-5.5(xtrahigh)", "gpt-5.5"],
+    ["gpt-5.5 (HIGH)", "gpt-5.5"],
     ["gpt5.5pro", "gpt-5.5-pro"],
     ["gpt-5-4-mini", "gpt-5.4-mini"],
     ["gpt 5.3 codex spark", "gpt-5.3-codex-spark"],
@@ -48,6 +53,9 @@ describe("normalizeModelName", () => {
 
   it("passes through unknown model names after trimming", () => {
     expect(normalizeModelName("  future-provider/model-x-99  ")).toBe("future-provider/model-x-99");
+    expect(normalizeModelName("  future-provider/model-x-99(low)  ")).toBe(
+      "future-provider/model-x-99",
+    );
   });
 
   it("does not guess from very different names", () => {
@@ -58,7 +66,7 @@ describe("normalizeModelName", () => {
   it("normalizes models when parsing clank payloads", () => {
     const payload = clankPayloadSchema.parse({
       agent: "codex",
-      model: "gpt5.5",
+      model: "gpt-5.5(low)",
       project: { display_name: "clankerlog-cli" },
       stack: [],
       timestamp: "2026-05-17T20:22:00Z",

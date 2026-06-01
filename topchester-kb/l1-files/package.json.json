@@ -5,32 +5,25 @@
   "type": "file",
   "path": "package.json",
   "language": "json",
-  "content_hash": "sha256:3325a345d79ee0aa02abc85e4aadef5ca21ae672ffcf8315301e9f24422c4506",
+  "content_hash": "sha256:f00380897ee39c22f0ad4261f6a32b1a0267fed8fe40255328b7a1e8426d1d66",
   "size_bytes": 1456,
-  "last_scanned_at": "2026-05-22T02:54:15.371Z",
+  "last_scanned_at": "2026-05-31T21:44:43.859Z",
   "scan_status": "current",
   "file_role": "config",
-  "summary": "Defines the project metadata, dependencies, build scripts, and CLI entry point for the ClankerLog toolkit.",
+  "summary": "Defines the project metadata, dependencies, and execution scripts for the ClankerLog CLI tool.",
   "responsibilities": [
-    "Configures the project build, linting, and testing environment",
-    "Defines the clankerlog CLI command entrypoint",
-    "Manages workspace dependencies and Node.js version requirements",
-    "Orchestrates package distribution and publishing workflows"
+    "Configures the CLI entrypoint at ./bin/clankerlog.js",
+    "Defines build, lint, and test scripts using oxlint, tsdown, and vitest",
+    "Specifies dependency constraints for Node.js runtime environment",
+    "Manages project-wide formatting and type-checking configurations"
   ],
   "symbols": [
     {
-      "id": "symbol:package.json#bin",
+      "id": "symbol:package.json#package.json",
       "kind": "config",
-      "name": "bin",
+      "name": "package.json",
       "exported": false,
-      "summary": "Maps clankerlog command to ./bin/clankerlog.js"
-    },
-    {
-      "id": "symbol:package.json#scripts",
-      "kind": "config",
-      "name": "scripts",
-      "exported": false,
-      "summary": "Defines project lifecycle scripts including build, lint, and test commands"
+      "summary": "Project root manifest defining scripts and dependencies"
     }
   ],
   "imports": [],
@@ -50,7 +43,7 @@
     },
     {
       "kind": "content",
-      "value": "name: clankerlog"
+      "value": "clankerlog"
     }
   ],
   "confidence": "high"

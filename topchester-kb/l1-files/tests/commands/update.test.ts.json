@@ -1,0 +1,51 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:tests/commands/update.test.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "tests/commands/update.test.ts",
+  "language": "typescript",
+  "content_hash": "sha256:849f6b5f04d2a019cd0934bc6ff0c3415edc6257ccdad9e56301eaa97a7993de",
+  "size_bytes": 4286,
+  "last_scanned_at": "2026-05-31T21:45:14.595Z",
+  "scan_status": "current",
+  "file_role": "test",
+  "summary": "Tests for the update command logic including version checking, package manager detection, and update execution.",
+  "responsibilities": [
+    "Verify update status logic and semver comparison.",
+    "Validate package manager detection via user-agent analysis.",
+    "Ensure global update command generation is correct for supported managers.",
+    "Test CLI output and command execution flow for update scenarios including dry-runs."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:tests/commands/update.test.ts#createRuntime",
+      "kind": "function",
+      "name": "createRuntime",
+      "exported": false,
+      "summary": "Helper to instantiate an isolated memory runtime for CLI tests."
+    }
+  ],
+  "imports": [
+    "file:src/commands/update.js",
+    "file:tests/helpers.js"
+  ],
+  "exports": [],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [
+    "file:tests/commands/update.test.ts"
+  ],
+  "declared_test_targets": [],
+  "likely_test_targets": [
+    "file:src/commands/update.ts"
+  ],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "tests/commands/update.test.ts"
+    }
+  ],
+  "confidence": "high"
+}

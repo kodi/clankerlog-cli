@@ -1,0 +1,75 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/agent-hooks/opencode.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/agent-hooks/opencode.ts",
+  "language": "typescript",
+  "content_hash": "sha256:88d7b6ae5381dd90a3c236a9a94e642e72d5b743b2e9dbbc4b4a29aa5c6ed0dd",
+  "size_bytes": 4011,
+  "last_scanned_at": "2026-05-31T21:44:52.261Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Registers CLI commands for managing the Opencode session.idle plugin integration.",
+  "responsibilities": [
+    "Register install, status, and uninstall subcommands for Opencode integration.",
+    "Handle CLI interaction logic for Opencode plugin installation and cleanup.",
+    "Display status information and instructions for Opencode plugin state.",
+    "Map generic install options to Opencode-specific hook configuration."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/agent-hooks/opencode.ts#registerOpencodeHooksCommands",
+      "kind": "function",
+      "name": "registerOpencodeHooksCommands",
+      "exported": true,
+      "summary": "Registers Opencode-specific commands to the provided command groups."
+    },
+    {
+      "id": "symbol:src/agent-hooks/opencode.ts#handleInstallOpencodeHook",
+      "kind": "function",
+      "name": "handleInstallOpencodeHook",
+      "exported": true,
+      "summary": "Executes logic to install the Opencode hook and notifies the user."
+    },
+    {
+      "id": "symbol:src/agent-hooks/opencode.ts#handleOpencodeHookStatus",
+      "kind": "function",
+      "name": "handleOpencodeHookStatus",
+      "exported": true,
+      "summary": "Checks and prints the current status of the Opencode hook."
+    },
+    {
+      "id": "symbol:src/agent-hooks/opencode.ts#handleUninstallOpencodeHook",
+      "kind": "function",
+      "name": "handleUninstallOpencodeHook",
+      "exported": true,
+      "summary": "Executes logic to remove the Opencode hook."
+    }
+  ],
+  "imports": [
+    "file:src/opencode-hook.ts",
+    "file:src/path-display.ts",
+    "file:src/runtime.ts",
+    "file:src/agent-hooks/install-shared.ts"
+  ],
+  "exports": [
+    "registerOpencodeHooksCommands",
+    "handleInstallOpencodeHook",
+    "handleOpencodeHookStatus",
+    "handleUninstallOpencodeHook"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/agent-hooks/opencode.ts"
+    }
+  ],
+  "confidence": "high"
+}

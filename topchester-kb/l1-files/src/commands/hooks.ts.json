@@ -5,16 +5,16 @@
   "type": "file",
   "path": "src/commands/hooks.ts",
   "language": "typescript",
-  "content_hash": "sha256:f5fbc1b6449c33f1f27e0e05a23ece0c05d2d829a231a372977a12326d96b5e1",
-  "size_bytes": 1884,
-  "last_scanned_at": "2026-05-22T02:54:27.956Z",
+  "content_hash": "sha256:4309fa12e6c0c5ef16f83fee6de2ff7b95acc0d535152cbf7bcd839d94fdd29b",
+  "size_bytes": 2180,
+  "last_scanned_at": "2026-05-31T21:44:58.387Z",
   "scan_status": "current",
   "file_role": "source",
-  "summary": "Registers CLI command groups for managing IDE and coding agent hooks.",
+  "summary": "Registers CLI commands under the 'hooks' namespace and coordinates hook management for various coding agents.",
   "responsibilities": [
-    "Defines the 'hooks' CLI command and its subcommands: install, status, and uninstall.",
-    "Coordinates the registration of vendor-specific hook command groups from dedicated modules.",
-    "Exports shared hook management handlers for external integration."
+    "Defines the 'hooks' parent CLI command group.",
+    "Registers subcommands for installing, inspecting, and uninstalling hooks for supported agents.",
+    "Aggregates hook management logic from agent-specific modules into a unified command structure."
   ],
   "symbols": [
     {
@@ -22,7 +22,7 @@
       "kind": "function",
       "name": "registerHooksCommand",
       "exported": true,
-      "summary": "Registers the main 'hooks' command and initializes sub-command groups for various agents."
+      "summary": "Registers the 'hooks' command group and its subcommands onto the provided commander program."
     },
     {
       "id": "symbol:src/commands/hooks.ts#handleHookStatus",
@@ -37,27 +37,15 @@
       "exported": true
     },
     {
-      "id": "symbol:src/commands/hooks.ts#handleUninstallHook",
-      "kind": "function",
-      "name": "handleUninstallHook",
-      "exported": true
-    },
-    {
       "id": "symbol:src/commands/hooks.ts#handleInstallOpenClawHook",
       "kind": "function",
       "name": "handleInstallOpenClawHook",
       "exported": true
     },
     {
-      "id": "symbol:src/commands/hooks.ts#handleOpenClawHookStatus",
+      "id": "symbol:src/commands/hooks.ts#handleInstallOpencodeHook",
       "kind": "function",
-      "name": "handleOpenClawHookStatus",
-      "exported": true
-    },
-    {
-      "id": "symbol:src/commands/hooks.ts#handleUninstallOpenClawHook",
-      "kind": "function",
-      "name": "handleUninstallOpenClawHook",
+      "name": "handleInstallOpencodeHook",
       "exported": true
     },
     {
@@ -67,9 +55,39 @@
       "exported": true
     },
     {
+      "id": "symbol:src/commands/hooks.ts#handleOpenClawHookStatus",
+      "kind": "function",
+      "name": "handleOpenClawHookStatus",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/hooks.ts#handleOpencodeHookStatus",
+      "kind": "function",
+      "name": "handleOpencodeHookStatus",
+      "exported": true
+    },
+    {
       "id": "symbol:src/commands/hooks.ts#handlePiHookStatus",
       "kind": "function",
       "name": "handlePiHookStatus",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/hooks.ts#handleUninstallHook",
+      "kind": "function",
+      "name": "handleUninstallHook",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/hooks.ts#handleUninstallOpenClawHook",
+      "kind": "function",
+      "name": "handleUninstallOpenClawHook",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/commands/hooks.ts#handleUninstallOpencodeHook",
+      "kind": "function",
+      "name": "handleUninstallOpencodeHook",
       "exported": true
     },
     {
@@ -87,6 +105,7 @@
     "file:src/agent-hooks/hermes.ts",
     "file:src/agent-hooks/install-shared.ts",
     "file:src/agent-hooks/openclaw.ts",
+    "file:src/agent-hooks/opencode.ts",
     "file:src/agent-hooks/pi.ts",
     "file:src/agent-hooks/topchester.ts"
   ],
@@ -94,11 +113,14 @@
     "handleHookStatus",
     "handleInstallHook",
     "handleInstallOpenClawHook",
+    "handleInstallOpencodeHook",
     "handleInstallPiHook",
     "handleOpenClawHookStatus",
+    "handleOpencodeHookStatus",
     "handlePiHookStatus",
     "handleUninstallHook",
     "handleUninstallOpenClawHook",
+    "handleUninstallOpencodeHook",
     "handleUninstallPiHook",
     "registerHooksCommand"
   ],
@@ -116,8 +138,8 @@
       "value": "src/commands/hooks.ts"
     },
     {
-      "kind": "import",
-      "value": "../agent-hooks/claude.js"
+      "kind": "command_definition",
+      "value": "program.command(\"hooks\")"
     }
   ],
   "confidence": "high"

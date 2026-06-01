@@ -179,7 +179,7 @@ describe("claude stop hook", () => {
     const body = JSON.parse(String(request.body));
     expect(body).toMatchObject({
       agent: "claude",
-      model: "gpt-5.5(low)",
+      model: "gpt-5.5",
       project: { display_name: "Claude Hook Project" },
       type: "clank",
     });
@@ -243,7 +243,7 @@ describe("claude stop hook", () => {
 
     expect(fetchMock).not.toHaveBeenCalled();
     expect(runtime.stdoutText()).toContain('"agent": "claude"');
-    expect(runtime.stdoutText()).toContain('"model": "gpt-5.5(low)"');
+    expect(runtime.stdoutText()).toContain('"model": "gpt-5.5"');
   });
 
   it("supports dry-run without stdin by using the current workspace", async () => {

@@ -1,0 +1,103 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/opencode-hook.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/opencode-hook.ts",
+  "language": "typescript",
+  "content_hash": "sha256:f330c42bfccd70358b51bdf4987e81c8ef442afb584ab3f670c440f8298b9728",
+  "size_bytes": 7560,
+  "last_scanned_at": "2026-05-31T21:45:04.833Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Manages the installation, removal, and status checking of an Opencode plugin file that integrates with ClankerLog.",
+  "responsibilities": [
+    "Generates the source code for the ClankerLog Opencode plugin.",
+    "Installs the plugin to the system-specific Opencode configuration directory.",
+    "Provides functionality to idempotently remove the installed plugin.",
+    "Checks currently installed plugin state and validates it matches expected content."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/opencode-hook.ts#OpencodeHookOptions",
+      "kind": "interface",
+      "name": "OpencodeHookOptions",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/opencode-hook.ts#OpencodeHookPlan",
+      "kind": "interface",
+      "name": "OpencodeHookPlan",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/opencode-hook.ts#OpencodeHookStatus",
+      "kind": "interface",
+      "name": "OpencodeHookStatus",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/opencode-hook.ts#installOpencodeHook",
+      "kind": "function",
+      "name": "installOpencodeHook",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/opencode-hook.ts#uninstallOpencodeHook",
+      "kind": "function",
+      "name": "uninstallOpencodeHook",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/opencode-hook.ts#getOpencodeHookStatus",
+      "kind": "function",
+      "name": "getOpencodeHookStatus",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/opencode-hook.ts#resolveOpencodePluginPath",
+      "kind": "function",
+      "name": "resolveOpencodePluginPath",
+      "exported": true
+    },
+    {
+      "id": "symbol:src/opencode-hook.ts#buildOpencodePlugin",
+      "kind": "function",
+      "name": "buildOpencodePlugin",
+      "exported": true,
+      "summary": "Returns the complete TypeScript/JavaScript source string for the generated Opencode plugin."
+    }
+  ],
+  "imports": [
+    "file:src/errors.ts"
+  ],
+  "exports": [
+    "OpencodeHookOptions",
+    "OpencodeHookPlan",
+    "OpencodeHookStatus",
+    "installOpencodeHook",
+    "uninstallOpencodeHook",
+    "getOpencodeHookStatus",
+    "resolveOpencodePluginPath",
+    "buildOpencodePlugin"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [
+    "file:tests/commands/opencode-hooks.test.ts"
+  ],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/opencode-hook.ts"
+    },
+    {
+      "kind": "symbol",
+      "value": "buildOpencodePlugin"
+    }
+  ],
+  "confidence": "high"
+}

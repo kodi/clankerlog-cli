@@ -5,18 +5,18 @@
     "name": "topchester-knowledge-compiler",
     "version": 1
   },
-  "generatedAt": "2026-05-22T02:54:41.285Z",
+  "generatedAt": "2026-05-31T21:45:14.659Z",
   "workspaceRoot": "/Users/kodi/data/personal/clankerlog-cli",
   "l1QueuePath": "/Users/kodi/data/personal/clankerlog-cli/.agents/topchester-kb-cache/l1-sync-queue.json",
-  "queuedFileCount": 15,
+  "queuedFileCount": 11,
   "configIgnorePathCount": 0,
   "l1": {
     "queued": 0,
-    "completed": 15,
+    "completed": 11,
     "failed": 0,
     "changed": 0,
     "missing": 0,
-    "currentEntries": 15
+    "currentEntries": 11
   },
   "gitignoreFiles": [
     "/Users/kodi/data/personal/clankerlog-cli/.gitignore"
