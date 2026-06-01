@@ -1,15 +1,9 @@
 import { spawn } from "node:child_process";
-import { createRequire } from "node:module";
 import { Option, type Command } from "commander";
 import { CliError } from "../errors.js";
 import { writeLine } from "../output.js";
+import { getPackageName, getPackageVersion } from "../package-info.js";
 import { createRuntime, type CliRuntime } from "../runtime.js";
-
-const require = createRequire(import.meta.url);
-const packageJson = require("../../package.json") as {
-  name: string;
-  version: string;
-};
 
 const defaultRegistryUrl = "https://registry.npmjs.org";
 const packageManagers = ["npm", "pnpm", "yarn", "bun"] as const;
@@ -59,8 +53,10 @@ export async function handleUpdate(
   const fetchVersion = dependencies.fetchLatestVersion ?? fetchLatestVersion;
   const runCommand = dependencies.runPackageCommand ?? runPackageCommand;
   const registryUrl = options.registry ?? runtime.env.npm_config_registry ?? defaultRegistryUrl;
-  const latestVersion = await fetchVersion(packageJson.name, registryUrl);
-  const status = getUpdateStatus(packageJson.version, latestVersion);
+  const packageName = getPackageName();
+  const packageVersion = getPackageVersion();
+  const latestVersion = await fetchVersion(packageName, registryUrl);
+  const status = getUpdateStatus(packageVersion, latestVersion);
 
   if (!status.updateAvailable) {
     writeLine(runtime, `clankerlog is up to date (${status.currentVersion}).`);
@@ -69,7 +65,7 @@ export async function handleUpdate(
 
   writeLine(
     runtime,
-    `Update available: ${packageJson.name} ${status.currentVersion} -> ${status.latestVersion}`,
+    `Update available: ${packageName} ${status.currentVersion} -> ${status.latestVersion}`,
   );
 
   if (options.check) {
@@ -78,7 +74,7 @@ export async function handleUpdate(
   }
 
   const manager = options.manager ?? detectPackageManager(runtime.env);
-  const updateCommand = getUpdateCommand(manager, packageJson.name);
+  const updateCommand = getUpdateCommand(manager, packageName);
   const commandText = shellCommandText(updateCommand.command, updateCommand.args);
 
   if (options.dryRun) {
@@ -88,7 +84,7 @@ export async function handleUpdate(
 
   writeLine(runtime, `Running: ${commandText}`);
   await runCommand(updateCommand.command, updateCommand.args, runtime);
-  writeLine(runtime, `Updated ${packageJson.name} to ${status.latestVersion}.`);
+  writeLine(runtime, `Updated ${packageName} to ${status.latestVersion}.`);
 }
 
 export async function fetchLatestVersion(

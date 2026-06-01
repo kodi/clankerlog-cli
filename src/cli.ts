@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import { createRequire } from "node:module";
 import { realpath } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 import { Command, Option } from "commander";
@@ -13,12 +12,10 @@ import { registerLoginCommand } from "./commands/login.js";
 import { registerPingCommand } from "./commands/ping.js";
 import { registerUpdateCommand } from "./commands/update.js";
 import { formatCliError } from "./errors.js";
-
-const require = createRequire(import.meta.url);
-const packageJson = require("../package.json") as { version: string };
+import { getPackageVersion } from "./package-info.js";
 
 export function getCliVersion(): string {
-  return packageJson.version;
+  return getPackageVersion();
 }
 
 export function buildProgram(): Command {
