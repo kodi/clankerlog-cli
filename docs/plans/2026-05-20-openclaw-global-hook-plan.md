@@ -12,7 +12,7 @@ This is intentionally not another agent JSON config writer. OpenClaw internal
 hooks are discovered from hook directories containing `HOOK.md` and
 `handler.ts`, then enabled through `openclaw hooks enable <name>`. The CLI should
 therefore manage a hook directory and expose install/status/uninstall commands
-that fit the existing `clankerlog hooks ...` surface.
+that fit the existing `clankerlog integrations ...` surface.
 
 ## Decisions
 
@@ -48,9 +48,9 @@ that fit the existing `clankerlog hooks ...` surface.
 
 In scope:
 
-- `clankerlog hooks install openclaw`
-- `clankerlog hooks status openclaw`
-- `clankerlog hooks uninstall openclaw`
+- `clankerlog integrations install openclaw`
+- `clankerlog integrations status openclaw`
+- `clankerlog integrations uninstall openclaw`
 - `--dry-run` support for install and uninstall.
 - A global managed hook directory under `~/.openclaw/hooks/clankerlog/`.
 - Generated `HOOK.md` with OpenClaw metadata for `message:sent`.
@@ -100,7 +100,7 @@ Out of scope:
 ## Implementation Shape
 
 Add OpenClaw-specific hook directory management alongside the existing
-config-file helpers. Keep shared command wiring in `src/commands/hooks.ts`, but
+config-file helpers. Keep shared command wiring in `src/commands/integrations.ts`, but
 avoid overloading `src/hook-config.ts` if the OpenClaw file/directory contract
 would make that module awkward.
 
@@ -108,7 +108,7 @@ Likely structure:
 
 ```txt
 src/openclaw-hook.ts
-src/commands/hooks.ts
+src/commands/integrations.ts
 tests/commands/openclaw-hooks.test.ts
 docs/integrations.md
 README.md
@@ -199,12 +199,12 @@ pnpm build
 Manual verification, if OpenClaw is installed locally:
 
 ```bash
-clankerlog hooks install openclaw --dry-run
-clankerlog hooks install openclaw
+clankerlog integrations install openclaw --dry-run
+clankerlog integrations install openclaw
 openclaw hooks list
 openclaw hooks info clankerlog
 openclaw hooks enable clankerlog
-clankerlog hooks status openclaw
+clankerlog integrations status openclaw
 ```
 
 ## Files to Add
@@ -215,7 +215,7 @@ clankerlog hooks status openclaw
 
 ## Files to Change
 
-- `src/commands/hooks.ts`
+- `src/commands/integrations.ts`
 - `src/commands/hook.ts` if a dedicated OpenClaw runtime command is added.
 - `src/cli.ts` only if new command registration is needed.
 - `README.md`
@@ -230,7 +230,7 @@ clankerlog hooks status openclaw
   way a hook can read without depending on internal APIs?
 - Does OpenClaw run managed hook handlers with the active workspace as process
   cwd?
-- Should `clankerlog hooks install openclaw` run `openclaw hooks enable
+- Should `clankerlog integrations install openclaw` run `openclaw hooks enable
 clankerlog`, or should it only write files and print the enable command?
 - Should the first implementation require `--model <model>` for OpenClaw, like
   Claude Code, if the event does not expose model?
@@ -319,9 +319,9 @@ small and mostly concerned with output.
 
 This slice should implement:
 
-- `clankerlog hooks install openclaw [--dry-run]`
-- `clankerlog hooks status openclaw`
-- `clankerlog hooks uninstall openclaw [--dry-run]`
+- `clankerlog integrations install openclaw [--dry-run]`
+- `clankerlog integrations status openclaw`
+- `clankerlog integrations uninstall openclaw [--dry-run]`
 - Output the target path and the next manual command:
 
 ```bash
@@ -329,7 +329,7 @@ openclaw hooks enable clankerlog
 ```
 
 - If a model is required by Slice 1 findings, add
-  `clankerlog hooks install openclaw --model <model>` and bake the model into
+  `clankerlog integrations install openclaw --model <model>` and bake the model into
   safe environment handling in `handler.ts`.
 
 Expected output:
@@ -456,7 +456,7 @@ Verification:
 ```bash
 openclaw hooks list
 openclaw hooks info clankerlog
-clankerlog hooks status openclaw
+clankerlog integrations status openclaw
 ```
 
 Dependencies:

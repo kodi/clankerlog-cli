@@ -5,17 +5,17 @@
   "type": "file",
   "path": "src/cli.ts",
   "language": "typescript",
-  "content_hash": "sha256:64b1611011bd2e147e950695e65d9f52fe7d4d1aca24de9f7a3cdc73cdcb3fc2",
-  "size_bytes": 2437,
-  "last_scanned_at": "2026-05-31T21:44:55.197Z",
+  "content_hash": "sha256:c5d0e05815828a65a3ae7fbb1f0d7f745a4bcafea8362740fefa169bc81ae70c",
+  "size_bytes": 2348,
+  "last_scanned_at": "2026-06-04T22:41:38.317Z",
   "scan_status": "current",
   "file_role": "source",
-  "summary": "The main entry point for the clankerlog CLI that configures the commander-based command structure.",
+  "summary": "The main entry point for the clankerlog CLI application that registers and executes all available commands.",
   "responsibilities": [
-    "Registers CLI commands and provides application entry point",
-    "Configures global CLI options and error logging",
-    "Exposes helper functions to determine if the file is the primary module running",
-    "Version management for the CLI package"
+    "Definition and configuration of the command-line interface using Commander.",
+    "Registration of subcommands for login, initialization, integration, and diagnostics.",
+    "Global error formatting and CLI lifecycle management.",
+    "Verification of current file as the node CLI entry point."
   ],
   "symbols": [
     {
@@ -23,40 +23,41 @@
       "kind": "function",
       "name": "getCliVersion",
       "exported": true,
-      "summary": "Retrieves the version string from package.json"
+      "summary": "Retrieves the current version string of the CLI."
     },
     {
       "id": "symbol:src/cli.ts#buildProgram",
       "kind": "function",
       "name": "buildProgram",
       "exported": true,
-      "summary": "Constructs and configures the commander Command instance"
+      "summary": "Configures and returns the Commander program instance."
     },
     {
       "id": "symbol:src/cli.ts#main",
       "kind": "function",
       "name": "main",
       "exported": true,
-      "summary": "Parses input arguments and executes the CLI program"
+      "summary": "Parses process arguments and executes the registered command."
     },
     {
       "id": "symbol:src/cli.ts#isCliEntrypoint",
       "kind": "function",
       "name": "isCliEntrypoint",
       "exported": true,
-      "summary": "Checks if the current module is the main execution target"
+      "summary": "Determines if the current file is the active execution entry point."
     }
   ],
   "imports": [
     "file:src/commands/allow.ts",
     "file:src/commands/doctor.ts",
     "file:src/commands/hook.ts",
-    "file:src/commands/hooks.ts",
+    "file:src/commands/integrations.ts",
     "file:src/commands/init.ts",
     "file:src/commands/login.ts",
     "file:src/commands/ping.ts",
     "file:src/commands/update.ts",
-    "file:src/errors.ts"
+    "file:src/errors.ts",
+    "file:src/package-info.ts"
   ],
   "exports": [
     "getCliVersion",
@@ -71,7 +72,9 @@
   "likely_test_targets": [],
   "tested_by": [
     "file:tests/cli.test.ts",
-    "file:tests/commands/pi-hooks.test.ts"
+    "file:tests/commands/hook.test.ts",
+    "file:tests/commands/openclaw-hooks.test.ts",
+    "file:tests/commands/opencode-hooks.test.ts"
   ],
   "evidence": [
     {
@@ -79,8 +82,8 @@
       "value": "src/cli.ts"
     },
     {
-      "kind": "import",
-      "value": "commander"
+      "kind": "symbol",
+      "value": "buildProgram"
     }
   ],
   "confidence": "high"

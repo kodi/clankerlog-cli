@@ -27,6 +27,7 @@ import {
   handleUninstallPiHook,
   registerPiHooksCommands,
 } from "../agent-hooks/pi.js";
+import { createRuntime, type CliRuntime } from "../runtime.js";
 import { registerTopchesterHooksCommands } from "../agent-hooks/topchester.js";
 
 export {
@@ -44,12 +45,21 @@ export {
   handleUninstallPiHook,
 };
 
-export function registerHooksCommand(program: Command): void {
-  const hooks = program.command("hooks").description("Install and inspect coding-agent hooks.");
+export function registerIntegrationsCommand(program: Command): void {
+  const integrations = program
+    .command("integrations")
+    .description("Install and inspect ClankerLog coding-agent integrations.");
+  integrations
+    .command("list")
+    .description("List supported ClankerLog integrations.")
+    .action((_options, command: Command) => {
+      handleListIntegrations(createRuntime(command));
+    });
+
   const groups: HooksCommandGroups = {
-    install: hooks.command("install").description("Install a ClankerLog Stop hook."),
-    status: hooks.command("status").description("Inspect a ClankerLog Stop hook."),
-    uninstall: hooks.command("uninstall").description("Remove a ClankerLog Stop hook."),
+    install: integrations.command("install").description("Install a ClankerLog integration."),
+    status: integrations.command("status").description("Inspect a ClankerLog integration."),
+    uninstall: integrations.command("uninstall").description("Remove a ClankerLog integration."),
   };
 
   registerCodexHooksCommands(groups);
@@ -60,4 +70,21 @@ export function registerHooksCommand(program: Command): void {
   registerOpencodeHooksCommands(groups);
   registerPiHooksCommands(groups);
   registerOpenClawHooksCommands(groups);
+}
+
+export function handleListIntegrations(runtime: CliRuntime): void {
+  runtime.stdout.write(
+    [
+      "Supported integrations:",
+      "  codex       Codex Stop hook",
+      "  claude      Claude Code Stop hook",
+      "  cursor      Cursor stop hook",
+      "  hermes      Hermes shell hook",
+      "  topchester  Topchester Stop hook",
+      "  opencode    Opencode session.idle plugin",
+      "  openclaw    OpenClaw message:sent hook",
+      "  pi          Pi agent_end extension",
+      "",
+    ].join("\n"),
+  );
 }

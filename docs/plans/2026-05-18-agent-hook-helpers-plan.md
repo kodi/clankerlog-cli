@@ -4,7 +4,7 @@
 
 Implement safe helper commands that install, inspect, and remove ClankerLog Stop
 hooks for Codex and Claude Code. The target user flow is that a user can run one
-`clankerlog hooks install <agent>` command, see exactly what filesystem change
+`clankerlog integrations install <agent>` command, see exactly what filesystem change
 will happen, preserve any existing Stop hooks, and get a clear verification path
 without hand-editing agent config files.
 
@@ -20,7 +20,7 @@ written into user hook config by the installer.
 
 ## Decisions
 
-- Add a new plural command group, `clankerlog hooks`, for install/status/uninstall
+- Add a new plural command group, `clankerlog integrations`, for install/status/uninstall
   helpers. Keep the existing singular `clankerlog hook <agent> stop` commands as
   runtime hook handlers.
 - Manage only JSON hook surfaces:
@@ -35,10 +35,10 @@ written into user hook config by the installer.
   errors and do not write partial fixes.
 - The generated hook command should be visible in command output before writes.
 - Claude Code install needs a model because Claude Stop hook payloads do not
-  include one. Require `clankerlog hooks install claude --model <model>` and
+  include one. Require `clankerlog integrations install claude --model <model>` and
   show a hint for Opus/Sonnet formatting, such as `claude-opus-4.5` or
   `claude-sonnet-4.5`.
-- `clankerlog hooks status` should inspect hook config only. It should not run
+- `clankerlog integrations status` should inspect hook config only. It should not run
   an automatic `clankerlog hook <agent> stop --dry-run` simulation.
 - Uninstall should preserve existing JSON containers, including now-empty
   `hooks.Stop` arrays or hook groups, unless a later explicit cleanup command is
@@ -50,10 +50,10 @@ written into user hook config by the installer.
 
 In scope:
 
-- `clankerlog hooks install codex`
-- `clankerlog hooks install claude --model <model>`
-- `clankerlog hooks status codex|claude`
-- `clankerlog hooks uninstall codex|claude`
+- `clankerlog integrations install codex`
+- `clankerlog integrations install claude --model <model>`
+- `clankerlog integrations status codex|claude`
+- `clankerlog integrations uninstall codex|claude`
 - `--dry-run` support for install and uninstall.
 - Test-only config path override so tests never write real home directories.
 - JSON validation, idempotence, atomic writes, and safe directory creation.
@@ -103,12 +103,12 @@ into `src/commands/hook.ts`.
 Likely structure:
 
 ```txt
-src/commands/hooks.ts
+src/commands/integrations.ts
 src/hook-config.ts
 tests/commands/hooks.test.ts
 ```
 
-`src/commands/hooks.ts` should own Commander wiring and user-facing output.
+`src/commands/integrations.ts` should own Commander wiring and user-facing output.
 `src/hook-config.ts` should own agent definitions, config path resolution, JSON
 loading, validation, hook object construction, idempotent transforms, and atomic
 writes.
@@ -116,12 +116,12 @@ writes.
 Recommended command surface:
 
 ```bash
-clankerlog hooks install codex [--dry-run]
-clankerlog hooks install claude --model claude-sonnet-4.5 [--dry-run]
-clankerlog hooks status codex
-clankerlog hooks status claude
-clankerlog hooks uninstall codex [--dry-run]
-clankerlog hooks uninstall claude [--dry-run]
+clankerlog integrations install codex [--dry-run]
+clankerlog integrations install claude --model claude-sonnet-4.5 [--dry-run]
+clankerlog integrations status codex
+clankerlog integrations status claude
+clankerlog integrations uninstall codex [--dry-run]
+clankerlog integrations uninstall claude [--dry-run]
 ```
 
 Recommended installed hook objects:
@@ -195,7 +195,7 @@ Test fixture coverage should include:
 
 ## Files to Add
 
-- `src/commands/hooks.ts`
+- `src/commands/integrations.ts`
 - `src/hook-config.ts`
 - `tests/commands/hooks.test.ts`
 - `docs/plans/2026-05-18-agent-hook-helpers-plan.md`
@@ -301,7 +301,7 @@ Completed in this slice:
 - Verified with `pnpm test -- tests/commands/hooks.test.ts`, `pnpm typecheck`,
   and `mise run local-ci`.
 
-## Slice 3: `clankerlog hooks install`
+## Slice 3: `clankerlog integrations install`
 
 Status: `[x]` Done
 
@@ -312,8 +312,8 @@ before status/uninstall are added.
 
 This slice should implement:
 
-- Register `clankerlog hooks install codex`.
-- Register `clankerlog hooks install claude --model <model>`.
+- Register `clankerlog integrations install codex`.
+- Register `clankerlog integrations install claude --model <model>`.
 - Support `--dry-run`.
 - When Claude install is missing `--model`, fail with a concise hint that model
   names should be passed in the same family/version style as
@@ -343,7 +343,7 @@ Dependencies: Slice 2.
 
 Completed in this slice:
 
-- Added the plural `clankerlog hooks install` command group for Codex and
+- Added the plural `clankerlog integrations install` command group for Codex and
   Claude Code.
 - Added dry-run support, Claude model validation with examples, hidden
   test-only config path overrides, and concise install output with exact
@@ -352,7 +352,7 @@ Completed in this slice:
 - Verified with `pnpm test -- tests/commands/hooks.test.ts`, `pnpm typecheck`,
   and `mise run local-ci`.
 
-## Slice 4: `clankerlog hooks status` and `uninstall`
+## Slice 4: `clankerlog integrations status` and `uninstall`
 
 Status: `[x]` Done
 
@@ -364,8 +364,8 @@ can present this as the preferred path.
 
 This slice should implement:
 
-- Register `clankerlog hooks status codex|claude`.
-- Register `clankerlog hooks uninstall codex|claude`.
+- Register `clankerlog integrations status codex|claude`.
+- Register `clankerlog integrations uninstall codex|claude`.
 - Support `--dry-run` on uninstall.
 - Status should report:
   - target file
@@ -394,8 +394,8 @@ Dependencies: Slice 3.
 
 Completed in this slice:
 
-- Added `clankerlog hooks status codex|claude` and
-  `clankerlog hooks uninstall codex|claude`.
+- Added `clankerlog integrations status codex|claude` and
+  `clankerlog integrations uninstall codex|claude`.
 - Added uninstall dry-runs, command-match status output, and tests proving safe
   removal/no-op behavior with neighboring hooks preserved.
 - Verified with `pnpm test -- tests/commands/hooks.test.ts`, `pnpm typecheck`,
@@ -413,10 +413,10 @@ Why here: Docs should only change after the commands and safety behavior exist.
 This slice should implement:
 
 - Update README Agent Hooks section to lead with:
-  - `clankerlog hooks install codex`
-  - `clankerlog hooks install claude --model claude-sonnet-4.5`
-  - `clankerlog hooks status codex`
-  - `clankerlog hooks uninstall codex`
+  - `clankerlog integrations install codex`
+  - `clankerlog integrations install claude --model claude-sonnet-4.5`
+  - `clankerlog integrations status codex`
+  - `clankerlog integrations uninstall codex`
 - Keep manual JSON examples in `docs/integrations.md` for troubleshooting.
 - Update `docs/integrations.md` automation notes with actual implemented
   behavior, validation errors, and approval instructions.

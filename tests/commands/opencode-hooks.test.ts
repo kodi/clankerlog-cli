@@ -111,7 +111,7 @@ describe("Opencode plugin commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "install",
       "opencode",
       "--plugin-path",
@@ -120,7 +120,7 @@ describe("Opencode plugin commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "status",
       "opencode",
       "--plugin-path",
@@ -129,7 +129,7 @@ describe("Opencode plugin commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "uninstall",
       "opencode",
       "--plugin-path",
@@ -155,7 +155,7 @@ describe("Opencode plugin commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "install",
       "opencode",
       "--plugin-path",

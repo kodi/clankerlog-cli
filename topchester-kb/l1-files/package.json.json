@@ -5,27 +5,20 @@
   "type": "file",
   "path": "package.json",
   "language": "json",
-  "content_hash": "sha256:f00380897ee39c22f0ad4261f6a32b1a0267fed8fe40255328b7a1e8426d1d66",
+  "content_hash": "sha256:313e0506c03c0149298eb1c0aa27cbeff51cc6222018b8229b11d4b08e47dca8",
   "size_bytes": 1456,
-  "last_scanned_at": "2026-05-31T21:44:43.859Z",
+  "last_scanned_at": "2026-06-04T22:41:31.590Z",
   "scan_status": "current",
   "file_role": "config",
-  "summary": "Defines the project metadata, dependencies, and execution scripts for the ClankerLog CLI tool.",
+  "summary": "Defines the project metadata, build scripts, development dependencies, and CLI entry point for the clankerlog project.",
   "responsibilities": [
-    "Configures the CLI entrypoint at ./bin/clankerlog.js",
-    "Defines build, lint, and test scripts using oxlint, tsdown, and vitest",
-    "Specifies dependency constraints for Node.js runtime environment",
-    "Manages project-wide formatting and type-checking configurations"
+    "Configures the CLI binary path at ./bin/clankerlog.js",
+    "Defines build, lint, and test scripts using tsdown, oxlint, and vitest",
+    "Manages workspace external and development dependencies",
+    "Enforces project engine requirements for Node >=20",
+    "Sets ESM module system configuration"
   ],
-  "symbols": [
-    {
-      "id": "symbol:package.json#package.json",
-      "kind": "config",
-      "name": "package.json",
-      "exported": false,
-      "summary": "Project root manifest defining scripts and dependencies"
-    }
-  ],
+  "symbols": [],
   "imports": [],
   "exports": [],
   "module_ids": [],
@@ -40,10 +33,6 @@
     {
       "kind": "path",
       "value": "package.json"
-    },
-    {
-      "kind": "content",
-      "value": "clankerlog"
     }
   ],
   "confidence": "high"

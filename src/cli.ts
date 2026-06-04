@@ -6,7 +6,7 @@ import { Command, Option } from "commander";
 import { registerAllowCommand } from "./commands/allow.js";
 import { registerDoctorCommand } from "./commands/doctor.js";
 import { registerHookCommand } from "./commands/hook.js";
-import { registerHooksCommand } from "./commands/hooks.js";
+import { registerIntegrationsCommand } from "./commands/integrations.js";
 import { registerInitCommand } from "./commands/init.js";
 import { registerLoginCommand } from "./commands/login.js";
 import { registerPingCommand } from "./commands/ping.js";
@@ -43,7 +43,7 @@ export function buildProgram(): Command {
   registerPingCommand(program);
   registerDoctorCommand(program);
   registerHookCommand(program);
-  registerHooksCommand(program);
+  registerIntegrationsCommand(program);
   registerUpdateCommand(program);
 
   return program;

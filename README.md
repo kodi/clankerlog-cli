@@ -43,7 +43,7 @@ clankerlog ping --dry-run --agent codex --model gpt-5.5
 Connect the Codex Stop hook:
 
 ```bash
-clankerlog hooks install codex
+clankerlog integrations install codex
 ```
 
 Then run `/hooks` in Codex if command approval is required. That is the whole
@@ -91,7 +91,7 @@ run its installer.
 Install the Codex Stop hook:
 
 ```bash
-clankerlog hooks install codex
+clankerlog integrations install codex
 ```
 
 After installing, run `/hooks` in Codex if command approval is required.
@@ -101,7 +101,7 @@ After installing, run `/hooks` in Codex if command approval is required.
 Install the Claude Code Stop hook with the model name ClankerLog should report:
 
 ```bash
-clankerlog hooks install claude --model claude-sonnet-4.5
+clankerlog integrations install claude --model claude-sonnet-4.5
 ```
 
 ### Cursor
@@ -109,7 +109,7 @@ clankerlog hooks install claude --model claude-sonnet-4.5
 Install the Cursor stop hook:
 
 ```bash
-clankerlog hooks install cursor
+clankerlog integrations install cursor
 ```
 
 ### Hermes
@@ -117,7 +117,7 @@ clankerlog hooks install cursor
 Install the Hermes shell hook:
 
 ```bash
-clankerlog hooks install hermes
+clankerlog integrations install hermes
 ```
 
 ### Topchester
@@ -125,7 +125,7 @@ clankerlog hooks install hermes
 Install the Topchester Stop hook:
 
 ```bash
-clankerlog hooks install topchester
+clankerlog integrations install topchester
 ```
 
 ### OpenClaw
@@ -133,7 +133,7 @@ clankerlog hooks install topchester
 Install the global OpenClaw `message:sent` hook:
 
 ```bash
-clankerlog hooks install openclaw
+clankerlog integrations install openclaw
 ```
 
 This writes a managed hook directory at `~/.openclaw/hooks/clankerlog/` with
@@ -151,7 +151,7 @@ openclaw hooks enable clankerlog
 Install the global Opencode `session.idle` plugin:
 
 ```bash
-clankerlog hooks install opencode
+clankerlog integrations install opencode
 ```
 
 This writes `~/.config/opencode/plugins/clankerlog.ts`. Restart Opencode after
@@ -162,7 +162,7 @@ installing so it loads the plugin.
 Install the Pi `agent_end` extension:
 
 ```bash
-clankerlog hooks install pi
+clankerlog integrations install pi
 ```
 
 This writes `~/.pi/agent/extensions/clankerlog.ts`. If Pi is already running,
@@ -176,14 +176,15 @@ Supported agent names are `codex`, `claude`, `cursor`, `hermes`,
 Preview an install without writing files:
 
 ```bash
-clankerlog hooks install codex --dry-run
+clankerlog integrations install codex --dry-run
 ```
 
 Check or remove an installed hook:
 
 ```bash
-clankerlog hooks status <agent>
-clankerlog hooks uninstall <agent>
+clankerlog integrations list
+clankerlog integrations status <agent>
+clankerlog integrations uninstall <agent>
 ```
 
 Hook commands read the agent hook JSON payload from stdin, use the workspace

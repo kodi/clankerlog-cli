@@ -5,17 +5,17 @@
   "type": "file",
   "path": "src/model.ts",
   "language": "typescript",
-  "content_hash": "sha256:57ed339b9314964e7e9c490b8e6184c5775273700e6163c1db79302df5b94dd9",
-  "size_bytes": 2804,
-  "last_scanned_at": "2026-05-22T02:54:33.279Z",
+  "content_hash": "sha256:a40b1330eab0a5212129e7fe48c84f7292630f1c577305167d4773d215ac42df",
+  "size_bytes": 2997,
+  "last_scanned_at": "2026-06-04T22:41:51.592Z",
   "scan_status": "current",
   "file_role": "source",
-  "summary": "This file provides utility functions for canonicalizing and normalizing LLM model names across various providers.",
+  "summary": "Centralized registry for canonical AI model names and logic for normalizing user-provided model strings.",
   "responsibilities": [
-    "Maintains a registry of supported canonical model identifiers.",
-    "Maps user-provided aliases to their corresponding canonical model name.",
-    "Normalizes input strings by stripping provider prefixes and non-alphanumeric characters.",
-    "Provides a public interface for standardizing model names used in application logic."
+    "Maintain a set of supported canonical LLM identifiers.",
+    "Map user-provided model aliases to canonical names using a lookup table.",
+    "Strip effort suffix indicators from model names.",
+    "Provide a consistent keying strategy for case-insensitive and prefix-independent model comparison."
   ],
   "symbols": [
     {
@@ -23,28 +23,14 @@
       "kind": "const",
       "name": "canonicalModelNames",
       "exported": false,
-      "summary": "A collection of supported vendor model names."
-    },
-    {
-      "id": "symbol:src/model.ts#manualAliases",
-      "kind": "const",
-      "name": "manualAliases",
-      "exported": false,
-      "summary": "A map of user-friendly naming variations to canonical model names."
+      "summary": "Defines the authoritative list of supported AI models."
     },
     {
       "id": "symbol:src/model.ts#normalizeModelName",
       "kind": "function",
       "name": "normalizeModelName",
       "exported": true,
-      "summary": "Converts an arbitrary input string into the best-match canonical model name."
-    },
-    {
-      "id": "symbol:src/model.ts#modelKey",
-      "kind": "function",
-      "name": "modelKey",
-      "exported": false,
-      "summary": "Generates a normalized lookup key by stripping prefixes and punctuation."
+      "summary": "Normalizes an input string to a canonical model name if matched in the internal registry, otherwise returns the stripped input."
     }
   ],
   "imports": [],
@@ -63,6 +49,10 @@
     {
       "kind": "path",
       "value": "src/model.ts"
+    },
+    {
+      "kind": "code",
+      "value": "normalizeModelName"
     }
   ],
   "confidence": "high"

@@ -53,7 +53,7 @@ not appear to support running an arbitrary command after a completed agent turn.
 It also only matches exact `input.contains` strings, not patterns or regular
 expressions.
 
-Conclusion: `amp.hooks` is not enough for `clankerlog hooks install amp`.
+Conclusion: `amp.hooks` is not enough for `clankerlog integrations install amp`.
 
 ## What Amp Plugins Support
 
@@ -137,9 +137,9 @@ before calling the integration validated end to end.
 Add Amp as a managed plugin-style hook integration:
 
 ```bash
-clankerlog hooks install amp
-clankerlog hooks status amp
-clankerlog hooks uninstall amp
+clankerlog integrations install amp
+clankerlog integrations status amp
+clankerlog integrations uninstall amp
 ```
 
 The installer should write:
@@ -203,7 +203,7 @@ messages or transcripts.
 
 - Does Amp expose the active model anywhere stable to plugins? The checked
   `AgentEndEvent` type did not include a model field.
-- Should `clankerlog hooks install amp` support `--model <model>` and bake that
+- Should `clankerlog integrations install amp` support `--model <model>` and bake that
   into the generated plugin environment fallback, similar to Claude Code?
 
 ## Implementation Notes
@@ -216,7 +216,7 @@ Follow the Pi/OpenClaw pattern instead:
 
 - create `src/amp-hook.ts`
 - create `src/agent-hooks/amp.ts`
-- register Amp from `src/commands/hooks.ts`
+- register Amp from `src/commands/integrations.ts`
 - add tests similar to `tests/commands/pi-hooks.test.ts`
 - document the integration in `README.md` and `docs/integrations.md`
 

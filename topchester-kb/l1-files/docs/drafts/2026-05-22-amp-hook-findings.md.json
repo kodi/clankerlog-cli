@@ -5,18 +5,18 @@
   "type": "file",
   "path": "docs/drafts/2026-05-22-amp-hook-findings.md",
   "language": "markdown",
-  "content_hash": "sha256:c06c6b49ae4665c4f5b5d895ff63014d9d1da9c757a63e326f3197b1e3fbd306",
-  "size_bytes": 7405,
-  "last_scanned_at": "2026-05-22T02:54:10.839Z",
+  "content_hash": "sha256:6850cccd73fe7e926c6226dcfe46fec2e02528ff232147e2738d92002067e098",
+  "size_bytes": 7447,
+  "last_scanned_at": "2026-06-04T22:41:19.888Z",
   "scan_status": "current",
   "file_role": "doc",
-  "summary": "Investigation report on integrating ClankerLog with Amp agent hooks through the plugin API.",
+  "summary": "Technical analysis documenting the feasibility of integrating ClankerLog with Amp via plugin lifecycle hooks.",
   "responsibilities": [
-    "Evaluate Amp integration capabilities vs existing hook architecture",
-    "Identify the 'agent.end' plugin event as the correct lifecycle trigger",
-    "Define requirements for a managed Amp plugin generator",
-    "Outline privacy guardrails for handling agent event data",
-    "Propose implementation steps mirroring Pi and OpenClaw integrations"
+    "Evaluate Amp's plugin API for agent lifecycle event handling",
+    "Identify limitations of existing amp.hooks settings for external task execution",
+    "Propose a plugin-based architecture for ClankerLog's integration with Amp",
+    "Define privacy and implementation requirements for the integration",
+    "Outline necessary project file changes including new TS modules and CLI command registration"
   ],
   "symbols": [],
   "imports": [],
@@ -31,6 +31,14 @@
     {
       "kind": "path",
       "value": "docs/drafts/2026-05-22-amp-hook-findings.md"
+    },
+    {
+      "kind": "content",
+      "value": "Amp plugin event: agent.end"
+    },
+    {
+      "kind": "content",
+      "value": "clankerlog integrations install amp"
     }
   ],
   "confidence": "high"

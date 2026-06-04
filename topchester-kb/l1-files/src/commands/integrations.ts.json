@@ -1,0 +1,78 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/commands/integrations.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/commands/integrations.ts",
+  "language": "typescript",
+  "content_hash": "sha256:4ba827db127b7aa694d360ae220803a111c1ad840ed144ae4aeb373338782d6f",
+  "size_bytes": 3049,
+  "last_scanned_at": "2026-06-04T22:41:43.439Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Registers and manages CLI subcommands for installing and inspecting external coding-agent integrations.",
+  "responsibilities": [
+    "Defines the 'integrations' CLI command group using Commander.",
+    "Registers specific installation, status, and uninstall commands for supported agent hooks.",
+    "Provides a command to list all supported integrations.",
+    "Delegates integration-specific registration to domain-specific modules."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/commands/integrations.ts#registerIntegrationsCommand",
+      "kind": "function",
+      "name": "registerIntegrationsCommand",
+      "exported": true,
+      "summary": "Registers the 'integrations' command and all nested subcommands to the commander program instance."
+    },
+    {
+      "id": "symbol:src/commands/integrations.ts#handleListIntegrations",
+      "kind": "function",
+      "name": "handleListIntegrations",
+      "exported": true,
+      "summary": "Writes the list of supported integrations to the CLI output."
+    }
+  ],
+  "imports": [
+    "file:src/agent-hooks/claude.ts",
+    "file:src/agent-hooks/config-agent-hooks.ts",
+    "file:src/agent-hooks/codex.ts",
+    "file:src/agent-hooks/cursor.ts",
+    "file:src/agent-hooks/hermes.ts",
+    "file:src/agent-hooks/install-shared.ts",
+    "file:src/agent-hooks/openclaw.ts",
+    "file:src/agent-hooks/opencode.ts",
+    "file:src/agent-hooks/pi.ts",
+    "file:src/runtime.ts",
+    "file:src/agent-hooks/topchester.ts"
+  ],
+  "exports": [
+    "handleHookStatus",
+    "handleInstallHook",
+    "handleInstallOpenClawHook",
+    "handleInstallOpencodeHook",
+    "handleInstallPiHook",
+    "handleOpenClawHookStatus",
+    "handleOpencodeHookStatus",
+    "handlePiHookStatus",
+    "handleUninstallHook",
+    "handleUninstallOpenClawHook",
+    "handleUninstallOpencodeHook",
+    "handleUninstallPiHook",
+    "registerIntegrationsCommand",
+    "handleListIntegrations"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/commands/integrations.ts"
+    }
+  ],
+  "confidence": "high"
+}

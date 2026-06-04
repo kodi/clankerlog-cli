@@ -5,17 +5,17 @@
   "type": "file",
   "path": "tests/commands/pi-hooks.test.ts",
   "language": "typescript",
-  "content_hash": "sha256:2d72ba9f2b3cee4455408317b4fc55e35997ad84af172bfcb823c9e39a28dbc3",
-  "size_bytes": 5981,
-  "last_scanned_at": "2026-05-22T02:01:48.991Z",
+  "content_hash": "sha256:42e51166eb1cf341f133d63c9079fa31099b478d4510d5f9c3d3ea8b001e3b7c",
+  "size_bytes": 6009,
+  "last_scanned_at": "2026-06-04T22:42:17.436Z",
   "scan_status": "current",
   "file_role": "test",
-  "summary": "Tests for the Pi extension management lifecycle including installation, status reporting, uninstallation, and CLI command integration.",
+  "summary": "Tests for the Pi extension integration lifecycle, including installation, uninstallation, status reporting, and CLI command integration.",
   "responsibilities": [
-    "Verify idempotency and correctness of Pi hook installation and uninstallation logic.",
-    "Validate dry-run functionality for hook operations to prevent filesystem side effects.",
-    "Ensure safety checks prevent removal of non-managed extension files.",
-    "Test end-to-end CLI command routing via Commander for hook subcommands."
+    "Verify the installation of ClankerLog TypeScript hooks in Pi global extensions directories.",
+    "Validate idempotency and dry-run safety for Pi extension management operations.",
+    "Ensure safe uninstallation logic that prevents removal of non-managed files.",
+    "Test CLI command wiring for install, status, and uninstall subcommands."
   ],
   "symbols": [
     {
@@ -23,34 +23,29 @@
       "kind": "function",
       "name": "makeTempDir",
       "exported": false,
-      "summary": "Helper to create a temporary directory for isolation during hook tests."
+      "summary": "Creates a unique temporary directory for filesystem testing."
     },
     {
       "id": "symbol:tests/commands/pi-hooks.test.ts#captureStdout",
       "kind": "function",
       "name": "captureStdout",
       "exported": false,
-      "summary": "Utility to mock and inspect stdout for CLI command verification."
+      "summary": "Mocks process.stdout to buffer and retrieve output for CLI validation."
     }
   ],
   "imports": [
-    "file:src/cli.ts",
-    "file:src/pi-hook.ts"
+    "file:src/cli.js",
+    "file:src/pi-hook.js"
   ],
   "exports": [],
   "module_ids": [],
   "feature_ids": [],
   "test_ids": [
-    "file:src/pi-hook.ts",
-    "file:src/cli.ts"
+    "file:tests/commands/pi-hooks.test.ts"
   ],
-  "declared_test_targets": [
-    "file:src/pi-hook.ts",
-    "file:src/cli.ts"
-  ],
+  "declared_test_targets": [],
   "likely_test_targets": [
-    "file:src/pi-hook.ts",
-    "file:src/cli.ts"
+    "file:src/pi-hook.ts"
   ],
   "tested_by": [],
   "evidence": [

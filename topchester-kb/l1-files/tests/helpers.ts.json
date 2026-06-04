@@ -48,6 +48,7 @@
   "likely_test_targets": [],
   "tested_by": [
     "file:tests/commands/doctor.test.ts",
+    "file:tests/commands/hook.test.ts",
     "file:tests/commands/init.test.ts",
     "file:tests/commands/login.test.ts"
   ],

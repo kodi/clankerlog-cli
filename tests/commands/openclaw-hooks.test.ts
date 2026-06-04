@@ -132,7 +132,7 @@ describe("OpenClaw hook commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "install",
       "openclaw",
       "--hook-dir",
@@ -141,7 +141,7 @@ describe("OpenClaw hook commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "status",
       "openclaw",
       "--hook-dir",
@@ -150,7 +150,7 @@ describe("OpenClaw hook commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "uninstall",
       "openclaw",
       "--hook-dir",
@@ -174,7 +174,7 @@ describe("OpenClaw hook commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "install",
       "openclaw",
       "--hook-dir",

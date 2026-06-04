@@ -5,18 +5,18 @@
   "type": "file",
   "path": "src/commands/update.ts",
   "language": "typescript",
-  "content_hash": "sha256:10ba1f2c0aeb8dd439c4ecffb582ff8ab0f458625bb8d45d7fa4acdc8a53481b",
-  "size_bytes": 8343,
-  "last_scanned_at": "2026-05-31T21:45:01.687Z",
+  "content_hash": "sha256:38a9bfcb6ee1228a68faf07a0f163650efd573a925e6d421aea932ae023878df",
+  "size_bytes": 8289,
+  "last_scanned_at": "2026-06-04T22:41:47.161Z",
   "scan_status": "current",
   "file_role": "source",
-  "summary": "Implements the 'update' command for the CLI to check for new versions on NPM and perform self-updates via package managers.",
+  "summary": "Implements the CLI update command to fetch the latest version and perform global updates via various package managers.",
   "responsibilities": [
-    "Registers the 'update' subcommand with the CLI program.",
-    "Checks registry for the latest package version and compares against current version.",
-    "Detects the active package manager from environment variables.",
-    "Executes global install commands using spawned system processes.",
-    "Provides a dry-run mode for verifying update operations."
+    "Registers the 'update' command with the main CLI application.",
+    "Handles version discovery by querying npm registries.",
+    "Detects available system package managers (npm, pnpm, yarn, bun).",
+    "Executes global update commands for the package.",
+    "Provides a dry-run mode for testing update commands."
   ],
   "symbols": [
     {
@@ -29,12 +29,6 @@
       "id": "symbol:src/commands/update.ts#UpdateOptions",
       "kind": "interface",
       "name": "UpdateOptions",
-      "exported": true
-    },
-    {
-      "id": "symbol:src/commands/update.ts#UpdateDependencies",
-      "kind": "interface",
-      "name": "UpdateDependencies",
       "exported": true
     },
     {
@@ -77,6 +71,7 @@
   "imports": [
     "file:src/errors.ts",
     "file:src/output.ts",
+    "file:src/package-info.ts",
     "file:src/runtime.ts"
   ],
   "exports": [

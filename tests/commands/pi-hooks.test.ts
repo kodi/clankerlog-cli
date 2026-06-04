@@ -109,7 +109,7 @@ describe("Pi extension commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "install",
       "pi",
       "--extension-path",
@@ -118,7 +118,7 @@ describe("Pi extension commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "status",
       "pi",
       "--extension-path",
@@ -127,7 +127,7 @@ describe("Pi extension commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "uninstall",
       "pi",
       "--extension-path",
@@ -153,7 +153,7 @@ describe("Pi extension commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "install",
       "pi",
       "--extension-path",

@@ -5,17 +5,17 @@
   "type": "file",
   "path": "tests/commands/openclaw-hooks.test.ts",
   "language": "typescript",
-  "content_hash": "sha256:c4b2176dd0be031b9d21ee9cedf25cf3399294382ad1d0cc4be3db47eae31a78",
-  "size_bytes": 7012,
-  "last_scanned_at": "2026-05-22T02:01:46.700Z",
+  "content_hash": "sha256:ce76b0d01c304994f208e45e5f165e09bd7c0cda5362541766653e25c456bb6b",
+  "size_bytes": 7040,
+  "last_scanned_at": "2026-06-04T22:42:10.117Z",
   "scan_status": "current",
   "file_role": "test",
-  "summary": "Integration tests for ClankerLog's OpenClaw hook lifecycle management and CLI command integration.",
+  "summary": "Tests for OpenClaw integration lifecycle management, including installation, uninstallation, status reporting, and CLI command routing.",
   "responsibilities": [
-    "Verify the installation, uninstallation, and status reporting of OpenClaw hook files.",
-    "Ensure safety guards prevent removal of non-managed or dirty hook directories.",
-    "Test Commander integration for hook subcommands.",
-    "Validate dry-run functionality for hook installation and uninstallation."
+    "Verify idempotent installation and uninstallation of OpenClaw hook files.",
+    "Validate dry-run functionality for CLI operations.",
+    "Ensure safe removal by preventing deletion of non-managed or dirty directories.",
+    "Confirm proper CLI routing via Commander for integration commands."
   ],
   "symbols": [
     {
@@ -23,29 +23,35 @@
       "kind": "function",
       "name": "makeTempDir",
       "exported": false,
-      "summary": "Creates a temporary filesystem directory for hook isolation."
+      "summary": "Helper to create a fresh directory for filesystem isolation during tests."
     },
     {
       "id": "symbol:tests/commands/openclaw-hooks.test.ts#captureStdout",
       "kind": "function",
       "name": "captureStdout",
       "exported": false,
-      "summary": "Mocks process.stdout to allow assertion on CLI output."
+      "summary": "Intercepts process.stdout to verify CLI command output."
     }
   ],
   "imports": [
-    "file:src/cli.js",
-    "file:src/openclaw-hook.js"
+    "file:src/cli.ts",
+    "file:src/openclaw-hook.ts"
   ],
   "exports": [],
   "module_ids": [],
   "feature_ids": [],
   "test_ids": [
-    "file:src/openclaw-hook.js",
-    "file:src/cli.js"
+    "file:src/openclaw-hook.ts",
+    "file:src/cli.ts"
   ],
-  "declared_test_targets": [],
-  "likely_test_targets": [],
+  "declared_test_targets": [
+    "file:src/openclaw-hook.ts",
+    "file:src/cli.ts"
+  ],
+  "likely_test_targets": [
+    "file:src/openclaw-hook.ts",
+    "file:src/cli.ts"
+  ],
   "tested_by": [],
   "evidence": [
     {

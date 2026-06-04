@@ -5,26 +5,18 @@
   "type": "file",
   "path": "tests/model.test.ts",
   "language": "typescript",
-  "content_hash": "sha256:76bd789058a863e2072aa162b89fda10b10077b3293f14ad774db3ac232937a3",
-  "size_bytes": 2603,
-  "last_scanned_at": "2026-05-22T02:54:41.259Z",
+  "content_hash": "sha256:f156cb8ce9a5f93715f8bcae0bfebae674543531729b7caa04c815d55a3542be",
+  "size_bytes": 2904,
+  "last_scanned_at": "2026-06-04T22:42:21.422Z",
   "scan_status": "current",
   "file_role": "test",
-  "summary": "Tests for normalizing heterogeneous model identifier strings into a standardized format.",
+  "summary": "Verifies AI model name normalization logic and integration with schema parsing.",
   "responsibilities": [
-    "Verifies regex-based normalization for GPT, Claude, Gemini, DeepSeek, and other LLM model variations",
-    "Ensures pass-through behavior for unknown or non-conformant model strings",
-    "Validates model name normalization within the context of payload schema parsing"
+    "Test mapping variations of AI model naming conventions to a canonical format.",
+    "Validate that model normalization is consistent when applied to parsed data schemas.",
+    "Ensure safe handling and pass-through for unknown model identifiers."
   ],
-  "symbols": [
-    {
-      "id": "symbol:tests/model.test.ts#normalizeModelName",
-      "kind": "test",
-      "name": "normalizeModelName",
-      "exported": false,
-      "summary": "Validates normalization logic across various AI provider naming conventions."
-    }
-  ],
+  "symbols": [],
   "imports": [
     "file:src/model.ts",
     "file:src/schemas.ts"
@@ -50,7 +42,7 @@
     },
     {
       "kind": "import",
-      "value": "normalizeModelName"
+      "value": "../src/model.js"
     }
   ],
   "confidence": "high"

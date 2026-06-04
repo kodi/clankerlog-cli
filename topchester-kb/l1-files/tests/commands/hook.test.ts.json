@@ -5,77 +5,37 @@
   "type": "file",
   "path": "tests/commands/hook.test.ts",
   "language": "typescript",
-  "content_hash": "sha256:11c9bbe0836624b562a8d938de7b3f68a51448a1b6c8890c401bac1a2d31a23e",
-  "size_bytes": 30254,
-  "last_scanned_at": "2026-05-22T02:54:36.365Z",
+  "content_hash": "sha256:5391c599cd734a2fce33413d6b2799017b193c2f665367b78f35761f1195d554",
+  "size_bytes": 30244,
+  "last_scanned_at": "2026-06-04T22:42:01.696Z",
   "scan_status": "current",
   "file_role": "test",
-  "summary": "Tests for CLI hook handlers that process IDE-driven events (Codex, Claude, Cursor, Hermes, Topchester, OpenClaw) into telemetry clanks.",
+  "summary": "Integration tests for CLI hooks that process LLM stop events across various AI agent implementations.",
   "responsibilities": [
-    "Verify hook handlers parse incoming stdin and environment variables correctly.",
-    "Ensure project-based filtering via global configuration is enforced.",
-    "Validate CLI command integration for each hook type.",
-    "Check dryness/noop behaviors and data scrubbing for sensitive contents.",
-    "Mock network interactions to confirm clank ingestion requests."
+    "Verifies data extraction and clank telemetry submission for Codex, Claude, Cursor, Hermes, Topchester, and OpenClaw.",
+    "Tests CLI command wiring via Commander for individual hook triggers.",
+    "Validates dry-run behavior for safe local debugging.",
+    "Ensures payload sanitization and filtering of internal LLM data.",
+    "Mocks file system and runtime environments to test hook isolation."
   ],
-  "symbols": [
-    {
-      "id": "symbol:tests/commands/hook.test.ts#codexStopPayload",
-      "kind": "function",
-      "name": "codexStopPayload",
-      "exported": false
-    },
-    {
-      "id": "symbol:tests/commands/hook.test.ts#claudeStopPayload",
-      "kind": "function",
-      "name": "claudeStopPayload",
-      "exported": false
-    },
-    {
-      "id": "symbol:tests/commands/hook.test.ts#cursorStopPayload",
-      "kind": "function",
-      "name": "cursorStopPayload",
-      "exported": false
-    },
-    {
-      "id": "symbol:tests/commands/hook.test.ts#hermesPostLlmPayload",
-      "kind": "function",
-      "name": "hermesPostLlmPayload",
-      "exported": false
-    },
-    {
-      "id": "symbol:tests/commands/hook.test.ts#topchesterStopPayload",
-      "kind": "function",
-      "name": "topchesterStopPayload",
-      "exported": false
-    },
-    {
-      "id": "symbol:tests/commands/hook.test.ts#openClawMessageSentPayload",
-      "kind": "function",
-      "name": "openClawMessageSentPayload",
-      "exported": false
-    },
-    {
-      "id": "symbol:tests/commands/hook.test.ts#makeTempDir",
-      "kind": "function",
-      "name": "makeTempDir",
-      "exported": false
-    }
-  ],
+  "symbols": [],
   "imports": [
-    "file:src/cli.js",
-    "file:src/commands/hook.js",
-    "file:src/config.js",
-    "file:tests/helpers.js"
+    "file:src/cli.ts",
+    "file:src/commands/hook.ts",
+    "file:src/config.ts",
+    "file:tests/helpers.ts"
   ],
   "exports": [],
   "module_ids": [],
   "feature_ids": [],
   "test_ids": [
-    "file:src/commands/hook.ts"
+    "file:tests/commands/hook.test.ts"
   ],
   "declared_test_targets": [
-    "file:src/commands/hook.ts"
+    "file:src/commands/hook.ts",
+    "file:src/cli.ts",
+    "file:src/config.ts",
+    "file:tests/helpers.ts"
   ],
   "likely_test_targets": [
     "file:src/commands/hook.ts"
@@ -88,7 +48,11 @@
     },
     {
       "kind": "import",
-      "value": "src/commands/hook.js"
+      "value": "file:src/commands/hook.ts"
+    },
+    {
+      "kind": "test_suite",
+      "value": "describe(\"codex stop hook\""
     }
   ],
   "confidence": "high"

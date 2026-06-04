@@ -1,0 +1,53 @@
+{
+  "$schema": "../schema/file-entry.v1.json",
+  "id": "file:src/package-info.ts",
+  "layer": "L1",
+  "type": "file",
+  "path": "src/package-info.ts",
+  "language": "typescript",
+  "content_hash": "sha256:16d0d2873034d793532d97fa1de39d3dc671e6737918ddcba2d92d7a7bd78b39",
+  "size_bytes": 336,
+  "last_scanned_at": "2026-06-04T22:41:57.249Z",
+  "scan_status": "current",
+  "file_role": "source",
+  "summary": "Provides programmatic access to package metadata by reading the root package.json file.",
+  "responsibilities": [
+    "Loads package.json metadata using Node.js require.",
+    "Exposes the package name via a getter function.",
+    "Exposes the package version via a getter function."
+  ],
+  "symbols": [
+    {
+      "id": "symbol:src/package-info.ts#getPackageName",
+      "kind": "function",
+      "name": "getPackageName",
+      "exported": true,
+      "summary": "Returns the name field from package.json."
+    },
+    {
+      "id": "symbol:src/package-info.ts#getPackageVersion",
+      "kind": "function",
+      "name": "getPackageVersion",
+      "exported": true,
+      "summary": "Returns the version field from package.json."
+    }
+  ],
+  "imports": [],
+  "exports": [
+    "getPackageName",
+    "getPackageVersion"
+  ],
+  "module_ids": [],
+  "feature_ids": [],
+  "test_ids": [],
+  "declared_test_targets": [],
+  "likely_test_targets": [],
+  "tested_by": [],
+  "evidence": [
+    {
+      "kind": "path",
+      "value": "src/package-info.ts"
+    }
+  ],
+  "confidence": "high"
+}

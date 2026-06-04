@@ -590,7 +590,23 @@ describe("hook config filesystem helpers", () => {
   });
 });
 
-describe("hooks install command", () => {
+describe("integrations list command", () => {
+  it("prints supported integration names", async () => {
+    const stdout = captureStdout();
+    const program = buildProgram();
+    program.exitOverride();
+
+    await program.parseAsync(["node", "clankerlog", "integrations", "list"]);
+
+    expect(stdout.text()).toContain("Supported integrations:");
+    expect(stdout.text()).toContain("codex");
+    expect(stdout.text()).toContain("opencode");
+    expect(stdout.text()).toContain("openclaw");
+    expect(stdout.text()).toContain("pi");
+  });
+});
+
+describe("integrations install command", () => {
   it("wires Codex install through Commander", async () => {
     const root = await makeTempDir();
     const configPath = path.join(root, ".codex", "hooks.json");
@@ -601,7 +617,7 @@ describe("hooks install command", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "install",
       "codex",
       "--hook-config",
@@ -625,7 +641,7 @@ describe("hooks install command", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "install",
       "claude",
       "--hook-config",
@@ -653,7 +669,7 @@ describe("hooks install command", () => {
       program.parseAsync([
         "node",
         "clankerlog",
-        "hooks",
+        "integrations",
         "install",
         "claude",
         "--hook-config",
@@ -672,7 +688,7 @@ describe("hooks install command", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "install",
       "cursor",
       "--hook-config",
@@ -703,7 +719,7 @@ describe("hooks install command", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "install",
       "hermes",
       "--hook-config",
@@ -735,7 +751,7 @@ describe("hooks install command", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "install",
       "topchester",
       "--hook-config",
@@ -766,7 +782,7 @@ describe("hooks install command", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "install",
       "codex",
       "--hook-config",
@@ -779,7 +795,7 @@ describe("hooks install command", () => {
   });
 });
 
-describe("hooks status and uninstall commands", () => {
+describe("integrations status and uninstall commands", () => {
   it("reports installed status without running a hook simulation", async () => {
     const root = await makeTempDir();
     const configPath = path.join(root, ".codex", "hooks.json");
@@ -795,7 +811,7 @@ describe("hooks status and uninstall commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "status",
       "codex",
       "--hook-config",
@@ -846,7 +862,7 @@ describe("hooks status and uninstall commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "status",
       "codex",
       "--hook-config",
@@ -887,7 +903,7 @@ describe("hooks status and uninstall commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "uninstall",
       "codex",
       "--hook-config",
@@ -919,7 +935,7 @@ describe("hooks status and uninstall commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "uninstall",
       "claude",
       "--hook-config",
@@ -941,7 +957,7 @@ describe("hooks status and uninstall commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "uninstall",
       "codex",
       "--hook-config",
@@ -971,7 +987,7 @@ describe("hooks status and uninstall commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "status",
       "cursor",
       "--hook-config",
@@ -980,7 +996,7 @@ describe("hooks status and uninstall commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "uninstall",
       "cursor",
       "--hook-config",
@@ -1027,7 +1043,7 @@ describe("hooks status and uninstall commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "status",
       "hermes",
       "--hook-config",
@@ -1036,7 +1052,7 @@ describe("hooks status and uninstall commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "uninstall",
       "hermes",
       "--hook-config",
@@ -1080,7 +1096,7 @@ describe("hooks status and uninstall commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "status",
       "topchester",
       "--hook-config",
@@ -1089,7 +1105,7 @@ describe("hooks status and uninstall commands", () => {
     await program.parseAsync([
       "node",
       "clankerlog",
-      "hooks",
+      "integrations",
       "uninstall",
       "topchester",
       "--hook-config",

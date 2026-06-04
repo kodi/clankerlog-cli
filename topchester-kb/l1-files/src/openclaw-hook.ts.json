@@ -93,7 +93,9 @@
   "test_ids": [],
   "declared_test_targets": [],
   "likely_test_targets": [],
-  "tested_by": [],
+  "tested_by": [
+    "file:tests/commands/openclaw-hooks.test.ts"
+  ],
   "evidence": [
     {
       "kind": "path",

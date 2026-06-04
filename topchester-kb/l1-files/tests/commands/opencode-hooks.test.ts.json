@@ -5,18 +5,17 @@
   "type": "file",
   "path": "tests/commands/opencode-hooks.test.ts",
   "language": "typescript",
-  "content_hash": "sha256:41a26ba276ea1026751529c0b5b6e3199e31276be7074e65db734b3b6a471b36",
-  "size_bytes": 6198,
-  "last_scanned_at": "2026-05-31T21:45:07.254Z",
+  "content_hash": "sha256:2c654da0c6b77a8181deb82dc8725459f223ff46ff875ba57b45cf80af514033",
+  "size_bytes": 6226,
+  "last_scanned_at": "2026-06-04T22:42:13.842Z",
   "scan_status": "current",
   "file_role": "test",
-  "summary": "Tests for the Opencode plugin lifecycle management, including installation, uninstallation, status reporting, and CLI command integration.",
+  "summary": "Tests for Opencode plugin lifecycle management, including installation, idempotency, status reporting, and CLI command integration.",
   "responsibilities": [
-    "Verify the installation and verification of the ClankerLog Opencode plugin.",
-    "Ensure uninstallation is safe by preventing removal of manual or non-managed plugins.",
-    "Test CLI command wiring for Opencode hooks via Commander.",
-    "Validate dry-run functionality for install and uninstall workflows.",
-    "Mock process output to verify CLI feedback loops."
+    "Verify the installation and verification logic of the clankerlog Opencode plugin.",
+    "Validate that plugin uninstallation occurs only for known managed files.",
+    "Mock CLI command execution for Opencode integration lifecycle commands.",
+    "Ensure dry-run functionality properly prevents file system modifications."
   ],
   "symbols": [
     {
@@ -24,19 +23,19 @@
       "kind": "function",
       "name": "makeTempDir",
       "exported": false,
-      "summary": "Creates a unique temporary directory for filesystem test isolation."
+      "summary": "Helper to create a temporary test workspace directory."
     },
     {
       "id": "symbol:tests/commands/opencode-hooks.test.ts#captureStdout",
       "kind": "function",
       "name": "captureStdout",
       "exported": false,
-      "summary": "Intercepts process.stdout to assert CLI output messages."
+      "summary": "Helper to intercept and inspect command output."
     }
   ],
   "imports": [
-    "file:src/cli.js",
-    "file:src/opencode-hook.js"
+    "file:src/cli.ts",
+    "file:src/opencode-hook.ts"
   ],
   "exports": [],
   "module_ids": [],
@@ -44,7 +43,10 @@
   "test_ids": [
     "file:tests/commands/opencode-hooks.test.ts"
   ],
-  "declared_test_targets": [],
+  "declared_test_targets": [
+    "file:src/opencode-hook.ts",
+    "file:src/cli.ts"
+  ],
   "likely_test_targets": [
     "file:src/opencode-hook.ts"
   ],

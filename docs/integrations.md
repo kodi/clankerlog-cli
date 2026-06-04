@@ -2,7 +2,7 @@
 
 This document records the working Codex, Claude Code, Cursor, Hermes,
 Topchester, Opencode, and OpenClaw hook integrations. Treat it as both a
-runbook for local testing and the manual fallback for the `clankerlog hooks`
+runbook for local testing and the manual fallback for the `clankerlog integrations`
 helper commands.
 
 ## Codex Stop Hook
@@ -29,7 +29,7 @@ current TypeScript source instead of the built package bin.
 User-facing hook config should use the published CLI name through the helper:
 
 ```bash
-clankerlog hooks install codex
+clankerlog integrations install codex
 ```
 
 ## Manual JSON Fallback
@@ -129,7 +129,7 @@ but it does load JavaScript/TypeScript plugins that can subscribe to session
 events. The ClankerLog integration installs a global plugin:
 
 ```bash
-clankerlog hooks install opencode
+clankerlog integrations install opencode
 ```
 
 The installed file is:
@@ -214,34 +214,35 @@ stack=["typescript","pnpm"]
 Use the helper commands for normal setup:
 
 ```bash
-clankerlog hooks install codex
-clankerlog hooks install claude --model claude-sonnet-4.5
-clankerlog hooks install cursor
-clankerlog hooks install hermes
-clankerlog hooks install topchester
-clankerlog hooks install pi
-clankerlog hooks install openclaw
-clankerlog hooks status codex
-clankerlog hooks status hermes
-clankerlog hooks status topchester
-clankerlog hooks status pi
-clankerlog hooks status openclaw
-clankerlog hooks uninstall codex
-clankerlog hooks uninstall hermes
-clankerlog hooks uninstall topchester
-clankerlog hooks uninstall pi
-clankerlog hooks uninstall openclaw
+clankerlog integrations list
+clankerlog integrations install codex
+clankerlog integrations install claude --model claude-sonnet-4.5
+clankerlog integrations install cursor
+clankerlog integrations install hermes
+clankerlog integrations install topchester
+clankerlog integrations install pi
+clankerlog integrations install openclaw
+clankerlog integrations status codex
+clankerlog integrations status hermes
+clankerlog integrations status topchester
+clankerlog integrations status pi
+clankerlog integrations status openclaw
+clankerlog integrations uninstall codex
+clankerlog integrations uninstall hermes
+clankerlog integrations uninstall topchester
+clankerlog integrations uninstall pi
+clankerlog integrations uninstall openclaw
 ```
 
 Install and uninstall support `--dry-run`:
 
 ```bash
-clankerlog hooks install codex --dry-run
-clankerlog hooks uninstall codex --dry-run
-clankerlog hooks install pi --dry-run
-clankerlog hooks uninstall pi --dry-run
-clankerlog hooks install openclaw --dry-run
-clankerlog hooks uninstall openclaw --dry-run
+clankerlog integrations install codex --dry-run
+clankerlog integrations uninstall codex --dry-run
+clankerlog integrations install pi --dry-run
+clankerlog integrations uninstall pi --dry-run
+clankerlog integrations install openclaw --dry-run
+clankerlog integrations uninstall openclaw --dry-run
 ```
 
 The helpers:
@@ -281,7 +282,7 @@ managed global extension here:
 Install it with:
 
 ```bash
-clankerlog hooks install pi
+clankerlog integrations install pi
 ```
 
 The generated extension listens for Pi's `agent_end` event and runs:
@@ -305,13 +306,13 @@ If Pi is already running, reload extensions after installation:
 Status inspects the extension file and does not send a test clank:
 
 ```bash
-clankerlog hooks status pi
+clankerlog integrations status pi
 ```
 
 Uninstall removes only the exact ClankerLog-managed extension file:
 
 ```bash
-clankerlog hooks uninstall pi
+clankerlog integrations uninstall pi
 ```
 
 ## OpenClaw Message Hook
@@ -333,7 +334,7 @@ The ClankerLog helper installs:
 Install it with:
 
 ```bash
-clankerlog hooks install openclaw
+clankerlog integrations install openclaw
 ```
 
 The generated `HOOK.md` declares the `message:sent` event. The generated
@@ -367,14 +368,14 @@ Status inspects the hook files and, when the OpenClaw CLI is available, reports
 whether OpenClaw sees or enables the hook. It does not send a test clank:
 
 ```bash
-clankerlog hooks status openclaw
+clankerlog integrations status openclaw
 ```
 
 Uninstall removes only a hook directory whose `HOOK.md` and `handler.ts` match
 the ClankerLog-managed files:
 
 ```bash
-clankerlog hooks uninstall openclaw
+clankerlog integrations uninstall openclaw
 ```
 
 If OpenClaw does not enable the hook automatically after installation, run:
@@ -407,7 +408,7 @@ User-facing Claude Code setup should use the published CLI name through the
 helper:
 
 ```bash
-clankerlog hooks install claude --model claude-sonnet-4.5
+clankerlog integrations install claude --model claude-sonnet-4.5
 ```
 
 Claude Code defines hooks in:
@@ -490,7 +491,7 @@ For local development, the hook command uses the repo shim:
 User-facing Cursor setup should use the published CLI name through the helper:
 
 ```bash
-clankerlog hooks install cursor
+clankerlog integrations install cursor
 ```
 
 Cursor defines hooks in:
@@ -518,7 +519,7 @@ command does not need `CLANKERLOG_MODEL`. If a user wants to force a model
 label, the helper can pin one into the command:
 
 ```bash
-clankerlog hooks install cursor --model gpt-5.5
+clankerlog integrations install cursor --model gpt-5.5
 ```
 
 That writes:
@@ -597,7 +598,7 @@ For local development, the hook command uses the repo shim:
 User-facing Hermes setup should use the helper:
 
 ```bash
-clankerlog hooks install hermes
+clankerlog integrations install hermes
 ```
 
 Hermes defines shell hooks in:
@@ -677,7 +678,7 @@ For local development, the hook command uses the repo shim:
 User-facing Topchester setup should use the helper:
 
 ```bash
-clankerlog hooks install topchester
+clankerlog integrations install topchester
 ```
 
 Topchester defines user hooks in:
