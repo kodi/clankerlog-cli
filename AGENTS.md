@@ -2,5 +2,4 @@
 
 API, backend, db and workers are checkedout in a sibling path: `../clankerlog`. Find more info there.
 
-
 Use the fff MCP tools for all file search operations instead of default tools.
