@@ -103,6 +103,24 @@ describe("doctor command", () => {
     expect(output).toContain("api check: skipped (missing API key)");
     expect(output).toContain("current project: denied");
   });
+
+  it("reports auto-tracked current projects", async () => {
+    const root = await makeTempDir();
+    const configPath = path.join(root, "global", "config.json");
+    const runtime = createMemoryRuntime({ configPath, cwd: root });
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [],
+      autoTrackProjects: true,
+    });
+
+    await handleDoctor({}, runtime);
+
+    const output = stripAnsi(runtime.stdoutText());
+    expect(output).toContain("automatic project tracking: enabled");
+    expect(output).toContain("allowed projects: none");
+    expect(output).toContain("current project: allowed as");
+    expect(output).toContain("(auto-tracked)");
+  });
 });
 
 async function makeTempDir(): Promise<string> {

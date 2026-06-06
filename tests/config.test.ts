@@ -14,7 +14,7 @@ describe("global config", () => {
   it("loads an absent config as the empty default", async () => {
     const config = await loadGlobalConfig(path.join(tmpdir(), "missing-clankerlog-config.json"));
 
-    expect(config).toEqual({ allowedProjects: [] });
+    expect(config).toEqual({ allowedProjects: [], autoTrackProjects: false });
   });
 
   it("saves and loads valid config", async () => {
@@ -23,12 +23,14 @@ describe("global config", () => {
 
     await saveGlobalConfig(configPath, {
       allowedProjects: [{ displayName: "clankerlog", path: root }],
+      autoTrackProjects: true,
       apiKey: "clk_live_test_secret",
       endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
     });
 
     await expect(loadGlobalConfig(configPath)).resolves.toEqual({
       allowedProjects: [{ displayName: "clankerlog", path: root }],
+      autoTrackProjects: true,
       apiKey: "clk_live_test_secret",
       endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
     });

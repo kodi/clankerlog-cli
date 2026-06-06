@@ -1,6 +1,6 @@
 import { realpath } from "node:fs/promises";
 import path from "node:path";
-import type { AllowedProject, GlobalConfig } from "./schemas.js";
+import type { AllowedProject, GlobalConfig, ProjectConfig } from "./schemas.js";
 
 export async function resolveProjectPath(cwd: string): Promise<string> {
   return realpath(cwd);
@@ -13,8 +13,28 @@ export function findAllowedProject(
   return config.allowedProjects.find((project) => project.path === projectPath);
 }
 
+export function resolveTrackedProject(
+  config: GlobalConfig,
+  projectPath: string,
+  projectConfig?: ProjectConfig | undefined,
+): AllowedProject | undefined {
+  const allowedProject = findAllowedProject(config, projectPath);
+  if (allowedProject) {
+    return allowedProject;
+  }
+
+  if (!config.autoTrackProjects) {
+    return undefined;
+  }
+
+  return {
+    displayName: projectConfig?.displayName ?? defaultDisplayName(projectPath),
+    path: projectPath,
+  };
+}
+
 export function isProjectAllowed(config: GlobalConfig, projectPath: string): boolean {
-  return findAllowedProject(config, projectPath) !== undefined;
+  return resolveTrackedProject(config, projectPath) !== undefined;
 }
 
 export function defaultDisplayName(projectPath: string): string {

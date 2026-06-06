@@ -15,6 +15,7 @@ describe("schemas", () => {
       }),
     ).toEqual({
       allowedProjects: [{ displayName: "CLI", path: "/tmp/project" }],
+      autoTrackProjects: false,
       apiKey: "clk_live_test_secret",
     });
   });

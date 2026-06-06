@@ -20,7 +20,7 @@ describe("project allow-list", () => {
   });
 
   it("fails closed when the project is absent from config", () => {
-    const config: GlobalConfig = { allowedProjects: [] };
+    const config: GlobalConfig = { allowedProjects: [], autoTrackProjects: false };
 
     expect(isProjectAllowed(config, "/tmp/project")).toBe(false);
     expect(findAllowedProject(config, "/tmp/project")).toBeUndefined();
@@ -29,6 +29,7 @@ describe("project allow-list", () => {
   it("finds exact allow-list matches", () => {
     const config: GlobalConfig = {
       allowedProjects: [{ displayName: "CLI", path: "/tmp/project" }],
+      autoTrackProjects: false,
     };
 
     expect(findAllowedProject(config, "/tmp/project")).toEqual({
@@ -40,7 +41,10 @@ describe("project allow-list", () => {
 
   it("upserts allowed projects by path", () => {
     const config = upsertAllowedProject(
-      { allowedProjects: [{ displayName: "Old", path: "/tmp/project" }] },
+      {
+        allowedProjects: [{ displayName: "Old", path: "/tmp/project" }],
+        autoTrackProjects: false,
+      },
       { displayName: "New", path: "/tmp/project" },
     );
 
@@ -49,5 +53,12 @@ describe("project allow-list", () => {
 
   it("uses folder basename as the default display name", () => {
     expect(defaultDisplayName("/tmp/clankerlog-cli")).toBe("clankerlog-cli");
+  });
+
+  it("allows any project when auto tracking is enabled", () => {
+    const config: GlobalConfig = { allowedProjects: [], autoTrackProjects: true };
+
+    expect(isProjectAllowed(config, "/tmp/project")).toBe(true);
+    expect(findAllowedProject(config, "/tmp/project")).toBeUndefined();
   });
 });

@@ -7,6 +7,7 @@ import {
   globalConfigSchema,
   projectConfigSchema,
   type GlobalConfig,
+  type GlobalConfigInput,
   type ProjectConfig,
 } from "./schemas.js";
 
@@ -27,7 +28,7 @@ export interface ConfigPathsOptions {
 }
 
 export function createDefaultGlobalConfig(): GlobalConfig {
-  return { allowedProjects: [] };
+  return { allowedProjects: [], autoTrackProjects: false };
 }
 
 export function resolveGlobalConfigPath(options: ConfigPathsOptions = {}): string {
@@ -55,7 +56,10 @@ export async function loadGlobalConfig(configPath: string): Promise<GlobalConfig
   return parseJsonConfig(raw, configPath, globalConfigSchema);
 }
 
-export async function saveGlobalConfig(configPath: string, config: GlobalConfig): Promise<void> {
+export async function saveGlobalConfig(
+  configPath: string,
+  config: GlobalConfigInput,
+): Promise<void> {
   const parsed = globalConfigSchema.parse(config);
   const dir = path.dirname(configPath);
 

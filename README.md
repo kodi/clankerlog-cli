@@ -67,6 +67,17 @@ skip the project-local `.clankerlog.json` setup:
 clankerlog allow
 ```
 
+To track every project without allowing each folder manually, enable automatic
+project tracking once:
+
+```bash
+clankerlog allow --all
+```
+
+This sets `autoTrackProjects` in the global config. Explicitly allowed projects
+still keep their configured display names; every other project uses its
+`.clankerlog.json` display name when present, otherwise the folder name.
+
 You can override the public project name when needed. The same `--name` option
 also works with `allow`.
 
@@ -265,7 +276,8 @@ Example payload:
 ```
 
 Projects are denied by default. Run `clankerlog init` or `clankerlog allow`
-inside a folder before `clankerlog ping` can send from it.
+inside a folder before `clankerlog ping` can send from it, or run
+`clankerlog allow --all` once to enable automatic tracking for every project.
 
 ## Development
 

@@ -38,11 +38,12 @@ export const allowedProjectSchema = z
 export const globalConfigSchema = z
   .object({
     allowedProjects: z.array(allowedProjectSchema).default([]),
+    autoTrackProjects: z.boolean().default(false),
     apiKey: z.string().trim().min(1).optional(),
     endpoint: z.url().optional(),
   })
   .strict()
-  .default({ allowedProjects: [] });
+  .default({ allowedProjects: [], autoTrackProjects: false });
 
 export const projectConfigSchema = z
   .object({
@@ -83,6 +84,7 @@ export type AllowedProject = z.infer<typeof allowedProjectSchema>;
 export type AuthCheckSuccess = z.infer<typeof authCheckSuccessSchema>;
 export type ClankPayload = z.infer<typeof clankPayloadSchema>;
 export type GlobalConfig = z.infer<typeof globalConfigSchema>;
+export type GlobalConfigInput = z.input<typeof globalConfigSchema>;
 export type IngestionSuccess = z.infer<typeof ingestionSuccessSchema>;
 export type ProjectConfig = z.infer<typeof projectConfigSchema>;
 

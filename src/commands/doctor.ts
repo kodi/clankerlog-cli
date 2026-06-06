@@ -10,7 +10,7 @@ import {
 import { checkAuth } from "../ingest.js";
 import { writeLine } from "../output.js";
 import { formatHomePath } from "../path-display.js";
-import { findAllowedProject, resolveProjectPath } from "../project.js";
+import { findAllowedProject, resolveProjectPath, resolveTrackedProject } from "../project.js";
 import { redactApiKey } from "../redact.js";
 import { createRuntime, type CliRuntime } from "../runtime.js";
 import { defaultIngestEndpoint, type GlobalConfig, type ProjectConfig } from "../schemas.js";
@@ -52,7 +52,10 @@ export async function handleDoctor(options: DoctorOptions, runtime: CliRuntime):
     config.endpoint ??
     defaultIngestEndpoint;
   const apiKey = options.apiKey ?? runtime.env.CLANKERLOG_API_KEY ?? config.apiKey;
-  const allowedProject = configOk ? findAllowedProject(config, projectPath) : undefined;
+  const explicitAllowedProject = configOk ? findAllowedProject(config, projectPath) : undefined;
+  const trackedProject = configOk
+    ? resolveTrackedProject(config, projectPath, projectConfig)
+    : undefined;
 
   writeLine(
     runtime,
@@ -72,8 +75,10 @@ export async function handleDoctor(options: DoctorOptions, runtime: CliRuntime):
   writeLine(
     runtime,
     `current project: ${
-      allowedProject
-        ? `allowed as ${color.blue(allowedProject.displayName)}`
+      trackedProject
+        ? `allowed as ${color.blue(trackedProject.displayName)}${
+            explicitAllowedProject ? "" : " (auto-tracked)"
+          }`
         : color.yellow("denied")
     }`,
   );
@@ -181,6 +186,10 @@ async function readDoctorProjectConfig(
 }
 
 function writeAllowedProjects(config: GlobalConfig, runtime: CliRuntime): void {
+  if (config.autoTrackProjects) {
+    writeLine(runtime, `automatic project tracking: ${color.green("enabled")}`);
+  }
+
   if (config.allowedProjects.length === 0) {
     writeLine(runtime, `allowed projects: ${color.yellow("none")}`);
     return;

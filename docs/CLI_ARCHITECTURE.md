@@ -183,6 +183,7 @@ Global config shape:
 {
   "apiKey": "clk_live_...",
   "endpoint": "https://ingest.clankerlog.ai/v1/clanks",
+  "autoTrackProjects": false,
   "allowedProjects": [
     {
       "path": "/Users/kodi/data/personal/clankerlog-ai",
@@ -241,12 +242,15 @@ Behavior:
 - Add the current project root to the global allow-list.
 - Store the display-name mapping in global config unless a project-local `.clankerlog.json` exists.
 - If the project is already allowed, print the existing mapping and exit cleanly.
+- With `--all`, set `autoTrackProjects: true` in global config so every project
+  can send clanks without being added to `allowedProjects`.
 
 ### `clankerlog ping`
 
-Purpose: send one clank from an allowed project.
+Purpose: send one clank from an allowed or auto-tracked project.
 
-If the current project is not allowed, fail closed with a helpful message:
+If the current project is not allowed and `autoTrackProjects` is not enabled,
+fail closed with a helpful message:
 
 ```txt
 This project is not allowed to clank yet.

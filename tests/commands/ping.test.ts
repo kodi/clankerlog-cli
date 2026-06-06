@@ -55,6 +55,50 @@ describe("ping command", () => {
     expect(runtime.stdoutText()).toContain('"pnpm"');
   });
 
+  it("uses folder names for auto-tracked projects", async () => {
+    const { configPath, projectPath, runtime } = await setupAllowedProject();
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [],
+      autoTrackProjects: true,
+      apiKey: "clk_live_abcdef_secret",
+    });
+
+    const resolved = await resolvePing(
+      {
+        agent: "codex",
+        model: "gpt-5.5",
+        timestamp: "2026-05-17T20:22:00Z",
+      },
+      runtime,
+    );
+
+    expect(resolved.projectPath).toBe(projectPath);
+    expect(resolved.payload.project.display_name).toBe(path.basename(projectPath));
+  });
+
+  it("uses project config names for auto-tracked projects", async () => {
+    const { configPath, projectPath, runtime } = await setupAllowedProject();
+    await writeFile(
+      path.join(projectPath, ".clankerlog.json"),
+      JSON.stringify({ displayName: "Project File" }),
+    );
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [],
+      autoTrackProjects: true,
+    });
+
+    const resolved = await resolvePing(
+      {
+        agent: "codex",
+        model: "gpt-5.5",
+        timestamp: "2026-05-17T20:22:00Z",
+      },
+      runtime,
+    );
+
+    expect(resolved.payload.project.display_name).toBe("Project File");
+  });
+
   it("resolves flags before env, project config, and global config", async () => {
     const { configPath, projectPath, runtime } = await setupAllowedProject({
       env: {

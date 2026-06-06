@@ -1,10 +1,15 @@
 import { mkdtemp, realpath, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { buildProgram } from "../../src/cli.js";
 import { handleAllow } from "../../src/commands/allow.js";
 import { loadGlobalConfig } from "../../src/config.js";
 import { createMemoryRuntime } from "../helpers.js";
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 describe("allow command", () => {
   it("allows the current project with an explicit name", async () => {
@@ -49,6 +54,38 @@ describe("allow command", () => {
     expect(config.allowedProjects).toHaveLength(1);
     expect(config.allowedProjects[0]?.displayName).toBe("CLI");
     expect(runtime.stdoutText()).toContain("Project already allowed:");
+  });
+
+  it("enables automatic project tracking with --all", async () => {
+    const root = await makeTempDir();
+    const configPath = path.join(root, "global", "config.json");
+    const runtime = createMemoryRuntime({ configPath, cwd: root });
+
+    await handleAllow({ all: true }, runtime);
+
+    await expect(loadGlobalConfig(configPath)).resolves.toMatchObject({
+      allowedProjects: [],
+      autoTrackProjects: true,
+    });
+    expect(runtime.stdoutText()).toContain("Automatic project tracking enabled.");
+  });
+
+  it("wires allow --all through Commander", async () => {
+    const root = await makeTempDir();
+    const configHome = path.join(root, "xdg-config");
+    const configPath = path.join(configHome, "clankerlog", "config.json");
+    const program = buildProgram();
+    const stdoutWrite = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+    vi.stubEnv("XDG_CONFIG_HOME", configHome);
+    program.exitOverride();
+    program.setOptionValue("workspace", root);
+    await program.parseAsync(["node", "clankerlog", "allow", "--all"]);
+
+    await expect(loadGlobalConfig(configPath)).resolves.toMatchObject({
+      autoTrackProjects: true,
+    });
+    expect(stdoutWrite).toHaveBeenCalledWith("Automatic project tracking enabled.\n");
   });
 });
 

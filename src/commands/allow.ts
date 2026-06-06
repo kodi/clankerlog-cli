@@ -15,6 +15,7 @@ import {
 import { createRuntime, type CliRuntime } from "../runtime.js";
 
 export interface AllowOptions {
+  readonly all?: boolean;
   readonly name?: string;
 }
 
@@ -22,6 +23,7 @@ export function registerAllowCommand(program: Command): void {
   program
     .command("allow")
     .description("Allow the current project to send clanks.")
+    .option("-a, --all", "Automatically track every project")
     .option("--name <name>", "Public display name for this project")
     .action(async (options: AllowOptions, command: Command) => {
       await handleAllow(options, createRuntime(command));
@@ -32,6 +34,18 @@ export async function handleAllow(options: AllowOptions, runtime: CliRuntime): P
   const projectPath = await resolveProjectPath(runtime.cwd);
   const configPath = resolveGlobalConfigPath({ configPath: runtime.configPath, env: runtime.env });
   const config = await loadGlobalConfig(configPath);
+
+  if (options.all) {
+    if (config.autoTrackProjects) {
+      writeLine(runtime, "Automatic project tracking is already enabled.");
+      return;
+    }
+
+    await saveGlobalConfig(configPath, { ...config, autoTrackProjects: true });
+    writeLine(runtime, "Automatic project tracking enabled.");
+    return;
+  }
+
   const existing = findAllowedProject(config, projectPath);
 
   if (existing) {

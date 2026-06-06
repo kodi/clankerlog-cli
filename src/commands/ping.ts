@@ -3,7 +3,7 @@ import { loadGlobalConfig, loadProjectConfig, resolveGlobalConfigPath } from "..
 import { CliError } from "../errors.js";
 import { sendClank } from "../ingest.js";
 import { writeLine } from "../output.js";
-import { findAllowedProject, resolveProjectPath } from "../project.js";
+import { resolveProjectPath, resolveTrackedProject } from "../project.js";
 import { redactApiKey } from "../redact.js";
 import { createRuntime, type CliRuntime } from "../runtime.js";
 import { clankPayloadSchema, defaultIngestEndpoint, type ClankPayload } from "../schemas.js";
@@ -90,15 +90,15 @@ export async function resolvePing(
   const projectPath = await resolveProjectPath(runtime.cwd);
   const configPath = resolveGlobalConfigPath({ configPath: runtime.configPath, env: runtime.env });
   const globalConfig = await loadGlobalConfig(configPath);
-  const allowedProject = findAllowedProject(globalConfig, projectPath);
+  const projectConfig = await loadProjectConfig(projectPath);
+  const trackedProject = resolveTrackedProject(globalConfig, projectPath, projectConfig);
 
-  if (!allowedProject) {
+  if (!trackedProject) {
     throw new CliError(
       "This project is not allowed to clank yet.\nRun `clankerlog init` here to allow it.",
     );
   }
 
-  const projectConfig = await loadProjectConfig(projectPath);
   const endpoint =
     options.endpoint ??
     runtime.env.CLANKERLOG_INGEST_URL ??
@@ -126,7 +126,7 @@ export async function resolvePing(
     agent,
     model,
     project: {
-      display_name: options.project ?? projectConfig?.displayName ?? allowedProject.displayName,
+      display_name: options.project ?? projectConfig?.displayName ?? trackedProject.displayName,
     },
     stack: uniqueStack([...explicitStack, ...detectedStack]),
     timestamp: options.timestamp ?? new Date().toISOString(),
