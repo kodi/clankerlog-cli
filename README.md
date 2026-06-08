@@ -19,7 +19,8 @@ Privacy-friendly command-line clanks for coding-agent activity.
 ## Quick Start
 
 This is the easiest path: install the CLI, save your API key, allow one project,
-preview the payload, then connect Codex hooks for automatic clanks.
+preview the payload, then run setup to connect ClankerLog to the coding agents
+already present on your machine.
 
 ```bash
 npm install -g clankerlog
@@ -40,16 +41,18 @@ Preview the payload without sending it:
 clankerlog ping --dry-run --agent codex --model gpt-5.5
 ```
 
-Connect the Codex Stop hook:
+Connect detected coding-agent hooks:
 
 ```bash
-clankerlog integrations install codex
+clankerlog setup
 ```
 
-Then run `/hooks` in Codex if command approval is required. That is the whole
-golden path. The CLI infers stack tags from project files when you do not pass
-`--stack`, and `clankerlog init` defaults the public project name to the folder
-name.
+Setup prints the integrations it detected, asks before writing in an interactive
+terminal, installs the matching hooks, and prints the uninstall command for each
+installed hook. Then run `/hooks` in Codex if command approval is required. That
+is the whole golden path. The CLI infers stack tags from project files when you
+do not pass `--stack`, and `clankerlog init` defaults the public project name to
+the folder name.
 
 ## Project Setup
 
@@ -94,8 +97,18 @@ clankerlog init --stack typescript,pnpm
 ## Agent Hooks
 
 For day-to-day use, wire ClankerLog into your coding agent's hook system so
-clanks are sent automatically after agent activity. Pick the agent you use and
-run its installer.
+clanks are sent automatically after agent activity. The recommended path is:
+
+```bash
+clankerlog setup
+```
+
+`setup` detects supported agents from PATH, known config/plugin directories, or
+already-installed ClankerLog hooks. Use `--dry-run` to preview, `--yes` for
+non-interactive installs, `--all` to install every supported integration, and
+`--include` or `--exclude` to narrow the selection.
+
+You can also pick an agent manually and run its installer.
 
 ### Codex
 
@@ -114,6 +127,9 @@ Install the Claude Code Stop hook with the model name ClankerLog should report:
 ```bash
 clankerlog integrations install claude --model claude-sonnet-4.5
 ```
+
+When using `setup`, pass the same model with `--model` for non-interactive
+Claude installs.
 
 ### Cursor
 

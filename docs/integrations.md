@@ -1,9 +1,41 @@
 # ClankerLog Integrations
 
 This document records the working Codex, Claude Code, Cursor, Hermes,
-Topchester, Opencode, and OpenClaw hook integrations. Treat it as both a
-runbook for local testing and the manual fallback for the `clankerlog integrations`
-helper commands.
+Topchester, Opencode, OpenClaw, and Pi hook integrations. Treat it as both a
+runbook for local testing and the manual fallback for `clankerlog setup` and the
+lower-level `clankerlog integrations` helper commands.
+
+## Recommended Setup
+
+Use setup for normal installation:
+
+```bash
+clankerlog setup
+```
+
+Setup detects supported agents from PATH, known config/plugin directories, or
+already-installed ClankerLog hooks. It shows detected and skipped agents before
+writing, asks for confirmation in an interactive terminal, installs each
+selected hook, prints the exact uninstall command for every installed or
+already-installed integration, and finishes with:
+
+```txt
+Next: run clankerlog doctor to confirm ClankerLog is operational.
+```
+
+Useful setup options:
+
+```bash
+clankerlog setup --dry-run
+clankerlog setup --yes
+clankerlog setup --all --model claude-sonnet-4.5
+clankerlog setup --include codex,opencode
+clankerlog setup --exclude cursor
+```
+
+Claude Code setup needs a model because Claude's Stop hook payload does not
+include one. In non-interactive setup, detected Claude installs are skipped
+unless `--model` is supplied.
 
 ## Codex Stop Hook
 
@@ -211,7 +243,9 @@ stack=["typescript","pnpm"]
 
 ## Helper Commands
 
-Use the helper commands for normal setup:
+Use `clankerlog setup` for normal setup. The lower-level helper commands remain
+available when you want to install, inspect, or remove one integration
+explicitly:
 
 ```bash
 clankerlog integrations list

@@ -10,6 +10,7 @@ import { registerIntegrationsCommand } from "./commands/integrations.js";
 import { registerInitCommand } from "./commands/init.js";
 import { registerLoginCommand } from "./commands/login.js";
 import { registerPingCommand } from "./commands/ping.js";
+import { registerSetupCommand } from "./commands/setup.js";
 import { registerUpdateCommand } from "./commands/update.js";
 import { formatCliError } from "./errors.js";
 import { getPackageVersion } from "./package-info.js";
@@ -44,6 +45,7 @@ export function buildProgram(): Command {
   registerDoctorCommand(program);
   registerHookCommand(program);
   registerIntegrationsCommand(program);
+  registerSetupCommand(program);
   registerUpdateCommand(program);
 
   return program;
