@@ -1,6 +1,6 @@
 {
   "name": "clankerlog",
-  "version": "0.22.0",
+  "version": "0.23.0",
   "description": "CLI entrypoint for privacy-friendly ClankerLog coding-agent activity clanks.",
   "keywords": [
     "activity-log",
