@@ -4,35 +4,34 @@ node = "24"
 
 [tasks.build]
 dir = "{{config_root}}"
-run = "pnpm run build"
+run = "node_modules/.bin/tsdown"
 
 [tasks.typecheck]
 dir = "{{config_root}}"
-run = "pnpm run typecheck"
+run = "node_modules/.bin/tsgo --noEmit"
 
 [tasks.format]
 dir = "{{config_root}}"
-run = "pnpm run format"
+run = "node_modules/.bin/oxfmt . --write"
 
 [tasks.format-check]
 dir = "{{config_root}}"
-run = "pnpm run format-check"
+run = "node_modules/.bin/oxfmt . --check"
 
 [tasks.lint]
 dir = "{{config_root}}"
-run = "pnpm run lint"
+run = "node_modules/.bin/oxlint src --deny-warnings"
 
 [tasks.lint-fix]
 dir = "{{config_root}}"
-run = "pnpm run lint-fix"
+run = "node_modules/.bin/oxlint src --fix"
 
 [tasks.check]
-dir = "{{config_root}}"
-run = "pnpm run check"
+depends = ["lint", "format-check", "typecheck"]
 
 [tasks.test]
 dir = "{{config_root}}"
-run = "pnpm run test"
+run = "node_modules/.bin/vitest run"
 
 [tasks.local-ci]
 depends = ["build", "typecheck", "format-check", "lint", "test"]

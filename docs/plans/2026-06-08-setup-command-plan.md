@@ -200,17 +200,17 @@ Failed:
 Per-slice verification:
 
 ```bash
-pnpm test -- tests/commands/setup.test.ts
-pnpm test -- tests/commands/hooks.test.ts
-pnpm typecheck
+mise run test -- tests/commands/setup.test.ts
+mise run test -- tests/commands/hooks.test.ts
+mise run typecheck
 ```
 
 Final verification:
 
 ```bash
-pnpm run check
-pnpm test
-pnpm run build
+mise run check
+mise run test
+mise run build
 ```
 
 Important test cases:
@@ -284,8 +284,8 @@ Expected output:
 Verification:
 
 ```bash
-pnpm test -- tests/commands/hooks.test.ts tests/commands/opencode-hooks.test.ts tests/commands/openclaw-hooks.test.ts tests/commands/pi-hooks.test.ts
-pnpm typecheck
+mise run test -- tests/commands/hooks.test.ts tests/commands/opencode-hooks.test.ts tests/commands/openclaw-hooks.test.ts tests/commands/pi-hooks.test.ts
+mise run typecheck
 ```
 
 Dependencies: none.
@@ -316,8 +316,8 @@ Expected output:
 Verification:
 
 ```bash
-pnpm test -- tests/commands/setup.test.ts
-pnpm typecheck
+mise run test -- tests/commands/setup.test.ts
+mise run typecheck
 ```
 
 Dependencies: Slice 1.
@@ -357,8 +357,8 @@ Expected output:
 Verification:
 
 ```bash
-pnpm test -- tests/commands/setup.test.ts
-pnpm typecheck
+mise run test -- tests/commands/setup.test.ts
+mise run typecheck
 ```
 
 Dependencies: Slice 2.
@@ -390,8 +390,8 @@ Expected output:
 Verification:
 
 ```bash
-pnpm test -- tests/commands/setup.test.ts
-pnpm typecheck
+mise run test -- tests/commands/setup.test.ts
+mise run typecheck
 ```
 
 Dependencies: Slice 3.
@@ -419,9 +419,9 @@ Expected output:
 Verification:
 
 ```bash
-pnpm run check
-pnpm test
-pnpm run build
+mise run check
+mise run test
+mise run build
 ```
 
 Dependencies: Slice 4.

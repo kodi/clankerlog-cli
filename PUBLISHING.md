@@ -23,11 +23,11 @@ Use `patch` or `major` instead of `minor` when appropriate.
 
 ```bash
 pnpm install
-pnpm check
+mise run check
 npm pack --dry-run
 ```
 
-`npm pack` runs `prepack`, which runs `pnpm run build` and generates
+`npm pack` runs `prepack`, which runs `mise run build` and generates
 `bin/clankerlog.js` for the package tarball.
 
 4. Publish with npm.
@@ -50,7 +50,7 @@ git push origin main --follow-tags
 
 - `prepack`: builds `bin/clankerlog.js` before `npm pack` and `npm publish`
   assemble the tarball.
-- `prepublishOnly`: runs `pnpm check` before `npm publish`.
+- `prepublishOnly`: runs `mise run check` before `npm publish`.
 - `postbuild`: makes `bin/clankerlog.js` executable.
 
 ## Notes

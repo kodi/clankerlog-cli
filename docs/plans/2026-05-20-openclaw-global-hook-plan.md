@@ -184,16 +184,16 @@ handler, such as:
 Per-slice verification should use focused tests:
 
 ```bash
-pnpm test -- tests/commands/openclaw-hooks.test.ts
-pnpm test -- tests/commands/hooks.test.ts
+mise run test -- tests/commands/openclaw-hooks.test.ts
+mise run test -- tests/commands/hooks.test.ts
 ```
 
 Final verification:
 
 ```bash
-pnpm check
-pnpm test
-pnpm build
+mise run check
+mise run test
+mise run build
 ```
 
 Manual verification, if OpenClaw is installed locally:
@@ -299,7 +299,7 @@ Expected output:
 Verification:
 
 ```bash
-pnpm test -- tests/commands/openclaw-hooks.test.ts
+mise run test -- tests/commands/openclaw-hooks.test.ts
 ```
 
 Dependencies:
@@ -340,8 +340,8 @@ Expected output:
 Verification:
 
 ```bash
-pnpm test -- tests/commands/openclaw-hooks.test.ts
-pnpm test -- tests/commands/hooks.test.ts
+mise run test -- tests/commands/openclaw-hooks.test.ts
+mise run test -- tests/commands/hooks.test.ts
 ```
 
 Dependencies:
@@ -381,8 +381,8 @@ Expected output:
 Verification:
 
 ```bash
-pnpm test -- tests/commands/openclaw-hooks.test.ts
-pnpm test -- tests/commands/hook.test.ts
+mise run test -- tests/commands/openclaw-hooks.test.ts
+mise run test -- tests/commands/hook.test.ts
 ```
 
 Dependencies:
@@ -420,7 +420,7 @@ Expected output:
 Verification:
 
 ```bash
-pnpm check
+mise run check
 ```
 
 Dependencies:

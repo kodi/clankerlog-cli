@@ -164,16 +164,16 @@ installed hooks by exact command plus `statusMessage`.
 Per-slice verification should use focused Vitest files:
 
 ```bash
-pnpm test -- tests/commands/hooks.test.ts
-pnpm typecheck
+mise run test -- tests/commands/hooks.test.ts
+mise run typecheck
 ```
 
 Final verification:
 
 ```bash
-pnpm check
-pnpm test
-pnpm build
+mise run check
+mise run test
+mise run build
 ```
 
 Test fixture coverage should include:
@@ -243,8 +243,8 @@ Expected output:
 Verification:
 
 ```bash
-pnpm test -- tests/commands/hooks.test.ts
-pnpm typecheck
+mise run test -- tests/commands/hooks.test.ts
+mise run typecheck
 mise run local-ci
 ```
 
@@ -254,7 +254,7 @@ Completed in this slice:
 
 - Added pure hook config transforms in `src/hook-config.ts`.
 - Added focused transform tests in `tests/commands/hooks.test.ts`.
-- Verified with `pnpm test -- tests/commands/hooks.test.ts`, `pnpm typecheck`,
+- Verified with `mise run test -- tests/commands/hooks.test.ts`, `mise run typecheck`,
   and `mise run local-ci`.
 
 ## Slice 2: Filesystem Safety and Dry-Run Planning
@@ -287,8 +287,8 @@ Expected output:
 Verification:
 
 ```bash
-pnpm test -- tests/commands/hooks.test.ts
-pnpm typecheck
+mise run test -- tests/commands/hooks.test.ts
+mise run typecheck
 mise run local-ci
 ```
 
@@ -300,7 +300,7 @@ Completed in this slice:
   errors, atomic writes, and dry-run-aware install/uninstall file helpers.
 - Added temp-directory tests for missing files, dry-runs, idempotent installs,
   safe uninstalls, malformed JSON, and unsupported shapes.
-- Verified with `pnpm test -- tests/commands/hooks.test.ts`, `pnpm typecheck`,
+- Verified with `mise run test -- tests/commands/hooks.test.ts`, `mise run typecheck`,
   and `mise run local-ci`.
 
 ## Slice 3: `clankerlog integrations install`
@@ -336,8 +336,8 @@ Expected output:
 Verification:
 
 ```bash
-pnpm test -- tests/commands/hooks.test.ts
-pnpm typecheck
+mise run test -- tests/commands/hooks.test.ts
+mise run typecheck
 mise run local-ci
 ```
 
@@ -351,7 +351,7 @@ Completed in this slice:
   test-only config path overrides, and concise install output with exact
   commands.
 - Registered the new command group in `src/cli.ts`.
-- Verified with `pnpm test -- tests/commands/hooks.test.ts`, `pnpm typecheck`,
+- Verified with `mise run test -- tests/commands/hooks.test.ts`, `mise run typecheck`,
   and `mise run local-ci`.
 
 ## Slice 4: `clankerlog integrations status` and `uninstall`
@@ -387,8 +387,8 @@ Expected output:
 Verification:
 
 ```bash
-pnpm test -- tests/commands/hooks.test.ts
-pnpm typecheck
+mise run test -- tests/commands/hooks.test.ts
+mise run typecheck
 mise run local-ci
 ```
 
@@ -400,7 +400,7 @@ Completed in this slice:
   `clankerlog integrations uninstall codex|claude`.
 - Added uninstall dry-runs, command-match status output, and tests proving safe
   removal/no-op behavior with neighboring hooks preserved.
-- Verified with `pnpm test -- tests/commands/hooks.test.ts`, `pnpm typecheck`,
+- Verified with `mise run test -- tests/commands/hooks.test.ts`, `mise run typecheck`,
   and `mise run local-ci`.
 
 ## Slice 5: Documentation and Final Verification
@@ -433,9 +433,9 @@ Expected output:
 Verification:
 
 ```bash
-pnpm check
-pnpm test
-pnpm build
+mise run check
+mise run test
+mise run build
 mise run local-ci
 ```
 
@@ -448,7 +448,7 @@ Completed in this slice:
 - Updated `docs/integrations.md` with implemented helper behavior, validation
   guarantees, approval instructions, and manual JSON fallback examples that use
   the published `clankerlog` command.
-- Verified with direct `pnpm test`, direct underlying check/build commands
+- Verified with direct `mise run test`, direct underlying check/build commands
   (`oxlint`, `oxfmt --check`, `tsgo --noEmit`, `tsdown`), and
   `mise run local-ci`.
 

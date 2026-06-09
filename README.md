@@ -313,8 +313,8 @@ mise run local-ci
 Useful scripts:
 
 ```bash
-pnpm run build
-pnpm run check
-pnpm run test
-pnpm run format
+mise run build
+mise run check
+mise run test
+mise run format
 ```

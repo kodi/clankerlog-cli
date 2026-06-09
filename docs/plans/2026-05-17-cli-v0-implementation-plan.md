@@ -123,9 +123,9 @@ Privacy rules that apply everywhere:
 Per-slice checks should be small and fast. The final V0 gate should be:
 
 ```bash
-pnpm check
-pnpm test
-pnpm build
+mise run check
+mise run test
+mise run build
 node bin/clankerlog.js --help
 npm pack --dry-run
 ```
@@ -174,7 +174,7 @@ Verification:
 
 ```bash
 pnpm install
-pnpm build
+mise run build
 node bin/clankerlog.js --help
 ```
 
@@ -208,8 +208,8 @@ Expected output:
 Verification:
 
 ```bash
-pnpm test -- config schemas project
-pnpm check
+mise run test -- config schemas project
+mise run check
 ```
 
 Dependencies: Slice 1.
@@ -248,8 +248,8 @@ Expected output:
 Verification:
 
 ```bash
-pnpm test -- commands/login commands/init commands/allow
-pnpm build
+mise run test -- commands/login commands/init commands/allow
+mise run build
 ```
 
 Dependencies: Slice 2.
@@ -291,8 +291,8 @@ Expected output:
 Verification:
 
 ```bash
-pnpm test -- commands/ping ingest
-pnpm build
+mise run test -- commands/ping ingest
+mise run build
 ```
 
 Manual local check when the backend is available:
@@ -339,9 +339,9 @@ Expected output:
 Verification:
 
 ```bash
-pnpm check
-pnpm test
-pnpm build
+mise run check
+mise run test
+mise run build
 node bin/clankerlog.js --help
 node bin/clankerlog.js doctor
 npm pack --dry-run
