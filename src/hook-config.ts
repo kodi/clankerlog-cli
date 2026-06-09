@@ -50,6 +50,7 @@ export interface HookStatus {
 export type HookConfigObject = Record<string, unknown>;
 
 interface StopHookLocation {
+  readonly eventKey: "Stop" | "SessionStart" | "stop" | "post_llm_call";
   readonly format: "grouped" | "direct" | "hermes";
   readonly groupIndex: number;
   readonly hookIndex: number;
@@ -98,6 +99,10 @@ export function planInstallHook(
   const source = validateHookConfig(config);
   const command = buildHookCommand(agent, options);
   const status = getHookStatus(source, agent);
+
+  if (agent === "claude") {
+    return planInstallClaudeHook(source, command);
+  }
 
   if (status.installed) {
     return {
@@ -179,7 +184,7 @@ export function planUninstallHook(config: unknown, agent: HookAgent): HookTransf
       const stop = hooks[directStopKey(agent)] as HookConfigObject[];
       stop.splice(location.hookIndex, 1);
     } else {
-      const stop = hooks.Stop as HookConfigObject[];
+      const stop = hooks[location.eventKey] as HookConfigObject[];
       const group = stop[location.groupIndex] as HookConfigObject;
       const groupHooks = group.hooks as HookConfigObject[];
       groupHooks.splice(location.hookIndex, 1);
@@ -314,13 +319,12 @@ export function buildHookCommand(agent: HookAgent, options: InstallHookOptions =
   }
 
   const model = options.model?.trim();
-  if (!model) {
-    throw new CliError(
-      "Claude Code hook install requires --model, for example `--model claude-sonnet-4.5`.",
-    );
-  }
+  const modelPrefix = model ? `CLANKERLOG_MODEL=${shellQuote(model)} ` : "";
+  return `${modelPrefix}clankerlog hook claude stop`;
+}
 
-  return `CLANKERLOG_MODEL=${shellQuote(model)} clankerlog hook claude stop`;
+function buildClaudeSessionStartCommand(): string {
+  return "clankerlog hook claude session-start";
 }
 
 async function applyHookConfigFilePlan(
@@ -356,31 +360,12 @@ export function validateHookConfig(config: unknown): HookConfigObject {
 
   const stop = hooks.Stop;
   if (stop !== undefined) {
-    if (!Array.isArray(stop)) {
-      throw new CliError("Hook config `hooks.Stop` must be an array.");
-    }
+    validateGroupedHookEntries(stop, "Stop");
+  }
 
-    for (const [entryIndex, entry] of stop.entries()) {
-      if (!isPlainObject(entry)) {
-        throw new CliError(`Hook config \`hooks.Stop[${entryIndex}]\` must be an object.`);
-      }
-
-      if (typeof entry.command === "string") {
-        continue;
-      }
-
-      if (!Array.isArray(entry.hooks)) {
-        throw new CliError(`Hook config \`hooks.Stop[${entryIndex}].hooks\` must be an array.`);
-      }
-
-      for (const [hookIndex, hook] of entry.hooks.entries()) {
-        if (!isPlainObject(hook)) {
-          throw new CliError(
-            `Hook config \`hooks.Stop[${entryIndex}].hooks[${hookIndex}]\` must be an object.`,
-          );
-        }
-      }
-    }
+  const sessionStart = hooks.SessionStart;
+  if (sessionStart !== undefined) {
+    validateGroupedHookEntries(sessionStart, "SessionStart");
   }
 
   for (const key of ["stop", "post_llm_call"]) {
@@ -401,6 +386,75 @@ export function validateHookConfig(config: unknown): HookConfigObject {
   }
 
   return config;
+}
+
+function planInstallClaudeHook(source: HookConfigObject, command: string): HookTransformPlan {
+  const locations = findClankerLogHooks(source, "claude");
+  const hasStop = locations.some((location) => location.eventKey === "Stop");
+  const hasSessionStart = locations.some((location) => location.eventKey === "SessionStart");
+
+  if (hasStop && hasSessionStart) {
+    return {
+      action: "already-installed",
+      agent: "claude",
+      changed: false,
+      command,
+      config: source,
+      summary: "ClankerLog claude Stop hook is already installed.",
+    };
+  }
+
+  const nextConfig = cloneHookConfig(source);
+  const hooks = ensureObjectProperty(nextConfig, "hooks");
+
+  if (!hasSessionStart) {
+    appendGroupedHook(
+      hooks,
+      "SessionStart",
+      buildHookObject("claude", buildClaudeSessionStartCommand()),
+    );
+  }
+
+  if (!hasStop) {
+    appendGroupedHook(hooks, "Stop", buildHookObject("claude", command));
+  }
+
+  return {
+    action: "install",
+    agent: "claude",
+    changed: true,
+    command,
+    config: nextConfig,
+    summary: "Install ClankerLog claude Stop hook.",
+  };
+}
+
+function validateGroupedHookEntries(value: unknown, key: "Stop" | "SessionStart"): void {
+  if (!Array.isArray(value)) {
+    throw new CliError(`Hook config \`hooks.${key}\` must be an array.`);
+  }
+
+  for (const [entryIndex, entry] of value.entries()) {
+    if (!isPlainObject(entry)) {
+      throw new CliError(`Hook config \`hooks.${key}[${entryIndex}]\` must be an object.`);
+    }
+
+    if (typeof entry.command === "string") {
+      continue;
+    }
+
+    if (!Array.isArray(entry.hooks)) {
+      throw new CliError(`Hook config \`hooks.${key}[${entryIndex}].hooks\` must be an array.`);
+    }
+
+    for (const [hookIndex, hook] of entry.hooks.entries()) {
+      if (!isPlainObject(hook)) {
+        throw new CliError(
+          `Hook config \`hooks.${key}[${entryIndex}].hooks[${hookIndex}]\` must be an object.`,
+        );
+      }
+    }
+  }
 }
 
 function buildHookObject(agent: HookAgent, command: string): HookConfigObject {
@@ -456,6 +510,36 @@ function ensureStopGroups(hooks: HookConfigObject): HookConfigObject[] {
   return next;
 }
 
+function appendGroupedHook(
+  hooks: HookConfigObject,
+  key: "Stop" | "SessionStart",
+  hook: HookConfigObject,
+): void {
+  const groups = ensureGroupedHooks(hooks, key);
+  const group = groups[0] ?? { hooks: [] };
+  const groupHooks = getGroupHooks(group);
+
+  if (!groups[0]) {
+    groups.push(group);
+  }
+
+  groupHooks.push(hook);
+}
+
+function ensureGroupedHooks(
+  hooks: HookConfigObject,
+  key: "Stop" | "SessionStart",
+): HookConfigObject[] {
+  const value = hooks[key];
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  const next: HookConfigObject[] = [];
+  hooks[key] = next;
+  return next;
+}
+
 function ensureDirectStopHooks(hooks: HookConfigObject, key: string): HookConfigObject[] {
   const stop = hooks[key];
   if (Array.isArray(stop)) {
@@ -489,6 +573,7 @@ function findClankerLogHooks(config: HookConfigObject, agent: HookAgent): StopHo
     for (const [hookIndex, hook] of (hooks[directStopKey(agent)] as HookConfigObject[]).entries()) {
       if (isPlainObject(hook) && isClankerLogHook(hook, agent)) {
         locations.push({
+          eventKey: directStopKey(agent),
           format: agent === "hermes" ? "hermes" : "direct",
           groupIndex: -1,
           hookIndex,
@@ -500,19 +585,21 @@ function findClankerLogHooks(config: HookConfigObject, agent: HookAgent): StopHo
     return locations;
   }
 
-  if (!Array.isArray(hooks.Stop)) {
-    return [];
-  }
-
-  for (const [groupIndex, group] of hooks.Stop.entries()) {
-    const groupHooks = (group as HookConfigObject).hooks;
-    if (!Array.isArray(groupHooks)) {
+  for (const eventKey of ["Stop", "SessionStart"] as const) {
+    if (!Array.isArray(hooks[eventKey])) {
       continue;
     }
 
-    for (const [hookIndex, hook] of groupHooks.entries()) {
-      if (isPlainObject(hook) && isClankerLogHook(hook, agent)) {
-        locations.push({ format: "grouped", groupIndex, hookIndex, hook });
+    for (const [groupIndex, group] of hooks[eventKey].entries()) {
+      const groupHooks = (group as HookConfigObject).hooks;
+      if (!Array.isArray(groupHooks)) {
+        continue;
+      }
+
+      for (const [hookIndex, hook] of groupHooks.entries()) {
+        if (isPlainObject(hook) && isClankerLogHook(hook, agent)) {
+          locations.push({ eventKey, format: "grouped", groupIndex, hookIndex, hook });
+        }
       }
     }
   }
@@ -565,7 +652,11 @@ function isExpectedClankerLogHook(hook: HookConfigObject, agent: HookAgent): boo
     return command === buildHookCommand("topchester");
   }
 
-  return /^CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+) clankerlog hook claude stop$/.test(command);
+  return (
+    command === buildHookCommand("claude") ||
+    command === buildClaudeSessionStartCommand() ||
+    /^CLANKERLOG_MODEL=(?:'([^']|'\\'')+'|[^ ]+) clankerlog hook claude stop$/.test(command)
+  );
 }
 
 function isLegacyClankerLogHook(hook: HookConfigObject, agent: HookAgent): boolean {

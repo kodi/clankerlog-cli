@@ -34,10 +34,10 @@ written into user hook config by the installer.
 - Default to dry, conservative behavior on malformed files: report validation
   errors and do not write partial fixes.
 - The generated hook command should be visible in command output before writes.
-- Claude Code install needs a model because Claude Stop hook payloads do not
-  include one. Require `clankerlog integrations install claude --model <model>` and
-  show a hint for Opus/Sonnet formatting, such as `claude-opus-4.5` or
-  `claude-sonnet-4.5`.
+- Claude Code install should include both SessionStart and Stop hooks.
+  SessionStart records the model for the session because Claude Stop hook
+  payloads do not include it. Keep `--model <model>` as an optional Stop-hook
+  fallback.
 - `clankerlog integrations status` should inspect hook config only. It should not run
   an automatic `clankerlog hook <agent> stop --dry-run` simulation.
 - Uninstall should preserve existing JSON containers, including now-empty
@@ -179,7 +179,8 @@ pnpm build
 Test fixture coverage should include:
 
 - Missing Codex hook file creates `hooks.Stop` with one ClankerLog entry.
-- Missing Claude settings file creates `hooks.Stop` with one ClankerLog entry.
+- Missing Claude settings file creates `hooks.SessionStart` and `hooks.Stop`
+  with one ClankerLog entry each.
 - Existing Stop hooks are preserved when installing Codex.
 - Existing Stop hooks are preserved when installing Claude.
 - Existing non-Stop hooks and unrelated settings are preserved.
@@ -189,7 +190,8 @@ Test fixture coverage should include:
 - Malformed JSON refuses to write and prints a clear error.
 - Unexpected `hooks.Stop` shape refuses to write instead of clobbering.
 - `--dry-run` reports planned changes and leaves files absent/unchanged.
-- Claude install requires `--model` and includes `CLANKERLOG_MODEL`.
+- Claude install records the model via SessionStart and includes
+  `CLANKERLOG_MODEL` only when an optional fallback model is supplied.
 - Codex install uses the Codex payload model and does not embed
   `CLANKERLOG_MODEL`.
 
@@ -345,7 +347,7 @@ Completed in this slice:
 
 - Added the plural `clankerlog integrations install` command group for Codex and
   Claude Code.
-- Added dry-run support, Claude model validation with examples, hidden
+- Added dry-run support, optional Claude model fallback examples, hidden
   test-only config path overrides, and concise install output with exact
   commands.
 - Registered the new command group in `src/cli.ts`.

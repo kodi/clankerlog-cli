@@ -173,17 +173,6 @@ export async function handleSetup(options: SetupOptions, runtime: CliRuntime): P
 
   const prompts = streamsAreTty(runtime) ? new PromptSession(runtime) : undefined;
   try {
-    if (
-      selected.some((definition) => definition.agent === "claude") &&
-      !resolved.model?.trim() &&
-      prompts
-    ) {
-      const model = await promptClaudeModel(prompts);
-      if (model) {
-        resolved = { ...resolved, model };
-      }
-    }
-
     if (prompts && shouldConfirm(resolved)) {
       const confirmed = await confirmSetup(prompts);
       if (!confirmed) {
@@ -196,15 +185,6 @@ export async function handleSetup(options: SetupOptions, runtime: CliRuntime): P
   }
 
   for (const definition of selected) {
-    if (definition.agent === "claude" && !resolved.model?.trim()) {
-      results.push({
-        agent: definition.agent,
-        detail: "Claude Code requires --model.",
-        status: "skipped",
-      });
-      continue;
-    }
-
     try {
       const plan = await definition.install(resolved);
       results.push({
@@ -516,13 +496,6 @@ async function confirmSetup(prompts: PromptSession): Promise<boolean> {
     .trim()
     .toLowerCase();
   return answer === "y" || answer === "yes";
-}
-
-async function promptClaudeModel(prompts: PromptSession): Promise<string | undefined> {
-  const answer = (
-    await prompts.question("Claude Code model, for example claude-opus-4.6: ")
-  ).trim();
-  return answer || undefined;
 }
 
 class PromptSession {

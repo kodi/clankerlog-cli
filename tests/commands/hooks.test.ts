@@ -42,13 +42,25 @@ describe("hook config transforms", () => {
     });
   });
 
-  it("creates a Claude Stop hook with the required model environment", () => {
+  it("creates Claude SessionStart and Stop hooks with the optional model fallback", () => {
     const plan = planInstallHook({}, "claude", { model: "claude-sonnet-4.5" });
 
     expect(plan.changed).toBe(true);
     expect(plan.command).toBe("CLANKERLOG_MODEL='claude-sonnet-4.5' clankerlog hook claude stop");
     expect(plan.config).toEqual({
       hooks: {
+        SessionStart: [
+          {
+            hooks: [
+              {
+                type: "command",
+                command: "clankerlog hook claude session-start",
+                timeout: 10,
+                statusMessage: "Sending ClankerLog clank",
+              },
+            ],
+          },
+        ],
         Stop: [
           {
             hooks: [
@@ -65,8 +77,25 @@ describe("hook config transforms", () => {
     });
   });
 
-  it("requires a Claude model when building the installed command", () => {
-    expect(() => buildHookCommand("claude")).toThrow("requires --model");
+  it("creates Claude hooks without a model fallback", () => {
+    const plan = planInstallHook({}, "claude");
+
+    expect(plan.changed).toBe(true);
+    expect(plan.command).toBe("clankerlog hook claude stop");
+    expect(plan.config).toMatchObject({
+      hooks: {
+        SessionStart: [
+          {
+            hooks: [{ command: "clankerlog hook claude session-start" }],
+          },
+        ],
+        Stop: [
+          {
+            hooks: [{ command: "clankerlog hook claude stop" }],
+          },
+        ],
+      },
+    });
   });
 
   it("creates a Cursor stop hook that reads the model from hook stdin", () => {
@@ -369,6 +398,9 @@ describe("hook config transforms", () => {
     expect(() => planInstallHook({ hooks: { Stop: {} } }, "codex")).toThrow(
       "`hooks.Stop` must be an array",
     );
+    expect(() => planInstallHook({ hooks: { SessionStart: {} } }, "claude")).toThrow(
+      "`hooks.SessionStart` must be an array",
+    );
     expect(() => planInstallHook({ hooks: { Stop: [{}] } }, "codex")).toThrow(
       "`hooks.Stop[0].hooks` must be an array",
     );
@@ -659,23 +691,27 @@ describe("integrations install command", () => {
     await expect(readFile(configPath, "utf8")).rejects.toThrow();
   });
 
-  it("prints a concise Claude model hint when model is missing", async () => {
+  it("wires Claude install without a model fallback through Commander", async () => {
     const root = await makeTempDir();
     const configPath = path.join(root, ".claude", "settings.json");
+    const stdout = captureStdout();
     const program = buildProgram();
     program.exitOverride();
 
-    await expect(
-      program.parseAsync([
-        "node",
-        "clankerlog",
-        "integrations",
-        "install",
-        "claude",
-        "--hook-config",
-        configPath,
-      ]),
-    ).rejects.toThrow("claude-sonnet-4.5");
+    await program.parseAsync([
+      "node",
+      "clankerlog",
+      "integrations",
+      "install",
+      "claude",
+      "--hook-config",
+      configPath,
+      "--dry-run",
+    ]);
+
+    expect(stdout.text()).toContain(`Target: ${configPath}`);
+    expect(stdout.text()).toContain("Command: clankerlog hook claude stop");
+    expect(stdout.text()).toContain("Action: would install");
   });
 
   it("wires Cursor install through Commander", async () => {

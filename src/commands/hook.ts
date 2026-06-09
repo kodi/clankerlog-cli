@@ -1,5 +1,9 @@
 import type { Command } from "commander";
-import { handleClaudeStopHook, registerClaudeHookCommand } from "../agent-hooks/claude.js";
+import {
+  handleClaudeSessionStartHook,
+  handleClaudeStopHook,
+  registerClaudeHookCommand,
+} from "../agent-hooks/claude.js";
 import { handleCodexStopHook, registerCodexHookCommand } from "../agent-hooks/codex.js";
 import { handleCursorStopHook, registerCursorHookCommand } from "../agent-hooks/cursor.js";
 import { handleHermesStopHook, registerHermesHookCommand } from "../agent-hooks/hermes.js";
@@ -13,6 +17,7 @@ import {
 } from "../agent-hooks/topchester.js";
 
 export {
+  handleClaudeSessionStartHook,
   handleClaudeStopHook,
   handleCodexStopHook,
   handleCursorStopHook,

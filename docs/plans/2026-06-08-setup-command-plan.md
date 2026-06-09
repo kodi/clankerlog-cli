@@ -83,8 +83,9 @@ Out of scope:
   `src/opencode-hook.ts`, `src/openclaw-hook.ts`, and `src/pi-hook.ts`.
 - Existing install handlers write human-readable output directly to
   `CliRuntime.stdout`.
-- Claude Code installation requires a model because the Claude Stop payload does
-  not provide one.
+- Claude Code installation uses SessionStart to cache the session model because
+  the Stop payload does not provide one. `--model` remains an optional Stop
+  fallback.
 - Existing tests already cover low-level hook transforms and installer behavior
   in `tests/commands/hooks.test.ts`, `tests/commands/opencode-hooks.test.ts`,
   `tests/commands/openclaw-hooks.test.ts`, and `tests/commands/pi-hooks.test.ts`.
@@ -151,9 +152,7 @@ Recommended default interaction:
 
 1. Detect agents.
 2. Show detected and skipped agents.
-3. Prompt only when needed:
-   - ask for Claude model if Claude is detected and `--model` was not provided
-   - ask for confirmation before writes unless `--yes` is provided
+3. Prompt for confirmation before writes unless `--yes` is provided.
 4. Install each selected integration.
 5. Continue after per-agent failures, but exit non-zero if any selected install
    failed.
@@ -224,9 +223,9 @@ Important test cases:
 - already-installed hooks are included in the summary
 - `--dry-run` reports planned changes and writes nothing
 - `--yes` installs detected agents without prompting
-- interactive setup asks for Claude model when needed
-- non-interactive Claude setup without `--model` skips Claude with a clear
-  warning and keeps processing other selected agents
+- interactive setup installs Claude without a model prompt
+- non-interactive Claude setup without `--model` installs Claude and relies on
+  the SessionStart model cache
 - `--all` selects all supported integrations regardless of discovery
 - one malformed config produces a failed entry while other agents still install
 - `--include codex,opencode` limits setup to those agents
@@ -341,11 +340,10 @@ This slice should implement:
   - `--all`
   - `--include <agents>`
   - `--exclude <agents>`
-  - `--model <model>`
+- `--model <model>`
 - TTY-aware semi-interactive confirmation
-- Claude model prompt when needed
-- non-interactive behavior for required missing inputs based on the final
-  decision: skip Claude with a warning when `--model` is missing
+- optional Claude model fallback
+- non-interactive Claude setup without `--model`
 - hidden test overrides for home directory and PATH
 
 Expected output:

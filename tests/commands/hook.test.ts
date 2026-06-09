@@ -4,7 +4,9 @@ import path from "node:path";
 import { Readable } from "node:stream";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { buildProgram } from "../../src/cli.js";
+import { loadClaudeSessionModel } from "../../src/agent-hooks/claude-session-model.js";
 import {
+  handleClaudeSessionStartHook,
   handleClaudeStopHook,
   handleCodexStopHook,
   handleCursorStopHook,
@@ -146,6 +148,51 @@ describe("codex stop hook", () => {
 });
 
 describe("claude stop hook", () => {
+  it("uses the model cached by the Claude SessionStart hook", async () => {
+    const root = await makeTempDir();
+    await writeFile(path.join(root, "package.json"), "{}");
+    const projectPath = await realpath(root);
+    const configPath = path.join(root, "global", "config.json");
+    const fetchMock = vi.fn<typeof fetch>(
+      async () => new Response(JSON.stringify({ id: "clank_hook", ok: true }), { status: 202 }),
+    );
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    await saveGlobalConfig(configPath, {
+      allowedProjects: [{ displayName: "Claude Hook Project", path: projectPath }],
+      apiKey: "clk_live_hook_secret",
+      endpoint: "https://ingest.dev.clankerlog.ai/v1/clanks",
+    });
+
+    await handleClaudeSessionStartHook(
+      createMemoryRuntime({
+        configPath,
+        cwd: projectPath,
+        stdin: JSON.stringify(
+          claudeSessionStartPayload({ cwd: projectPath, model: "claude-sonnet-4-6" }),
+        ),
+      }),
+    );
+
+    const runtime = createMemoryRuntime({
+      configPath,
+      cwd: await makeTempDir(),
+      stdin: JSON.stringify(claudeStopPayload({ cwd: projectPath })),
+    });
+
+    await handleClaudeStopHook(runtime);
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const request = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    const body = JSON.parse(String(request.body));
+    expect(body).toMatchObject({
+      agent: "claude",
+      model: "claude-sonnet-4.6",
+      project: { display_name: "Claude Hook Project" },
+      type: "clank",
+    });
+  });
+
   it("sends one quiet clank using cwd from hook stdin and model from env", async () => {
     const root = await makeTempDir();
     await writeFile(path.join(root, "package.json"), "{}");
@@ -273,6 +320,28 @@ describe("claude stop hook", () => {
     expect(runtime.stdoutText()).toContain('"agent": "claude"');
     expect(runtime.stdoutText()).toContain('"model": "gpt-5.5"');
     expect(runtime.stdoutText()).toContain('"display_name": "Claude Hook Project"');
+  });
+
+  it("wires the hook claude session-start CLI command through Commander", async () => {
+    const root = await makeTempDir();
+    const configHome = path.join(root, "xdg-config");
+    vi.stubEnv("XDG_CONFIG_HOME", configHome);
+    Object.defineProperty(process, "stdin", {
+      configurable: true,
+      value: Readable.from([
+        JSON.stringify(claudeSessionStartPayload({ cwd: root, model: "claude-opus-4-8" })),
+      ]),
+    });
+
+    const program = buildProgram();
+    program.exitOverride();
+    await program.parseAsync(["node", "clankerlog", "hook", "claude", "session-start"]);
+
+    const runtime = createMemoryRuntime({
+      configPath: path.join(configHome, "clankerlog", "config.json"),
+      cwd: root,
+    });
+    await expectClaudeSessionModel(runtime, "session_123", "claude-opus-4-8");
   });
 });
 
@@ -769,6 +838,25 @@ function claudeStopPayload(options: { cwd: string }) {
     stop_hook_active: false,
     transcript_path: "/tmp/transcript.jsonl",
   };
+}
+
+function claudeSessionStartPayload(options: { cwd: string; model: string }) {
+  return {
+    cwd: options.cwd,
+    hook_event_name: "SessionStart",
+    model: options.model,
+    session_id: "session_123",
+    source: "startup",
+    transcript_path: "/tmp/transcript.jsonl",
+  };
+}
+
+async function expectClaudeSessionModel(
+  runtime: ReturnType<typeof createMemoryRuntime>,
+  sessionId: string,
+  model: string,
+): Promise<void> {
+  await expect(loadClaudeSessionModel(runtime, sessionId)).resolves.toBe(model);
 }
 
 function cursorStopPayload(options: { workspaceRoot: string; model: string }) {

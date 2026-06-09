@@ -1,5 +1,4 @@
 import { Option, type Command } from "commander";
-import { CliError } from "../errors.js";
 import {
   getHookConfigStatus,
   type HookAgent,
@@ -71,12 +70,6 @@ export async function handleInstallHook(
   runtime: CliRuntime,
   options: InstallOptions = {},
 ): Promise<void> {
-  if (agent === "claude" && !options.model?.trim()) {
-    throw new CliError(
-      "Claude Code hook install requires --model, for example `--model claude-sonnet-4.5` or `--model claude-opus-4.5`.",
-    );
-  }
-
   const fileOptions = toHookConfigFileOptions(options);
   const targetPath = resolveHookConfigPath(agent, fileOptions);
   const config = await loadHookConfigFile(targetPath, agent);

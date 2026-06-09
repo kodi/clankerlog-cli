@@ -185,7 +185,7 @@ describe("setup command", () => {
     expect(stdout.text()).toContain("codex       already installed at ~/.codex/hooks.json");
   });
 
-  it("skips Claude without a model and keeps processing other agents", async () => {
+  it("installs Claude without a model and keeps processing other agents", async () => {
     const root = await makeTempDir();
     const stdout = captureStdout();
     const program = buildProgram();
@@ -204,14 +204,14 @@ describe("setup command", () => {
       "--yes",
     ]);
 
-    expect(stdout.text()).toContain("claude      Claude Code requires --model");
+    expect(stdout.text()).toContain("claude      installed at ~/.claude/settings.json");
     expect(stdout.text()).toContain("codex       installed at ~/.codex/hooks.json");
   });
 
-  it("asks for the Claude model during interactive setup", async () => {
+  it("confirms interactive Claude setup without asking for a model", async () => {
     const root = await makeTempDir();
     const stdout = captureWritable();
-    const stdin = Readable.from(["claude-sonnet-4.5\nyes\n"]);
+    const stdin = Readable.from(["yes\n"]);
     Object.defineProperty(stdin, "isTTY", { value: true });
     Object.defineProperty(stdout, "isTTY", { value: true });
 
@@ -224,11 +224,37 @@ describe("setup command", () => {
       makeRuntime(root, stdin, stdout),
     );
 
-    expect(stdout.text()).toContain("Claude Code model, for example claude-opus-4.6:");
     expect(stdout.text()).toContain("Install selected integrations?");
     expect(stdout.text()).toContain("claude      installed at ~/.claude/settings.json");
     await expect(readFile(path.join(root, ".claude", "settings.json"), "utf8")).resolves.toContain(
+      "clankerlog hook claude session-start",
+    );
+  });
+
+  it("keeps --model as a Claude Stop fallback when supplied", async () => {
+    const root = await makeTempDir();
+    const stdout = captureStdout();
+    const program = buildProgram();
+    program.exitOverride();
+
+    await program.parseAsync([
+      "node",
+      "clankerlog",
+      "setup",
+      "--home-directory",
+      root,
+      "--path-env",
+      "",
+      "--include",
+      "claude",
+      "--model",
       "claude-sonnet-4.5",
+      "--yes",
+    ]);
+
+    expect(stdout.text()).toContain("claude      installed at ~/.claude/settings.json");
+    await expect(readFile(path.join(root, ".claude", "settings.json"), "utf8")).resolves.toContain(
+      "CLANKERLOG_MODEL='claude-sonnet-4.5' clankerlog hook claude stop",
     );
   });
 

@@ -28,14 +28,14 @@ Useful setup options:
 ```bash
 clankerlog setup --dry-run
 clankerlog setup --yes
-clankerlog setup --all --model claude-sonnet-4.5
+clankerlog setup --all
 clankerlog setup --include codex,opencode
 clankerlog setup --exclude cursor
 ```
 
-Claude Code setup needs a model because Claude's Stop hook payload does not
-include one. In non-interactive setup, detected Claude installs are skipped
-unless `--model` is supplied.
+Claude Code setup installs a SessionStart hook that records the current model
+for each Claude session, then the Stop hook reads that session lookup before
+falling back to `--model` / `CLANKERLOG_MODEL`.
 
 ## Codex Stop Hook
 

@@ -122,14 +122,15 @@ After installing, run `/hooks` in Codex if command approval is required.
 
 ### Claude Code
 
-Install the Claude Code Stop hook with the model name ClankerLog should report:
+Install the Claude Code SessionStart and Stop hooks:
 
 ```bash
-clankerlog integrations install claude --model claude-sonnet-4.5
+clankerlog integrations install claude
 ```
 
-When using `setup`, pass the same model with `--model` for non-interactive
-Claude installs.
+The SessionStart hook records Claude's current model for the session. You can
+still pass `--model claude-sonnet-4.5` to install a Stop-hook fallback for older
+or incomplete hook payloads.
 
 ### Cursor
 
