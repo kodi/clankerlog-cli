@@ -7,7 +7,7 @@ import { resolveProjectPath, resolveTrackedProject } from "../project.js";
 import { redactApiKey } from "../redact.js";
 import { createRuntime, type CliRuntime } from "../runtime.js";
 import { clankPayloadSchema, defaultIngestEndpoint, type ClankPayload } from "../schemas.js";
-import { detectStackFromFilenames, parseStackValues, uniqueStack } from "../stack.js";
+import { detectStackFromFilenames, mergeStack, parseStackValues, uniqueStack } from "../stack.js";
 
 export interface PingOptions {
   readonly agent?: string;
@@ -128,7 +128,7 @@ export async function resolvePing(
     project: {
       display_name: options.project ?? projectConfig?.displayName ?? trackedProject.displayName,
     },
-    stack: uniqueStack([...explicitStack, ...detectedStack]),
+    stack: mergeStack(explicitStack, detectedStack),
     timestamp: options.timestamp ?? new Date().toISOString(),
     type: "clank",
   });

@@ -1,5 +1,14 @@
 import { readdir } from "node:fs/promises";
 import { stackSchema } from "./schemas.js";
+import {
+  detectStackFromEntries,
+  stackDetectionRules,
+  type StackDetectionRule,
+} from "./stack-detection.js";
+
+const maximumStackTags = 32;
+
+export type DirectoryReader = (projectPath: string) => Promise<readonly string[]>;
 
 export function parseStackValues(values: readonly string[] | undefined): string[] {
   const stack = values
@@ -10,41 +19,36 @@ export function parseStackValues(values: readonly string[] | undefined): string[
   return stackSchema.parse(stack ?? []);
 }
 
-export async function detectStackFromFilenames(projectPath: string): Promise<string[]> {
-  const filenames = new Set(await readdir(projectPath));
-  const detected: string[] = [];
-
-  if (filenames.has("package.json")) {
-    detected.push("typescript");
-  }
-
-  if (filenames.has("pnpm-lock.yaml")) {
-    detected.push("pnpm");
-  }
-
-  if (filenames.has("go.mod")) {
-    detected.push("go");
-  }
-
-  if (filenames.has("Cargo.toml")) {
-    detected.push("rust");
-  }
-
-  if (filenames.has("pyproject.toml")) {
-    detected.push("python");
-  }
-
-  if (filenames.has("deno.json")) {
-    detected.push("deno");
-  }
-
-  if (filenames.has("wrangler.jsonc") || filenames.has("wrangler.toml")) {
-    detected.push("cloudflare");
-  }
-
-  return uniqueStack(detected);
+export async function detectStackFromFilenames(
+  projectPath: string,
+  readDirectory: DirectoryReader = readdir,
+  rules: readonly StackDetectionRule[] = stackDetectionRules,
+): Promise<string[]> {
+  return detectStackFromEntries(await readDirectory(projectPath), rules);
 }
 
 export function uniqueStack(values: readonly string[]): string[] {
   return stackSchema.parse([...new Set(values)]);
+}
+
+export function mergeStack(
+  explicit: readonly string[],
+  detected: readonly string[],
+  max = maximumStackTags,
+): string[] {
+  const merged = uniqueStack(explicit);
+  const seen = new Set(merged);
+
+  for (const tag of detected) {
+    if (merged.length >= max) {
+      break;
+    }
+
+    if (!seen.has(tag)) {
+      merged.push(tag);
+      seen.add(tag);
+    }
+  }
+
+  return stackSchema.parse(merged);
 }
