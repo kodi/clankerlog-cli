@@ -10,6 +10,44 @@ import {
 } from "../src/stack-detection.js";
 import { detectStackFromFilenames, mergeStack } from "../src/stack.js";
 
+const waveTwoExactCases: ReadonlyArray<readonly [string, readonly string[]]> = [
+  ["composer.json", ["php", "composer"]],
+  ["composer.lock", ["php", "composer"]],
+  ["Gemfile", ["ruby"]],
+  ["Gemfile.lock", ["ruby"]],
+  [".ruby-version", ["ruby"]],
+  ["mix.exs", ["elixir"]],
+  ["mix.lock", ["elixir"]],
+  ["rebar.config", ["erlang"]],
+  ["rebar.lock", ["erlang"]],
+  ["pubspec.yaml", ["dart"]],
+  ["pubspec.lock", ["dart"]],
+  ["build.sbt", ["scala"]],
+  ["deps.edn", ["clojure"]],
+  ["project.clj", ["clojure"]],
+  ["cabal.project", ["haskell"]],
+  ["stack.yaml", ["haskell"]],
+  ["build.zig", ["zig"]],
+  ["build.zig.zon", ["zig"]],
+  ["pom.xml", ["maven"]],
+  ["mvnw", ["maven"]],
+  ["build.gradle", ["gradle"]],
+  ["build.gradle.kts", ["gradle"]],
+  ["settings.gradle", ["gradle"]],
+  ["settings.gradle.kts", ["gradle"]],
+  ["gradlew", ["gradle"]],
+  ["CMakeLists.txt", ["cmake"]],
+  ["CMakePresets.json", ["cmake"]],
+  ["meson.build", ["meson"]],
+  ["MODULE.bazel", ["bazel"]],
+  ["WORKSPACE", ["bazel"]],
+  ["WORKSPACE.bazel", ["bazel"]],
+  ["BUILD.bazel", ["bazel"]],
+  ["flake.nix", ["nix"]],
+  ["shell.nix", ["nix"]],
+  ["default.nix", ["nix"]],
+];
+
 describe("stack detection registry", () => {
   it.each([
     ["Dockerfile", "docker"],
@@ -90,6 +128,44 @@ describe("stack detection registry", () => {
       "nodejs",
       "typescript",
     ]);
+  });
+
+  it.each(waveTwoExactCases)("detects Wave 2 exact marker %s", (entryName, tags) => {
+    expect(detectStackFromEntries([entryName])).toEqual(tags);
+  });
+
+  it.each(waveTwoExactCases)("rejects nearby Wave 2 exact-marker miss for %s", (entryName) => {
+    expect(detectStackFromEntries([`${entryName}.backup`])).toEqual([]);
+  });
+
+  it.each([
+    ["library.gemspec", "ruby"],
+    ["App.sln", "dotnet"],
+    ["App.slnx", "dotnet"],
+    ["App.csproj", "dotnet"],
+    ["App.fsproj", "dotnet"],
+    ["App.vbproj", "dotnet"],
+    ["library.cabal", "haskell"],
+  ])("detects Wave 2 pattern marker %s as %s", (entryName, tag) => {
+    expect(detectStackFromEntries([entryName])).toEqual([tag]);
+  });
+
+  it.each([
+    "library.gemspec.backup",
+    "App.sln.backup",
+    "App.slnx.backup",
+    "App.csproj.backup",
+    "App.fsproj.backup",
+    "App.vbproj.backup",
+    "library.cabal.backup",
+  ])("rejects nearby Wave 2 pattern miss %s", (entryName) => {
+    expect(detectStackFromEntries([entryName])).toEqual([]);
+  });
+
+  it("requires both official Flutter project markers", () => {
+    expect(detectStackFromEntries(["pubspec.yaml"])).toEqual(["dart"]);
+    expect(detectStackFromEntries([".metadata"])).toEqual([]);
+    expect(detectStackFromEntries(["pubspec.yaml", ".metadata"])).toEqual(["dart", "flutter"]);
   });
 
   it("keeps registry order independent of entry order and deduplicates rule signals", () => {

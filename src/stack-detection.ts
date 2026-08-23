@@ -82,6 +82,70 @@ export const stackDetectionRules: readonly StackDetectionRule[] = [
     tag: "cloudflare",
     anyOf: [{ exact: "wrangler.toml" }, { exact: "wrangler.json" }, { exact: "wrangler.jsonc" }],
   },
+  {
+    tag: "php",
+    anyOf: [{ exact: "composer.json" }, { exact: "composer.lock" }],
+  },
+  {
+    tag: "composer",
+    anyOf: [{ exact: "composer.json" }, { exact: "composer.lock" }],
+  },
+  {
+    tag: "ruby",
+    anyOf: [
+      { exact: "Gemfile" },
+      { exact: "Gemfile.lock" },
+      { exact: ".ruby-version" },
+      { suffix: ".gemspec" },
+    ],
+  },
+  {
+    tag: "dotnet",
+    anyOf: [
+      { suffix: ".sln" },
+      { suffix: ".slnx" },
+      { suffix: ".csproj" },
+      { suffix: ".fsproj" },
+      { suffix: ".vbproj" },
+    ],
+  },
+  { tag: "elixir", anyOf: [{ exact: "mix.exs" }, { exact: "mix.lock" }] },
+  { tag: "erlang", anyOf: [{ exact: "rebar.config" }, { exact: "rebar.lock" }] },
+  { tag: "dart", anyOf: [{ exact: "pubspec.yaml" }, { exact: "pubspec.lock" }] },
+  { tag: "flutter", allOf: [{ exact: "pubspec.yaml" }, { exact: ".metadata" }] },
+  { tag: "scala", anyOf: [{ exact: "build.sbt" }] },
+  { tag: "clojure", anyOf: [{ exact: "deps.edn" }, { exact: "project.clj" }] },
+  {
+    tag: "haskell",
+    anyOf: [{ exact: "cabal.project" }, { exact: "stack.yaml" }, { suffix: ".cabal" }],
+  },
+  { tag: "zig", anyOf: [{ exact: "build.zig" }, { exact: "build.zig.zon" }] },
+  { tag: "maven", anyOf: [{ exact: "pom.xml" }, { exact: "mvnw" }] },
+  {
+    tag: "gradle",
+    anyOf: [
+      { exact: "build.gradle" },
+      { exact: "build.gradle.kts" },
+      { exact: "settings.gradle" },
+      { exact: "settings.gradle.kts" },
+      { exact: "gradlew" },
+    ],
+  },
+  { tag: "cmake", anyOf: [{ exact: "CMakeLists.txt" }, { exact: "CMakePresets.json" }] },
+  { tag: "meson", anyOf: [{ exact: "meson.build" }] },
+  {
+    tag: "bazel",
+    anyOf: [
+      { exact: "MODULE.bazel" },
+      { exact: "WORKSPACE" },
+      { exact: "WORKSPACE.bazel" },
+      { exact: "BUILD.bazel" },
+    ],
+  },
+  {
+    tag: "nix",
+    anyOf: [{ exact: "flake.nix" }, { exact: "shell.nix" }, { exact: "default.nix" }],
+  },
 ];
 
 export function detectStackFromEntries(

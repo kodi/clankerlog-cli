@@ -487,7 +487,7 @@ Dependencies: Slice 1.
 
 ## Slice 3: Common Language And Build Ecosystems
 
-Status: `[ ]` Not started
+Status: `[x]` Done
 
 Goal: Add the Wave 2 catalog without adding content inspection or language
 guesses from ambiguous build systems.
@@ -653,6 +653,66 @@ tests/commands/ping.test.ts` (2 files, 25 tests) and `mise run typecheck`.
 tests/commands/ping.test.ts` (2 files, 73 tests), `mise run typecheck`, and
   `mise run format-check`.
 
+### 2026-08-23 Slice 3 official-marker validation
+
+- Retained PHP/Composer and Ruby markers after checking Composer's root
+  `composer.json`/`composer.lock` workflow and Bundler's root `Gemfile`, default
+  `Gemfile.lock`, `.ruby-version`, and gemspec guidance:
+  <https://getcomposer.org/doc/01-basic-usage.md>
+  <https://bundler.io/guides/gemfile.html>
+- Retained .NET patterns after Microsoft documented `.sln`/`.slnx` as solution
+  formats and `.csproj`, `.fsproj`, and `.vbproj` as language project formats:
+  <https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-sln>
+  <https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview>
+  <https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-your-local-build>
+- Retained Mix and Rebar markers from the current Mix project/dependency docs
+  and Rebar3 root-configuration/lockfile docs:
+  <https://hexdocs.pm/mix/Mix.Project.html>
+  <https://hexdocs.pm/mix/Mix.Tasks.Deps.html>
+  <https://rebar3.org/docs/configuration/configuration/>
+  <https://rebar3.org/docs/configuration/dependencies/>
+- Retained Dart's `pubspec.yaml`/`pubspec.lock` markers from the Dart package
+  layout contract. Retained Flutter's composite only: current Flutter docs say
+  every Flutter project has a root pubspec, and the official Flutter tool repo
+  still ships version-controlled `.metadata` templates for generated projects:
+  <https://dart.dev/tools/pub/package-layout>
+  <https://docs.flutter.dev/tools/pubspec>
+  <https://github.com/flutter/flutter/tree/master/packages/flutter_tools/templates>
+- Retained Scala/sbt, Clojure, Haskell, and Zig markers from their current
+  official build/project documentation:
+  <https://www.scala-sbt.org/1.x/docs/Directories.html>
+  <https://clojure.org/reference/deps_edn>
+  <https://cabal.readthedocs.io/en/3.14/cabal-project-description-file.html>
+  <https://docs.haskellstack.org/en/stable/tutorial/stack_configuration/>
+  <https://ziglang.org/learn/build-system/>
+- Retained Maven, Gradle, CMake, Meson, Bazel, and Nix markers from their
+  official project/build-file documentation:
+  <https://maven.apache.org/pom.html>
+  <https://maven.apache.org/tools/wrapper/index.html>
+  <https://docs.gradle.org/current/userguide/settings_file_basics.html>
+  <https://docs.gradle.org/current/userguide/command_line_interface.html>
+  <https://cmake.org/cmake/help/latest/manual/cmake.1.html>
+  <https://mesonbuild.com/Tutorial.html>
+  <https://bazel.build/external/migration>
+  <https://releases.nixos.org/nix/nix-2.25.5/manual/command-ref/new-cli/nix3-flake.html>
+- No Wave 2 candidate required removal. The ambiguous-language boundaries in
+  the catalog remain: build tools do not infer Java/Kotlin, C/C++, or a .NET
+  language.
+
+### 2026-08-23 Slice 3 implementation findings
+
+- Added all 18 retained Wave 2 rules after the official-marker validation.
+  PHP and Composer intentionally co-emit from their shared distinctive files;
+  Dart and Flutter remain separate, with Flutter requiring both root markers.
+- Added every exact marker, a corresponding exact-name near miss, positive and
+  negative suffix boundaries for Ruby, .NET, and Haskell, and the incomplete
+  versus complete Flutter composite cases.
+- The registry remains data-only and still runs through the single root-read
+  wrapper and existing warmed synthetic performance gate.
+- Verification passed: `mise run test -- tests/stack.test.ts
+tests/commands/ping.test.ts` (2 files, 158 tests), `mise run typecheck`, and
+  `mise run format-check`.
+
 ### 2026-08-23 planning findings
 
 - Current detector evidence and call path were verified in `src/stack.ts` and
@@ -686,11 +746,13 @@ tests/commands/ping.test.ts` (2 files, 73 tests), `mise run typecheck`, and
 
 ## Next Slice
 
-Implement Slice 3 only. Validate every Wave 2 marker against current official
-documentation and record the evidence or any removal here before merging it.
-Then extend `src/stack-detection.ts` with the retained language/build ecosystem
-rules and add table-driven exact-marker positives plus nearby negatives for all
-suffix rules. Prove Flutter requires both `pubspec.yaml` and `.metadata`.
+Implement Slice 4 only. Validate the bounded Wave 3 list against current
+official documentation and record retained, removed, or deferred candidates
+here. Add only distinctive filename-only rules to `src/stack-detection.ts`,
+including composite Laravel and Symfony detection, then extend
+`tests/stack.test.ts` for every marker, representative multi-match roots,
+deterministic full-registry order, duplicates, the complete-registry 32-tag cap,
+and the warmed 50,000-entry performance case.
 Verify with:
 
 ```bash
@@ -698,4 +760,5 @@ mise run test -- tests/stack.test.ts tests/commands/ping.test.ts
 mise run typecheck
 ```
 
-Do not add Wave 3 entries until Slice 3 is independently passing and reviewable.
+Do not update user-facing detection documentation until Slice 4 is independently
+passing and reviewable.
