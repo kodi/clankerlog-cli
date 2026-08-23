@@ -557,7 +557,7 @@ Dependencies: Slice 3.
 
 ## Slice 5: Documentation, Backend Compatibility Check, And Dogfood
 
-Status: `[ ]` Not started
+Status: `[x]` Done
 
 Goal: Publish the supported-marker contract and verify the production-shaped
 source-backed path.
@@ -773,6 +773,31 @@ tests/commands/ping.test.ts` (2 files, 158 tests), `mise run typecheck`, and
 tests/commands/ping.test.ts` (2 files, 243 tests), `mise run typecheck`, and
   `mise run format-check`.
 
+### 2026-08-23 Slice 5 implementation findings
+
+- Updated `README.md` with the one-root-read, filename-only privacy contract,
+  the full 57-tag automatic catalog grouped by purpose, explicit-first
+  supplement semantics, the 32-tag behavior, the Node.js/TypeScript boundary,
+  and the explicit-only escape hatch.
+- Updated `docs/integrations.md` with this checkout's actual detected stack:
+  `nodejs`, `typescript`, and `pnpm`.
+- The instructed `../clankerlog` sibling checkout is absent in the current
+  environment (`test -d ../clankerlog` was false), so backend unknown-tag
+  validation and rendered-UI compatibility remain unverified. No backend/UI
+  compatibility claim is made.
+- Confirmed `/Users/kodi/.local/bin/clankerlog-dev` remains unchanged and sets
+  `entry` to this checkout's `src/cli.ts`.
+- A 100-run informational real-filesystem measurement in this checkout recorded
+  0.061 ms median, 0.105 ms p95, and 1.397 ms maximum stack-detection duration.
+- The source-backed dry-run exited successfully and printed `nodejs`,
+  `typescript`, and `pnpm` for `clankerlog-cli`. The dry-run returns before the
+  ingestion call; the full suite also asserts that this path does not call
+  `fetch`.
+- Final verification passed: `mise run local-ci` (21 files, 451 tests; build,
+  typecheck, format check, and lint all green), standalone `mise run build`, and
+  `/Users/kodi/.local/bin/clankerlog-dev ping --dry-run --agent codex --model
+gpt-5.5`.
+
 ### 2026-08-23 planning findings
 
 - Current detector evidence and call path were verified in `src/stack.ts` and
@@ -806,20 +831,9 @@ tests/commands/ping.test.ts` (2 files, 243 tests), `mise run typecheck`, and
 
 ## Next Slice
 
-Implement Slice 5. Update `README.md` and `docs/integrations.md` with the final
-root-name-only privacy contract, supported automatic tags, Node.js/TypeScript
-correction, supplement semantics, 32-tag behavior, and explicit-only escape
-hatch. Inspect the available `../clankerlog` checkout for arbitrary-tag
-ingestion and generic rendering evidence. Confirm the development shim still
-targets this checkout's `src/cli.ts`, measure an informational local detection
-duration, and run the source-backed dry-run from an allowed project.
-Verify with:
-
-```bash
-mise run local-ci
-mise run build
-~/.local/bin/clankerlog-dev ping --dry-run --agent codex --model gpt-5.5
-```
-
-Inspect the dry-run payload and verify that no network request occurs. Leave the
-shim itself unchanged.
+No implementation slice remains. Before declaring completion, verify the final
+Slice 5 commit is pushed, `main` matches `origin/main`, the worktree is clean,
+all five slice statuses are done, and the current evidence above covers every
+explicit requirement. Backend/UI proof remains explicitly unavailable because
+`../clankerlog` is absent; re-run that compatibility check if the sibling
+checkout is restored later.

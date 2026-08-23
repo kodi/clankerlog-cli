@@ -50,9 +50,9 @@ clankerlog setup
 Setup prints the integrations it detected, asks before writing in an interactive
 terminal, installs the matching hooks, and prints the uninstall command for each
 installed hook. Then run `/hooks` in Codex if command approval is required. That
-is the whole golden path. The CLI infers stack tags from project files when you
-do not pass `--stack`, and `clankerlog init` defaults the public project name to
-the folder name.
+is the whole golden path. The CLI supplements any explicit stack tags with
+conservative tags inferred from root entry names, and `clankerlog init` defaults
+the public project name to the folder name.
 
 ## Project Setup
 
@@ -93,6 +93,11 @@ Add explicit stack tags only if inference is not enough:
 ```bash
 clankerlog init --stack typescript,pnpm
 ```
+
+Explicit tags from `--stack`, `CLANKERLOG_STACK`, or `.clankerlog.json` keep
+their input order and come before inferred tags. Duplicate inferred tags are
+removed. A clank can contain at most 32 stack tags; explicit tags are preserved,
+and automatic tags fill only the remaining capacity.
 
 ## Agent Hooks
 
@@ -274,8 +279,32 @@ allow-list state, and project-local config. It does not send a clank.
 
 The CLI sends a small event with project display name, agent name, model name,
 stack tags, and timestamp. It does not read or send source files, prompts,
-transcripts, diffs, terminal output, secret-looking environment values, or file
-contents. Stack detection uses filenames only.
+transcripts, diffs, terminal output, secret-looking environment values, marker
+filenames, or file contents.
+
+Automatic stack detection performs one non-recursive read of the selected
+project root and matches entry names locally. It does not open manifests or
+configuration files, scan source code, traverse subdirectories, call ecosystem
+tools, or send the evidence that produced a tag.
+
+Supported automatic tags are:
+
+- Languages and runtimes: `nodejs`, `typescript`, `python`, `go`, `rust`,
+  `swift`, `php`, `ruby`, `dotnet`, `elixir`, `erlang`, `dart`, `flutter`,
+  `scala`, `clojure`, `haskell`, `zig`, `deno`, and `bun`.
+- Package and build tools: `npm`, `pnpm`, `yarn`, `composer`, `maven`, `gradle`,
+  `cmake`, `meson`, `bazel`, `nix`, `xcode`, `nx`, and `turborepo`.
+- Frameworks: `nextjs`, `nuxt`, `vite`, `svelte`, `astro`, `angular`, `vue`,
+  `remix`, `gatsby`, `nestjs`, `laravel`, and `symfony`.
+- Infrastructure and deployment: `docker`, `terraform`, `cloudflare`,
+  `kubernetes`, `helm`, `pulumi`, `ansible`, `devcontainer`, `vagrant`, `tilt`,
+  `serverless`, `firebase`, and `aws-cdk`.
+
+Detection is intentionally conservative. For example, `package.json` identifies
+`nodejs`, while TypeScript requires `tsconfig.json` or `tsconfig.*.json`.
+Dependency-only libraries and services without a distinctive root filename—such
+as React, Hono, PostgreSQL, or Redis—remain explicit tags supplied through
+`--stack`, `CLANKERLOG_STACK`, or `.clankerlog.json`.
 
 Example payload:
 
@@ -287,7 +316,7 @@ Example payload:
   },
   "agent": "codex",
   "model": "gpt-5.5",
-  "stack": ["typescript", "pnpm"],
+  "stack": ["nodejs", "typescript", "pnpm"],
   "timestamp": "2026-05-18T15:30:00.000Z"
 }
 ```
