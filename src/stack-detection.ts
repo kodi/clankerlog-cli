@@ -146,6 +146,72 @@ export const stackDetectionRules: readonly StackDetectionRule[] = [
     tag: "nix",
     anyOf: [{ exact: "flake.nix" }, { exact: "shell.nix" }, { exact: "default.nix" }],
   },
+  {
+    tag: "nextjs",
+    anyOf: [{ exact: "next.config.js" }, { exact: "next.config.mjs" }, { exact: "next.config.ts" }],
+  },
+  {
+    tag: "nuxt",
+    anyOf: [{ exact: "nuxt.config.js" }, { exact: "nuxt.config.mjs" }, { exact: "nuxt.config.ts" }],
+  },
+  {
+    tag: "vite",
+    anyOf: [
+      { exact: "vite.config.js" },
+      { exact: "vite.config.mjs" },
+      { exact: "vite.config.cjs" },
+      { exact: "vite.config.ts" },
+      { exact: "vite.config.mts" },
+      { exact: "vite.config.cts" },
+    ],
+  },
+  { tag: "svelte", anyOf: [{ exact: "svelte.config.js" }] },
+  {
+    tag: "astro",
+    anyOf: [
+      { exact: "astro.config.js" },
+      { exact: "astro.config.mjs" },
+      { exact: "astro.config.ts" },
+    ],
+  },
+  { tag: "angular", anyOf: [{ exact: "angular.json" }] },
+  { tag: "vue", anyOf: [{ exact: "vue.config.js" }] },
+  { tag: "remix", anyOf: [{ exact: "remix.config.js" }] },
+  {
+    tag: "gatsby",
+    anyOf: [
+      { exact: "gatsby-config.js" },
+      { exact: "gatsby-config.mjs" },
+      { exact: "gatsby-config.ts" },
+    ],
+  },
+  { tag: "nestjs", anyOf: [{ exact: "nest-cli.json" }] },
+  { tag: "nx", anyOf: [{ exact: "nx.json" }] },
+  { tag: "turborepo", anyOf: [{ exact: "turbo.json" }, { exact: "turbo.jsonc" }] },
+  { tag: "laravel", allOf: [{ exact: "composer.json" }, { exact: "artisan" }] },
+  { tag: "symfony", allOf: [{ exact: "composer.json" }, { exact: "symfony.lock" }] },
+  {
+    tag: "kubernetes",
+    anyOf: [{ exact: "kustomization.yaml" }, { exact: "kustomization.yml" }],
+  },
+  { tag: "helm", anyOf: [{ exact: "Chart.yaml" }] },
+  { tag: "pulumi", anyOf: [{ exact: "Pulumi.yaml" }, { exact: "Pulumi.yml" }] },
+  { tag: "ansible", anyOf: [{ exact: "ansible.cfg" }] },
+  {
+    tag: "devcontainer",
+    anyOf: [{ exact: ".devcontainer" }, { exact: "devcontainer.json" }],
+  },
+  { tag: "vagrant", anyOf: [{ exact: "Vagrantfile" }] },
+  { tag: "tilt", anyOf: [{ exact: "Tiltfile" }] },
+  {
+    tag: "serverless",
+    anyOf: [{ exact: "serverless.yml" }, { exact: "serverless.yaml" }],
+  },
+  {
+    tag: "firebase",
+    anyOf: [{ exact: "firebase.json" }, { exact: ".firebaserc" }],
+  },
+  { tag: "aws-cdk", anyOf: [{ exact: "cdk.json" }] },
 ];
 
 export function detectStackFromEntries(

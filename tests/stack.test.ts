@@ -48,6 +48,50 @@ const waveTwoExactCases: ReadonlyArray<readonly [string, readonly string[]]> = [
   ["default.nix", ["nix"]],
 ];
 
+const waveThreeExactCases: ReadonlyArray<readonly [string, string]> = [
+  ["next.config.js", "nextjs"],
+  ["next.config.mjs", "nextjs"],
+  ["next.config.ts", "nextjs"],
+  ["nuxt.config.js", "nuxt"],
+  ["nuxt.config.mjs", "nuxt"],
+  ["nuxt.config.ts", "nuxt"],
+  ["vite.config.js", "vite"],
+  ["vite.config.mjs", "vite"],
+  ["vite.config.cjs", "vite"],
+  ["vite.config.ts", "vite"],
+  ["vite.config.mts", "vite"],
+  ["vite.config.cts", "vite"],
+  ["svelte.config.js", "svelte"],
+  ["astro.config.js", "astro"],
+  ["astro.config.mjs", "astro"],
+  ["astro.config.ts", "astro"],
+  ["angular.json", "angular"],
+  ["vue.config.js", "vue"],
+  ["remix.config.js", "remix"],
+  ["gatsby-config.js", "gatsby"],
+  ["gatsby-config.mjs", "gatsby"],
+  ["gatsby-config.ts", "gatsby"],
+  ["nest-cli.json", "nestjs"],
+  ["nx.json", "nx"],
+  ["turbo.json", "turborepo"],
+  ["turbo.jsonc", "turborepo"],
+  ["kustomization.yaml", "kubernetes"],
+  ["kustomization.yml", "kubernetes"],
+  ["Chart.yaml", "helm"],
+  ["Pulumi.yaml", "pulumi"],
+  ["Pulumi.yml", "pulumi"],
+  ["ansible.cfg", "ansible"],
+  [".devcontainer", "devcontainer"],
+  ["devcontainer.json", "devcontainer"],
+  ["Vagrantfile", "vagrant"],
+  ["Tiltfile", "tilt"],
+  ["serverless.yml", "serverless"],
+  ["serverless.yaml", "serverless"],
+  ["firebase.json", "firebase"],
+  [".firebaserc", "firebase"],
+  ["cdk.json", "aws-cdk"],
+];
+
 describe("stack detection registry", () => {
   it.each([
     ["Dockerfile", "docker"],
@@ -166,6 +210,100 @@ describe("stack detection registry", () => {
     expect(detectStackFromEntries(["pubspec.yaml"])).toEqual(["dart"]);
     expect(detectStackFromEntries([".metadata"])).toEqual([]);
     expect(detectStackFromEntries(["pubspec.yaml", ".metadata"])).toEqual(["dart", "flutter"]);
+  });
+
+  it.each(waveThreeExactCases)("detects Wave 3 exact marker %s as %s", (entryName, tag) => {
+    expect(detectStackFromEntries([entryName])).toEqual([tag]);
+  });
+
+  it.each(waveThreeExactCases)("rejects nearby Wave 3 exact-marker miss for %s", (entryName) => {
+    expect(detectStackFromEntries([`${entryName}.backup`])).toEqual([]);
+  });
+
+  it("requires both Laravel or Symfony signals without confusing the frameworks", () => {
+    expect(detectStackFromEntries(["artisan"])).toEqual([]);
+    expect(detectStackFromEntries(["symfony.lock"])).toEqual([]);
+    expect(detectStackFromEntries(["composer.json", "artisan"])).toEqual([
+      "php",
+      "composer",
+      "laravel",
+    ]);
+    expect(detectStackFromEntries(["composer.json", "symfony.lock"])).toEqual([
+      "php",
+      "composer",
+      "symfony",
+    ]);
+  });
+
+  it("keeps deterministic registry order for a multi-stack repository", () => {
+    const entries = [
+      "cdk.json",
+      "composer.json",
+      "vite.config.ts",
+      "artisan",
+      "package.json",
+      "Dockerfile",
+      "tsconfig.json",
+      "nx.json",
+      "firebase.json",
+    ];
+
+    expect(detectStackFromEntries(entries)).toEqual([
+      "docker",
+      "nodejs",
+      "typescript",
+      "php",
+      "composer",
+      "vite",
+      "nx",
+      "laravel",
+      "firebase",
+      "aws-cdk",
+    ]);
+    expect(detectStackFromEntries(entries.reverse())).toEqual([
+      "docker",
+      "nodejs",
+      "typescript",
+      "php",
+      "composer",
+      "vite",
+      "nx",
+      "laravel",
+      "firebase",
+      "aws-cdk",
+    ]);
+  });
+
+  it("caps complete-registry detection without reordering or duplicating tags", () => {
+    const allEntries = [
+      ...waveTwoExactCases.map(([entryName]) => entryName),
+      ...waveThreeExactCases.map(([entryName]) => entryName),
+      "Dockerfile",
+      "Package.swift",
+      "App.xcodeproj",
+      "main.tf",
+      "package.json",
+      "tsconfig.json",
+      "package-lock.json",
+      "pnpm-lock.yaml",
+      "yarn.lock",
+      "bun.lock",
+      "deno.json",
+      "pyproject.toml",
+      "go.mod",
+      "Cargo.toml",
+      "wrangler.toml",
+      "artisan",
+      "symfony.lock",
+      ".metadata",
+      "App.csproj",
+    ];
+    const detected = detectStackFromEntries(allEntries);
+
+    expect(detected.length).toBe(stackDetectionRules.length);
+    expect(new Set(detected).size).toBe(detected.length);
+    expect(mergeStack([], detected)).toEqual(detected.slice(0, 32));
+    expect(mergeStack(["explicit"], detected)).toEqual(["explicit", ...detected.slice(0, 31)]);
   });
 
   it("keeps registry order independent of entry order and deduplicates rule signals", () => {

@@ -522,7 +522,7 @@ Dependencies: Slice 2.
 
 ## Slice 4: Framework And Infrastructure Markers
 
-Status: `[ ]` Not started
+Status: `[x]` Done
 
 Goal: Add Wave 3's distinctive framework, monorepo, and infrastructure config
 markers after reviewing the resulting tag volume.
@@ -713,6 +713,66 @@ tests/commands/ping.test.ts` (2 files, 73 tests), `mise run typecheck`, and
 tests/commands/ping.test.ts` (2 files, 158 tests), `mise run typecheck`, and
   `mise run format-check`.
 
+### 2026-08-23 Slice 4 official-marker validation
+
+- Retained framework config tags only where the filename is itself distinctive.
+  Current official configuration references support the retained Next.js,
+  Nuxt, Vite, Svelte, Astro, Angular, Vue CLI, Remix Classic, Gatsby, and Nest
+  names:
+  <https://nextjs.org/docs/pages/api-reference/config>
+  <https://nuxt.com/docs/4.x/getting-started/configuration>
+  <https://vite.dev/config/>
+  <https://svelte.dev/docs/kit/configuration>
+  <https://docs.astro.build/en/guides/configuring-astro/>
+  <https://angular.dev/reference/configs/workspace-config>
+  <https://cli.vuejs.org/config/>
+  <https://v2.remix.run/docs/file-conventions/remix-config/>
+  <https://www.gatsbyjs.com/docs/reference/config-files/gatsby-config/>
+  <https://docs.nestjs.com/cli/monorepo>
+- Removed undocumented extension variants from the candidate signals:
+  `next.config.cjs`; `svelte.config.mjs`, `.cjs`, and `.ts`;
+  `astro.config.cjs`; `vue.config.cjs`, `.mjs`, and `.ts`; and
+  `remix.config.mjs`/`.cjs`. The retained tags still cover each technology, and
+  Vite-backed modern Remix remains visible as `vite` unless the user supplies
+  an explicit `remix` tag.
+- Retained `nx.json`, `turbo.json`/`turbo.jsonc`, and the Laravel/Symfony
+  composites after checking their official workspace and project contracts:
+  <https://nx.dev/docs/reference/nx-json>
+  <https://turborepo.com/docs/reference/configuration>
+  <https://laravel.com/docs/structure>
+  <https://symfony.com/doc/current/setup/flex.html>
+- Retained the infrastructure markers after checking current official project
+  or configuration references for Kustomize, Helm, Pulumi, Ansible, Dev
+  Containers, Vagrant, Tilt, Serverless Framework, Firebase, and AWS CDK:
+  <https://kubernetes.io/docs/tasks/manage-kubernetes-objects/kustomization/>
+  <https://helm.sh/docs/topics/charts/>
+  <https://www.pulumi.com/docs/iac/concepts/projects/>
+  <https://docs.ansible.com/projects/ansible/latest/reference_appendices/config.html>
+  <https://containers.dev/supporting.html>
+  <https://developer.hashicorp.com/vagrant/docs/vagrantfile>
+  <https://docs.tilt.dev/tutorial.html>
+  <https://wb.serverless.com/framework/docs-getting-started>
+  <https://firebase.google.com/docs/cli>
+  <https://docs.aws.amazon.com/cdk/v2/guide/projects.html>
+- No technology tag was removed; only unsupported filename variants were
+  discarded. Generic YAML and dependency-only frameworks remain explicit-only.
+
+### 2026-08-23 Slice 4 implementation findings
+
+- Added all 24 retained Wave 3 technology tags using 22 exact-name rules and
+  the two planned composites. The complete registry now contains 57 unique,
+  schema-valid tags.
+- Added positives and nearby negatives for every retained Wave 3 filename,
+  incomplete and complete Laravel/Symfony composites, and a representative
+  polyglot root whose output remains stable when its input order is reversed.
+- Added a complete-registry fixture that triggers every rule, proves no
+  duplicate tag emission, and verifies the 32-tag cap both with and without an
+  explicit tag. The warmed 50,000-entry gate now exercises all 57 rules and
+  remains below 1,000 ms.
+- Verification passed: `mise run test -- tests/stack.test.ts
+tests/commands/ping.test.ts` (2 files, 243 tests), `mise run typecheck`, and
+  `mise run format-check`.
+
 ### 2026-08-23 planning findings
 
 - Current detector evidence and call path were verified in `src/stack.ts` and
@@ -746,19 +806,20 @@ tests/commands/ping.test.ts` (2 files, 158 tests), `mise run typecheck`, and
 
 ## Next Slice
 
-Implement Slice 4 only. Validate the bounded Wave 3 list against current
-official documentation and record retained, removed, or deferred candidates
-here. Add only distinctive filename-only rules to `src/stack-detection.ts`,
-including composite Laravel and Symfony detection, then extend
-`tests/stack.test.ts` for every marker, representative multi-match roots,
-deterministic full-registry order, duplicates, the complete-registry 32-tag cap,
-and the warmed 50,000-entry performance case.
+Implement Slice 5. Update `README.md` and `docs/integrations.md` with the final
+root-name-only privacy contract, supported automatic tags, Node.js/TypeScript
+correction, supplement semantics, 32-tag behavior, and explicit-only escape
+hatch. Inspect the available `../clankerlog` checkout for arbitrary-tag
+ingestion and generic rendering evidence. Confirm the development shim still
+targets this checkout's `src/cli.ts`, measure an informational local detection
+duration, and run the source-backed dry-run from an allowed project.
 Verify with:
 
 ```bash
-mise run test -- tests/stack.test.ts tests/commands/ping.test.ts
-mise run typecheck
+mise run local-ci
+mise run build
+~/.local/bin/clankerlog-dev ping --dry-run --agent codex --model gpt-5.5
 ```
 
-Do not update user-facing detection documentation until Slice 4 is independently
-passing and reviewable.
+Inspect the dry-run payload and verify that no network request occurs. Leave the
+shim itself unchanged.
