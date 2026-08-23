@@ -12,16 +12,84 @@ import { detectStackFromFilenames, mergeStack } from "../src/stack.js";
 
 describe("stack detection registry", () => {
   it.each([
-    ["package.json", "typescript"],
+    ["Dockerfile", "docker"],
+    [".dockerignore", "docker"],
+    ["compose.yaml", "docker"],
+    ["compose.yml", "docker"],
+    ["docker-compose.yaml", "docker"],
+    ["docker-compose.yml", "docker"],
+    ["Package.swift", "swift"],
+    [".swift-version", "swift"],
+    [".swiftformat", "swift"],
+    [".swiftlint.yml", "swift"],
+    [".swiftlint.yaml", "swift"],
+    ["package.json", "nodejs"],
+    ["tsconfig.json", "typescript"],
+    ["package-lock.json", "npm"],
+    ["npm-shrinkwrap.json", "npm"],
     ["pnpm-lock.yaml", "pnpm"],
+    ["pnpm-workspace.yaml", "pnpm"],
+    ["yarn.lock", "yarn"],
+    [".yarnrc", "yarn"],
+    [".yarnrc.yml", "yarn"],
+    ["bun.lock", "bun"],
+    ["bun.lockb", "bun"],
+    ["bunfig.toml", "bun"],
+    ["deno.json", "deno"],
+    ["deno.jsonc", "deno"],
+    ["pyproject.toml", "python"],
+    ["requirements.txt", "python"],
+    ["setup.py", "python"],
+    ["setup.cfg", "python"],
+    ["Pipfile", "python"],
+    ["poetry.lock", "python"],
+    ["uv.lock", "python"],
     ["go.mod", "go"],
     ["Cargo.toml", "rust"],
-    ["pyproject.toml", "python"],
-    ["deno.json", "deno"],
-    ["wrangler.jsonc", "cloudflare"],
     ["wrangler.toml", "cloudflare"],
-  ])("preserves %s detection as %s", (entryName, tag) => {
+    ["wrangler.json", "cloudflare"],
+    ["wrangler.jsonc", "cloudflare"],
+  ])("detects exact marker %s as %s", (entryName, tag) => {
     expect(detectStackFromEntries([entryName])).toEqual([tag]);
+  });
+
+  it.each([
+    ["service.Dockerfile", "docker"],
+    ["Dockerfile.production", "docker"],
+    ["App.xcodeproj", "xcode"],
+    ["App.xcworkspace", "xcode"],
+    ["main.tf", "terraform"],
+    ["main.tf.json", "terraform"],
+    ["tsconfig.build.json", "typescript"],
+  ])("detects pattern marker %s as %s", (entryName, tag) => {
+    expect(detectStackFromEntries([entryName])).toEqual([tag]);
+  });
+
+  it.each([
+    "NotDockerfile",
+    "Dockerfilebackup",
+    "service.Dockerfile.backup",
+    "project.xcodeproj.backup",
+    "project.xcworkspace.backup",
+    "main.tfvars",
+    "terraform.tfstate",
+    ".terraform",
+    "tsconfig.json.backup",
+    "tsconfigbuild.json",
+  ])("does not detect nearby pattern miss %s", (entryName) => {
+    expect(detectStackFromEntries([entryName])).toEqual([]);
+  });
+
+  it("does not infer Swift from Xcode markers", () => {
+    expect(detectStackFromEntries(["App.xcodeproj", "App.xcworkspace"])).toEqual(["xcode"]);
+  });
+
+  it("distinguishes Node.js projects from TypeScript projects", () => {
+    expect(detectStackFromEntries(["package.json"])).toEqual(["nodejs"]);
+    expect(detectStackFromEntries(["package.json", "tsconfig.json"])).toEqual([
+      "nodejs",
+      "typescript",
+    ]);
   });
 
   it("keeps registry order independent of entry order and deduplicates rule signals", () => {
@@ -33,7 +101,7 @@ describe("stack detection registry", () => {
         "wrangler.jsonc",
         "pnpm-lock.yaml",
       ]),
-    ).toEqual(["typescript", "pnpm", "rust", "cloudflare"]);
+    ).toEqual(["nodejs", "pnpm", "rust", "cloudflare"]);
   });
 
   it("returns no tags for empty or unknown entries", () => {
@@ -88,7 +156,7 @@ describe("stack detection registry", () => {
     const detected = detectStackFromEntries(entries);
     const duration = performance.now() - startedAt;
 
-    expect(detected).toEqual(["typescript", "rust", "cloudflare"]);
+    expect(detected).toEqual(["nodejs", "rust", "cloudflare"]);
     expect(duration).toBeLessThan(1_000);
   });
 });
@@ -106,9 +174,7 @@ describe("filesystem stack detection", () => {
     expect(readDirectory).toHaveBeenCalledTimes(1);
 
     readDirectory.mockClear();
-    await expect(detectStackFromFilenames("/project", readDirectory)).resolves.toEqual([
-      "typescript",
-    ]);
+    await expect(detectStackFromFilenames("/project", readDirectory)).resolves.toEqual(["nodejs"]);
     expect(readDirectory).toHaveBeenCalledTimes(1);
   });
 
@@ -116,7 +182,7 @@ describe("filesystem stack detection", () => {
     const root = await mkdtemp(path.join(tmpdir(), "clankerlog-stack-"));
     await writeFile(path.join(root, "package.json"), "not valid JSON and intentionally unread");
 
-    await expect(detectStackFromFilenames(root)).resolves.toEqual(["typescript"]);
+    await expect(detectStackFromFilenames(root)).resolves.toEqual(["nodejs"]);
   });
 
   it("surfaces directory read errors", async () => {

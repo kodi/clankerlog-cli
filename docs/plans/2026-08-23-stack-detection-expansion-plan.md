@@ -448,7 +448,7 @@ Dependencies: none.
 
 ## Slice 2: Docker, Swift, Terraform, And JavaScript-Ecosystem Repair
 
-Status: `[ ]` Not started
+Status: `[x]` Done
 
 Goal: Add the explicitly requested technologies and correct the most misleading
 existing inference.
@@ -638,6 +638,21 @@ remains unavailable, record that limitation and do not claim backend/UI proof.
 - Verification passed: `mise run test -- tests/stack.test.ts
 tests/commands/ping.test.ts` (2 files, 25 tests) and `mise run typecheck`.
 
+### 2026-08-23 Slice 2 implementation findings
+
+- Added the complete Wave 1 catalog in deliberate registry order: Docker,
+  Swift, Xcode, Terraform, Node.js, TypeScript, npm, pnpm, Yarn, Bun, Deno,
+  Python, Go, Rust, and Cloudflare.
+- Corrected `package.json` to emit `nodejs`; TypeScript now requires
+  `tsconfig.json` or the bounded `tsconfig.*.json` pattern. The ping fixture now
+  carries both markers and asserts `nodejs`, `typescript`, and `pnpm`.
+- Added every exact Wave 1 marker plus representative pattern positives and
+  nearby negatives for Dockerfile, Xcode, Terraform, and tsconfig boundaries.
+  Xcode-only roots are explicitly verified not to imply Swift.
+- Verification passed: `mise run test -- tests/stack.test.ts
+tests/commands/ping.test.ts` (2 files, 73 tests), `mise run typecheck`, and
+  `mise run format-check`.
+
 ### 2026-08-23 planning findings
 
 - Current detector evidence and call path were verified in `src/stack.ts` and
@@ -671,12 +686,11 @@ tests/commands/ping.test.ts` (2 files, 25 tests) and `mise run typecheck`.
 
 ## Next Slice
 
-Implement Slice 2 only. Extend the registry in `src/stack-detection.ts` with all
-Wave 1 rules, keeping `go` and `rust` unchanged. Add table-driven positive and
-nearby-negative coverage in `tests/stack.test.ts`, including Docker/Terraform
-pattern boundaries and Xcode-without-Swift behavior. Update ping fixture
-expectations for the corrected `package.json -> nodejs` behavior and tsconfig-
-based TypeScript detection.
+Implement Slice 3 only. Validate every Wave 2 marker against current official
+documentation and record the evidence or any removal here before merging it.
+Then extend `src/stack-detection.ts` with the retained language/build ecosystem
+rules and add table-driven exact-marker positives plus nearby negatives for all
+suffix rules. Prove Flutter requires both `pubspec.yaml` and `.metadata`.
 Verify with:
 
 ```bash
@@ -684,5 +698,4 @@ mise run test -- tests/stack.test.ts tests/commands/ping.test.ts
 mise run typecheck
 ```
 
-Do not add Wave 2 or Wave 3 entries until Slice 2 is independently passing and
-reviewable.
+Do not add Wave 3 entries until Slice 3 is independently passing and reviewable.

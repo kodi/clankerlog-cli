@@ -17,15 +17,70 @@ export type StackDetectionRule =
     };
 
 export const stackDetectionRules: readonly StackDetectionRule[] = [
-  { tag: "typescript", anyOf: [{ exact: "package.json" }] },
-  { tag: "pnpm", anyOf: [{ exact: "pnpm-lock.yaml" }] },
+  {
+    tag: "docker",
+    anyOf: [
+      { exact: "Dockerfile" },
+      { suffix: ".Dockerfile" },
+      { prefix: "Dockerfile." },
+      { exact: ".dockerignore" },
+      { exact: "compose.yaml" },
+      { exact: "compose.yml" },
+      { exact: "docker-compose.yaml" },
+      { exact: "docker-compose.yml" },
+    ],
+  },
+  {
+    tag: "swift",
+    anyOf: [
+      { exact: "Package.swift" },
+      { exact: ".swift-version" },
+      { exact: ".swiftformat" },
+      { exact: ".swiftlint.yml" },
+      { exact: ".swiftlint.yaml" },
+    ],
+  },
+  { tag: "xcode", anyOf: [{ suffix: ".xcodeproj" }, { suffix: ".xcworkspace" }] },
+  { tag: "terraform", anyOf: [{ suffix: ".tf" }, { suffix: ".tf.json" }] },
+  { tag: "nodejs", anyOf: [{ exact: "package.json" }] },
+  {
+    tag: "typescript",
+    anyOf: [{ exact: "tsconfig.json" }, { prefix: "tsconfig.", suffix: ".json" }],
+  },
+  {
+    tag: "npm",
+    anyOf: [{ exact: "package-lock.json" }, { exact: "npm-shrinkwrap.json" }],
+  },
+  {
+    tag: "pnpm",
+    anyOf: [{ exact: "pnpm-lock.yaml" }, { exact: "pnpm-workspace.yaml" }],
+  },
+  {
+    tag: "yarn",
+    anyOf: [{ exact: "yarn.lock" }, { exact: ".yarnrc" }, { exact: ".yarnrc.yml" }],
+  },
+  {
+    tag: "bun",
+    anyOf: [{ exact: "bun.lock" }, { exact: "bun.lockb" }, { exact: "bunfig.toml" }],
+  },
+  { tag: "deno", anyOf: [{ exact: "deno.json" }, { exact: "deno.jsonc" }] },
+  {
+    tag: "python",
+    anyOf: [
+      { exact: "pyproject.toml" },
+      { exact: "requirements.txt" },
+      { exact: "setup.py" },
+      { exact: "setup.cfg" },
+      { exact: "Pipfile" },
+      { exact: "poetry.lock" },
+      { exact: "uv.lock" },
+    ],
+  },
   { tag: "go", anyOf: [{ exact: "go.mod" }] },
   { tag: "rust", anyOf: [{ exact: "Cargo.toml" }] },
-  { tag: "python", anyOf: [{ exact: "pyproject.toml" }] },
-  { tag: "deno", anyOf: [{ exact: "deno.json" }] },
   {
     tag: "cloudflare",
-    anyOf: [{ exact: "wrangler.jsonc" }, { exact: "wrangler.toml" }],
+    anyOf: [{ exact: "wrangler.toml" }, { exact: "wrangler.json" }, { exact: "wrangler.jsonc" }],
   },
 ];
 

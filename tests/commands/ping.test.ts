@@ -52,6 +52,8 @@ describe("ping command", () => {
     expect(runtime.stdoutText()).toContain('"type": "clank"');
     expect(runtime.stdoutText()).toContain('"stack": [');
     expect(runtime.stdoutText()).toContain('"hono"');
+    expect(runtime.stdoutText()).toContain('"nodejs"');
+    expect(runtime.stdoutText()).toContain('"typescript"');
     expect(runtime.stdoutText()).toContain('"pnpm"');
   });
 
@@ -166,6 +168,7 @@ async function setupAllowedProject(options: { env?: NodeJS.ProcessEnv } = {}) {
   const root = await makeTempDir();
   await writeFile(path.join(root, "package.json"), "{}");
   await writeFile(path.join(root, "pnpm-lock.yaml"), "");
+  await writeFile(path.join(root, "tsconfig.json"), "{}");
   const projectPath = await realpath(root);
   const configPath = path.join(root, "global", "config.json");
   const runtime = createMemoryRuntime({ configPath, cwd: root, env: options.env });
