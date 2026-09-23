@@ -4,6 +4,12 @@ import { clankPayloadSchema } from "../src/schemas.js";
 
 describe("normalizeModelName", () => {
   it.each([
+    ["GPT-6 Sol", "gpt-6-sol"],
+    ["openai-codex/gpt-6-sol", "gpt-6-sol"],
+    ["GPT-5.6 Sol", "gpt-5.6-sol"],
+    ["openai-codex/gpt-5.6-sol", "gpt-5.6-sol"],
+    ["GPT-7.1 New Tier", "gpt-7.1-new-tier"],
+    ["openai-codex/gpt-7.1-new-tier", "gpt-7.1-new-tier"],
     ["gpt-5.5", "gpt-5.5"],
     ["gpt-5-5", "gpt-5.5"],
     ["gpt5.5", "gpt-5.5"],
@@ -42,6 +48,13 @@ describe("normalizeModelName", () => {
     ["qwen3 235b a22b", "qwen3-235b-a22b"],
     ["grok fast 4", "grok-4-fast"],
     ["grok-3-mini", "grok-3-mini"],
+    ["cursor-grok-4.6", "grok-4.6"],
+    ["cursor-grok-4.6-low", "grok-4.6"],
+    ["cursor-grok-4.6-medium", "grok-4.6"],
+    ["cursor-grok-4.6-high", "grok-4.6"],
+    ["cursor-grok-4.6-xhigh", "grok-4.6"],
+    ["cursor-grok-4.6-xhigh-fast", "grok-4.6"],
+    ["cursor-grok-4.7-xhigh", "grok-4.7"],
     ["mistral large", "mistral-large"],
     ["magistral medium", "magistral-medium"],
     ["llama 4 maverick", "llama-4-maverick"],
@@ -61,6 +74,7 @@ describe("normalizeModelName", () => {
   it("does not guess from very different names", () => {
     expect(normalizeModelName("opus experimental")).toBe("opus experimental");
     expect(normalizeModelName("gpt-five-five")).toBe("gpt-five-five");
+    expect(normalizeModelName("GPT-future Sol")).toBe("GPT-future Sol");
   });
 
   it("normalizes models when parsing clank payloads", () => {
@@ -75,4 +89,36 @@ describe("normalizeModelName", () => {
 
     expect(payload.model).toBe("gpt-5.5");
   });
+
+  it.each([
+    ["GPT-5.6 Sol", "gpt-5.6-sol"],
+    ["GPT-6 Sol", "gpt-6-sol"],
+  ])("normalizes Pi's %s display name when parsing a clank payload", (model, expected) => {
+    const payload = clankPayloadSchema.parse({
+      agent: "pi",
+      model,
+      project: { display_name: "clankerlog-cli" },
+      stack: [],
+      timestamp: "2026-09-23T12:00:00Z",
+      type: "clank",
+    });
+
+    expect(payload.model).toBe(expected);
+  });
+
+  it.each(["cursor-grok-4.6-high", "cursor-grok-4.6-xhigh"])(
+    "groups Cursor's %s effort variant under grok-4.6 in clank payloads",
+    (model) => {
+      const payload = clankPayloadSchema.parse({
+        agent: "cursor",
+        model,
+        project: { display_name: "clankerlog-cli" },
+        stack: [],
+        timestamp: "2026-09-23T12:00:00Z",
+        type: "clank",
+      });
+
+      expect(payload.model).toBe("grok-4.6");
+    },
+  );
 });

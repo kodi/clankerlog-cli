@@ -1,5 +1,9 @@
 const providerPrefixPattern = /^[a-z0-9][a-z0-9._-]*\//u;
 const effortSuffixPattern = /\s*\((?:low|medium|high|xtrahigh)\)$/iu;
+const gptVersionAndVariantPattern =
+  /^gpt[- ](\d+(?:\.\d+)?)[- ]([a-z][a-z0-9]*(?:[- ][a-z0-9]+)*)$/u;
+const cursorGrokVariantPattern =
+  /^cursor-(grok-\d+(?:\.\d+)?)(?:-(?:low|medium|high|xhigh))?(?:-fast)?$/u;
 
 const canonicalModelNames = [
   "gpt-5.5",
@@ -102,7 +106,12 @@ export function normalizeModelName(value: string): string {
   const trimmed = stripEffortSuffix(value.trim());
   const normalized = knownModelNames.get(modelKey(trimmed));
 
-  return normalized ?? trimmed;
+  return (
+    normalized ??
+    normalizeGptVersionAndVariant(trimmed) ??
+    normalizeCursorGrokVariant(trimmed) ??
+    trimmed
+  );
 }
 
 function stripEffortSuffix(value: string): string {
@@ -110,11 +119,34 @@ function stripEffortSuffix(value: string): string {
 }
 
 function modelKey(value: string): string {
+  return stripProviderPrefixes(value).replace(/[^a-z0-9]+/gu, "");
+}
+
+function normalizeGptVersionAndVariant(value: string): string | undefined {
+  const match = gptVersionAndVariantPattern.exec(stripProviderPrefixes(value));
+
+  if (!match) {
+    return undefined;
+  }
+
+  const [, version, variant] = match;
+  if (!version || !variant) {
+    return undefined;
+  }
+
+  return `gpt-${version}-${variant.replaceAll(" ", "-")}`;
+}
+
+function normalizeCursorGrokVariant(value: string): string | undefined {
+  return cursorGrokVariantPattern.exec(value.trim().toLowerCase())?.[1];
+}
+
+function stripProviderPrefixes(value: string): string {
   let normalized = value.trim().toLowerCase();
 
   while (providerPrefixPattern.test(normalized)) {
     normalized = normalized.replace(providerPrefixPattern, "");
   }
 
-  return normalized.replace(/[^a-z0-9]+/gu, "");
+  return normalized;
 }

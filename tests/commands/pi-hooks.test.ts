@@ -26,6 +26,9 @@ describe("Pi extension management", () => {
     expect(buildPiExtension()).toContain('pi.on("agent_end"');
     expect(buildPiExtension()).toContain('"ping", "--agent", "pi"');
     expect(buildPiExtension()).toContain("ctx.cwd");
+    expect(buildPiExtension().indexOf('typeof model.id === "string"')).toBeLessThan(
+      buildPiExtension().indexOf('typeof model.name === "string"'),
+    );
     expect(buildPiExtension()).not.toContain("message.content");
   });
 
