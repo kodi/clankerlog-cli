@@ -635,6 +635,7 @@ describe("integrations list command", () => {
     expect(stdout.text()).toContain("opencode");
     expect(stdout.text()).toContain("openclaw");
     expect(stdout.text()).toContain("pi");
+    expect(stdout.text()).toContain("omp");
   });
 });
 

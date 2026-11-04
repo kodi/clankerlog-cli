@@ -16,6 +16,12 @@ import {
   registerOpenClawHooksCommands,
 } from "../agent-hooks/openclaw.js";
 import {
+  handleInstallOmpHook,
+  handleOmpHookStatus,
+  handleUninstallOmpHook,
+  registerOmpHooksCommands,
+} from "../agent-hooks/omp.js";
+import {
   handleInstallOpencodeHook,
   handleOpencodeHookStatus,
   handleUninstallOpencodeHook,
@@ -33,13 +39,16 @@ import { registerTopchesterHooksCommands } from "../agent-hooks/topchester.js";
 export {
   handleHookStatus,
   handleInstallHook,
+  handleInstallOmpHook,
   handleInstallOpenClawHook,
   handleInstallOpencodeHook,
   handleInstallPiHook,
+  handleOmpHookStatus,
   handleOpenClawHookStatus,
   handleOpencodeHookStatus,
   handlePiHookStatus,
   handleUninstallHook,
+  handleUninstallOmpHook,
   handleUninstallOpenClawHook,
   handleUninstallOpencodeHook,
   handleUninstallPiHook,
@@ -69,6 +78,7 @@ export function registerIntegrationsCommand(program: Command): void {
   registerTopchesterHooksCommands(groups);
   registerOpencodeHooksCommands(groups);
   registerPiHooksCommands(groups);
+  registerOmpHooksCommands(groups);
   registerOpenClawHooksCommands(groups);
 }
 
@@ -84,6 +94,7 @@ export function handleListIntegrations(runtime: CliRuntime): void {
       "  opencode    Opencode session.idle plugin",
       "  openclaw    OpenClaw message:sent hook",
       "  pi          Pi agent_end extension",
+      "  omp         omp agent_end extension",
       "",
     ].join("\n"),
   );

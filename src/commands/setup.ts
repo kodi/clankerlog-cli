@@ -22,6 +22,7 @@ export function registerSetupCommand(program: Command): void {
     .addOption(new Option("--opencode-plugin-path <path>").hideHelp())
     .addOption(new Option("--openclaw-hook-dir <path>").hideHelp())
     .addOption(new Option("--pi-extension-path <path>").hideHelp())
+    .addOption(new Option("--omp-extension-path <path>").hideHelp())
     .action(async (options: SetupOptions, command: Command) => {
       await handleSetup(options, createRuntime(command));
     });

@@ -10,13 +10,14 @@ import {
   installHookConfig,
   type HookAgent,
 } from "./hook-config.js";
+import { getOmpHookStatus, installOmpHook } from "./omp-hook.js";
 import { getOpenClawHookStatus, installOpenClawHook } from "./openclaw-hook.js";
 import { getOpencodeHookStatus, installOpencodeHook } from "./opencode-hook.js";
 import { formatHomePath } from "./path-display.js";
 import { getPiHookStatus, installPiHook } from "./pi-hook.js";
 import type { CliRuntime } from "./runtime.js";
 
-export type SetupAgent = HookAgent | "opencode" | "openclaw" | "pi";
+export type SetupAgent = HookAgent | "opencode" | "openclaw" | "pi" | "omp";
 
 export interface SetupOptions {
   readonly all?: boolean | undefined;
@@ -35,6 +36,7 @@ export interface SetupOptions {
   readonly opencodePluginPath?: string | undefined;
   readonly openclawHookDir?: string | undefined;
   readonly piExtensionPath?: string | undefined;
+  readonly ompExtensionPath?: string | undefined;
 }
 
 export interface AgentDiscovery {
@@ -145,6 +147,28 @@ const SETUP_AGENTS: readonly SetupAgentDefinition[] = [
         dryRun: options.dryRun,
         homeDirectory: options.homeDirectory,
         extensionPath: options.piExtensionPath,
+      });
+      return { changed: plan.changed, targetPath: plan.extensionPath };
+    },
+  },
+  {
+    agent: "omp",
+    displayName: "omp",
+    executable: "omp",
+    uninstallCommand: "clankerlog integrations uninstall omp",
+    next: "restart omp if an existing omp session is already open",
+    status: async (options) => {
+      const status = await getOmpHookStatus({
+        homeDirectory: options.homeDirectory,
+        extensionPath: options.ompExtensionPath,
+      });
+      return { installed: status.installed, targetPath: status.extensionPath };
+    },
+    install: async (options) => {
+      const plan = await installOmpHook({
+        dryRun: options.dryRun,
+        homeDirectory: options.homeDirectory,
+        extensionPath: options.ompExtensionPath,
       });
       return { changed: plan.changed, targetPath: plan.extensionPath };
     },
@@ -655,6 +679,13 @@ function defaultTargetPath(agent: SetupAgent, options: ResolvedSetupOptions): st
     );
   }
 
+  if (agent === "omp") {
+    return (
+      options.ompExtensionPath ??
+      path.join(options.homeDirectory, ".omp", "agent", "extensions", "clankerlog.ts")
+    );
+  }
+
   return (
     options.piExtensionPath ??
     path.join(options.homeDirectory, ".pi", "agent", "extensions", "clankerlog.ts")
@@ -672,6 +703,10 @@ function discoveryDirectory(agent: SetupAgent, options: ResolvedSetupOptions): s
 
   if (agent === "openclaw") {
     return path.join(options.homeDirectory, ".openclaw");
+  }
+
+  if (agent === "omp") {
+    return path.join(options.homeDirectory, ".omp", "agent");
   }
 
   return path.join(options.homeDirectory, ".pi", "agent");

@@ -1,7 +1,7 @@
 # ClankerLog Integrations
 
 This document records the working Codex, Claude Code, Cursor, Hermes,
-Topchester, Opencode, OpenClaw, and Pi hook integrations. Treat it as both a
+Topchester, Opencode, OpenClaw, Pi, and omp hook integrations. Treat it as both a
 runbook for local testing and the manual fallback for `clankerlog setup` and the
 lower-level `clankerlog integrations` helper commands.
 
@@ -350,6 +350,49 @@ Uninstall removes only the exact ClankerLog-managed extension file:
 
 ```bash
 clankerlog integrations uninstall pi
+```
+
+## omp Agent End Extension
+
+omp (oh-my-pi) is a Pi fork with the same TypeScript extension model.
+ClankerLog installs a managed global extension here:
+
+```txt
+~/.omp/agent/extensions/clankerlog.ts
+```
+
+Install it with:
+
+```bash
+clankerlog integrations install omp
+```
+
+The generated extension listens for omp's `agent_end` event and runs:
+
+```bash
+clankerlog ping --agent omp --model <active omp model>
+```
+
+The spawned command runs from omp's active `ctx.cwd`, so normal ClankerLog
+allowed-project checks still apply. The model comes from `ctx.model` (`id`,
+then `name`), falling back to `CLANKERLOG_MODEL`. The extension passes only agent,
+model, and workspace context through the existing `ping` command. It does not
+read or forward omp message content, prompts, responses, transcripts, source
+code, diffs, terminal output, or secrets.
+
+If omp is already running, restart it after installation so it loads the
+extension.
+
+Status inspects the extension file and does not send a test clank:
+
+```bash
+clankerlog integrations status omp
+```
+
+Uninstall removes only the exact ClankerLog-managed extension file:
+
+```bash
+clankerlog integrations uninstall omp
 ```
 
 ## OpenClaw Message Hook

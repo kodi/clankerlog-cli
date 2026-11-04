@@ -201,10 +201,21 @@ clankerlog integrations install pi
 This writes `~/.pi/agent/extensions/clankerlog.ts`. If Pi is already running,
 run `/reload` after installing.
 
+### omp
+
+Install the omp (oh-my-pi) `agent_end` extension:
+
+```bash
+clankerlog integrations install omp
+```
+
+This writes `~/.omp/agent/extensions/clankerlog.ts`. Restart omp after
+installing if a session is already open.
+
 ### Managing Hooks
 
 Supported agent names are `codex`, `claude`, `cursor`, `hermes`,
-`topchester`, `opencode`, `openclaw`, and `pi`.
+`topchester`, `opencode`, `openclaw`, `pi`, and `omp`.
 
 Preview an install without writing files:
 
